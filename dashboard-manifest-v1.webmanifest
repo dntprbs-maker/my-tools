@@ -1,0 +1,22 @@
+{
+  "name": "아빠의 도구 모음",
+  "short_name": "도구 모음",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#071525",
+  "theme_color": "#071525",
+  "icons": [
+    {
+      "src": "./ai-usage-calculator/icon-v2-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./ai-usage-calculator/icon-v2-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
