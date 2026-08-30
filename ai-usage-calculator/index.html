@@ -74,9 +74,15 @@
             const plan=currentPlan(start,now);
             card.querySelector('.expected').textContent=`${plan.targetRemaining}%`;
             card.querySelector('.elapsed').textContent=`${plan.day}일차 · 하루 사용 목표 13% · 마지막 여유분 9%`;
-            const remainHours=Math.max(0,(exp-now)/3600000);
-            card.querySelector('.remaining-value').textContent=remainHours>0?`${(remainHours/24).toFixed(1)}일`:'0일';
-            card.querySelector('.remaining').textContent=remainHours>0?`만료까지 약 ${(remainHours/24).toFixed(1)}일 남음`:'현재 주간 기간이 만료됨';
+            const remainMinutes=Math.max(0,Math.floor((exp-now)/60000));
+            const remainDays=Math.floor(remainMinutes/1440);
+            const remainHours=Math.floor((remainMinutes%1440)/60);
+            const remainMins=remainMinutes%60;
+            const remainText=remainDays>0
+              ?`${remainDays}일 ${remainHours}시간`
+              :`${remainHours}시간 ${remainMins}분`;
+            card.querySelector('.remaining-value').textContent=remainMinutes>0?remainText:'0시간 0분';
+            card.querySelector('.remaining').textContent=remainMinutes>0?`만료까지 ${remainText} 남음`:'현재 주간 기간이 만료됨';
             card.querySelector('.planned').style.width=`${plan.targetRemaining}%`;
             results.hidden=false;bar.hidden=false;
           }
