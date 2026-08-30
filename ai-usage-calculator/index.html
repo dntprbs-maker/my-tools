@@ -19,10 +19,10 @@
     .delete-btn{border:1px solid light-dark(#fecaca,#7f1d1d);border-radius:8px;background:light-dark(#fff1f2,#3f1518);color:light-dark(#b91c1c,#fecaca);font-size:11px;font-weight:800;padding:5px 9px;cursor:pointer;line-height:1.2}
     .delete-btn:disabled{opacity:.45;cursor:not-allowed}
     .ai-title{font-size:18px;font-weight:800;margin-bottom:12px}.add-btn{width:100%;min-height:46px;margin-top:12px;border:1px dashed light-dark(#60a5fa,#3b82f6);border-radius:12px;background:light-dark(#eff6ff,#172554);color:light-dark(#1d4ed8,#bfdbfe);font-size:15px;font-weight:800;cursor:pointer}
-    .status-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;min-width:0}.metric{min-width:0;padding:12px;border-radius:12px;background:light-dark(#f6f8fb,#15191f);border:1px solid light-dark(#e4e8ee,#2e343d)}.metric .label{font-size:11px;color:light-dark(#697588,#aab3c0);margin-bottom:4px;line-height:1.35}.metric .value{font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.15}.metric .sub{font-size:11px;margin-top:5px;color:light-dark(#738094,#a4adba);line-height:1.35;word-break:keep-all}
+    .status-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;min-width:0}.metric{min-width:0;padding:12px;border-radius:12px;background:light-dark(#f6f8fb,#15191f);border:1px solid light-dark(#e4e8ee,#2e343d)}.metric .label{font-size:11px;color:light-dark(#697588,#aab3c0);margin-bottom:4px;line-height:1.35}.metric .value{font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.15}.target-metric .value{font-size:30px}.metric .sub{font-size:11px;margin-top:5px;color:light-dark(#738094,#a4adba);line-height:1.35;word-break:keep-all}
     .bar-row{margin-top:10px}.bar-labels{display:flex;justify-content:space-between;gap:6px;font-size:10px;margin-bottom:5px;color:light-dark(#667387,#adb6c4)}.track{height:16px;background:light-dark(#e8edf3,#303640);border-radius:999px;overflow:hidden;position:relative}.planned{position:absolute;left:0;top:0;bottom:0;background:#2563eb;border-radius:999px}
     .error{margin-top:12px;color:light-dark(#b42318,#ffaaa6);font-size:13px;font-weight:650;min-height:20px}
-    @media(max-width:640px){#usage-pace-app{padding:8px 6px}.wrap{max-width:none}.ai-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ai-card{padding:9px 8px;border-radius:14px}.card-tools{margin:-1px 0 6px}.delete-btn{font-size:10px;padding:4px 7px}.inputs{gap:8px}.field label{font-size:11px}.field input{font-size:12px;padding:7px 6px;min-height:40px;border-radius:9px}.field input[type="datetime-local"]{font-size:11px;letter-spacing:-.25px}.week-actions{gap:6px}.week-actions button{font-size:11px;min-height:38px;padding:0 4px;border-radius:9px}.status-grid{gap:7px;margin-top:8px}.metric{padding:9px 8px}.metric .label{font-size:10px}.metric .value{font-size:20px}.metric .sub{font-size:9px}.bar-row{margin-top:8px}.bar-labels{font-size:9px}.bar-labels span:nth-child(2){display:none}.track{height:14px}.add-btn{margin-top:8px;min-height:44px;font-size:14px}}
+    @media(max-width:640px){#usage-pace-app{padding:8px 6px}.wrap{max-width:none}.ai-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ai-card{padding:9px 8px;border-radius:14px}.card-tools{margin:-1px 0 6px}.delete-btn{font-size:10px;padding:4px 7px}.inputs{gap:8px}.field label{font-size:11px}.field input{font-size:12px;padding:7px 6px;min-height:40px;border-radius:9px}.field input[type="datetime-local"]{font-size:11px;letter-spacing:-.25px}.week-actions{gap:6px}.week-actions button{font-size:11px;min-height:38px;padding:0 4px;border-radius:9px}.status-grid{gap:7px;margin-top:8px}.metric{padding:9px 8px}.metric .label{font-size:10px}.metric .value{font-size:20px}.target-metric .value{font-size:26px}.metric .sub{font-size:9px}.bar-row{margin-top:8px}.bar-labels{font-size:9px}.bar-labels span:nth-child(2){display:none}.track{height:14px}.add-btn{margin-top:8px;min-height:44px;font-size:14px}}
   </style>
   <div class="wrap">
     <div id="aiList" class="ai-grid"></div>
@@ -32,18 +32,14 @@
     (()=>{
       const root=document.getElementById('usage-pace-app');
       if(root.dataset.ready)return;root.dataset.ready='1';
-      const daily=[15,15,15,15,15,15,10];
+      const dailyTargetRemaining=[87,74,61,48,35,22,9];
       const storageKey='usagePaceAiItems';
       const fmt=n=>`${n.toFixed(1)}%`;
       function localInputValue(date){const p=n=>String(n).padStart(2,'0');return `${date.getFullYear()}-${p(date.getMonth()+1)}-${p(date.getDate())}T${p(date.getHours())}:${p(date.getMinutes())}`}
-      function expectedUsage(start, now){
-        const dayMs=86400000; let elapsed=(now-start)/dayMs;
-        if(elapsed<=0)return {value:0,elapsed:0,day:1};
-        if(elapsed>=7)return {value:100,elapsed:7,day:7};
-        let full=Math.floor(elapsed), frac=elapsed-full, value=0;
-        for(let i=0;i<full;i++)value+=daily[i];
-        value+=daily[full]*frac;
-        return {value,elapsed,day:full+1};
+      function currentPlan(start, now){
+        const elapsed=(now-start)/86400000;
+        const day=Math.min(7,Math.max(1,Math.floor(elapsed)+1));
+        return {day,targetRemaining:dailyTargetRemaining[day-1]};
       }
       let items=[];
       try{items=JSON.parse(localStorage.getItem(storageKey)||'[]')}catch(e){items=[]}
@@ -63,10 +59,10 @@
           </div>
           <div class="error" aria-live="polite"></div>
           <div class="status-grid results" hidden>
-            <div class="metric"><div class="label">지금까지 계획 사용량 / 잔여량</div><div class="value expected">-</div><div class="sub elapsed">-</div></div>
+            <div class="metric target-metric"><div class="label">오늘 작업 종료 후 목표 잔여량</div><div class="value expected">-</div><div class="sub elapsed">-</div></div>
             <div class="metric"><div class="label">만료까지 남은 시간</div><div class="value remaining-value">-</div><div class="sub remaining">-</div></div>
           </div>
-          <div class="bar-row results-bar" hidden><div class="bar-labels"><span>0%</span><span>현재 시점 계획 사용량</span><span>100%</span></div><div class="track"><div class="planned"></div></div></div>`;
+          <div class="bar-row results-bar" hidden><div class="bar-labels"><span>0%</span><span>오늘 종료 목표 잔여량</span><span>100%</span></div><div class="track"><div class="planned"></div></div></div>`;
           const nameInput=card.querySelector('.name-input'), expiryInput=card.querySelector('.expiry-input');
           function calculate(){
             const error=card.querySelector('.error'), results=card.querySelector('.results'), bar=card.querySelector('.results-bar');
@@ -75,14 +71,13 @@
             if(!expiryInput.value||Number.isNaN(exp.getTime())){results.hidden=true;bar.hidden=true;return}
             const start=new Date(exp.getTime()-7*86400000);
             if(now<start){error.textContent='입력한 만료일시는 아직 주간 사용 기간이 시작되기 전입니다.';results.hidden=true;bar.hidden=true;return}
-            const data=expectedUsage(start,now), expected=data.value;
-            card.querySelector('.expected').textContent=`${fmt(expected)} / ${fmt(100-expected)}`;
-            const days=Math.min(7,Math.max(0,data.elapsed));
-            card.querySelector('.elapsed').textContent=`주간 기간 ${days.toFixed(2)}일 경과 · ${data.day}일 차`;
+            const plan=currentPlan(start,now);
+            card.querySelector('.expected').textContent=`${plan.targetRemaining}%`;
+            card.querySelector('.elapsed').textContent=`${plan.day}일차 · 하루 사용 목표 13% · 마지막 여유분 9%`;
             const remainHours=Math.max(0,(exp-now)/3600000);
             card.querySelector('.remaining-value').textContent=remainHours>0?`${(remainHours/24).toFixed(1)}일`:'0일';
             card.querySelector('.remaining').textContent=remainHours>0?`만료까지 약 ${(remainHours/24).toFixed(1)}일 남음`:'현재 주간 기간이 만료됨';
-            card.querySelector('.planned').style.width=`${Math.min(100,expected)}%`;
+            card.querySelector('.planned').style.width=`${plan.targetRemaining}%`;
             results.hidden=false;bar.hidden=false;
           }
           function shift(days){if(!expiryInput.value)return;const d=new Date(expiryInput.value);if(Number.isNaN(d.getTime()))return;d.setDate(d.getDate()+days);expiryInput.value=localInputValue(d);items[index].expiry=expiryInput.value;save();calculate()}
