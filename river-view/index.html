@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>리버뷰 접수 등록</title>
+<style>
+  :root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--primary:#1769e0;--primary-dark:#0f55bd;--card:#fff;--bg:#f4f7fb;--success:#087443}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+  main{width:min(100%,640px);margin:0 auto;padding:20px 16px 32px}
+  header{margin-bottom:20px}
+  h1{font-size:25px;letter-spacing:-.6px;margin:0 0 7px}
+  .subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
+  .field{margin-bottom:16px}.field:last-of-type{margin-bottom:0}
+  label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
+  input,textarea,select{width:100%;border:1px solid #c5cfdd;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:12px;outline:none}
+  input,select{min-height:48px}textarea{min-height:112px;resize:vertical;line-height:1.5}
+  input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(23 105 224 / 14%)}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  button{width:100%;min-height:50px;margin-top:20px;border:0;border-radius:12px;background:var(--primary);color:#fff;font:inherit;font-weight:800;font-size:16px;cursor:pointer}
+  button:hover{background:var(--primary-dark)}button:active{transform:translateY(1px)}
+  .message{min-height:22px;margin:14px 2px 0;font-size:13px;font-weight:700}.message.success{color:var(--success)}.message.error{color:#b42318}
+  .saved{margin-top:18px;padding:14px;border-radius:12px;background:#f0faf5;border:1px solid #b7e2c8}.saved[hidden]{display:none}
+  .saved-title{font-size:13px;font-weight:800;color:var(--success);margin-bottom:8px}.saved p{margin:4px 0;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+  @media (max-width:420px){main{padding:16px 12px 28px}.card{padding:15px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>리버뷰 접수 등록</h1>
+    <p class="subtitle">유지보수 요청을 접수하고 내용을 저장합니다.</p>
+  </header>
+  <form class="card" id="intakeForm" novalidate>
+    <div class="field">
+      <label for="receivedAt">접수일시</label>
+      <input id="receivedAt" name="receivedAt" type="datetime-local" required>
+    </div>
+    <div class="field">
+      <label for="content">접수내용</label>
+      <textarea id="content" name="content" placeholder="요청받은 유지보수 내용을 입력하세요." required></textarea>
+    </div>
+    <div class="field">
+      <label for="vendor">담당업체</label>
+      <select id="vendor" name="vendor">
+        <option value="미정">미정</option>
+        <option value="직접 처리">직접 처리</option>
+        <option value="외주업체">외주업체</option>
+      </select>
+      <div class="hint">담당업체가 정해지지 않은 접수도 저장할 수 있습니다.</div>
+    </div>
+    <div class="field">
+      <label for="memo">기타 메모</label>
+      <textarea id="memo" name="memo" placeholder="추가로 남길 내용을 입력하세요."></textarea>
+    </div>
+    <button type="submit">접수 저장</button>
+    <div id="message" class="message" role="status" aria-live="polite"></div>
+    <section id="saved" class="saved" hidden aria-live="polite">
+      <div class="saved-title">저장된 접수</div>
+      <p><strong>접수일시</strong> <span id="savedAt"></span></p>
+      <p><strong>접수내용</strong> <span id="savedContent"></span></p>
+      <p><strong>담당업체</strong> <span id="savedVendor"></span></p>
+      <p><strong>기타 메모</strong> <span id="savedMemo"></span></p>
+    </section>
+  </form>
+</main>
+<script>
+(() => {
+  const form = document.getElementById('intakeForm');
+  const receivedAt = document.getElementById('receivedAt');
+  const content = document.getElementById('content');
+  const vendor = document.getElementById('vendor');
+  const memo = document.getElementById('memo');
+  const message = document.getElementById('message');
+  const saved = document.getElementById('saved');
+  const savedFields = {
+    receivedAt: document.getElementById('savedAt'),
+    content: document.getElementById('savedContent'),
+    vendor: document.getElementById('savedVendor'),
+    memo: document.getElementById('savedMemo')
+  };
+  const pad = value => String(value).padStart(2, '0');
+  const localDateTime = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  receivedAt.value = localDateTime(new Date());
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    message.textContent = '';
+    message.className = 'message';
+    if (!receivedAt.value || !content.value.trim()) {
+      message.textContent = '접수일시와 접수내용을 입력해 주세요.';
+      message.className = 'message error';
+      return;
+    }
+    const record = {
+      receivedAt: receivedAt.value,
+      content: content.value.trim(),
+      vendor: vendor.value || '미정',
+      memo: memo.value.trim()
+    };
+    localStorage.setItem('riverViewLatestIntake', JSON.stringify(record));
+    savedFields.receivedAt.textContent = record.receivedAt.replace('T', ' ');
+    savedFields.content.textContent = record.content;
+    savedFields.vendor.textContent = record.vendor;
+    savedFields.memo.textContent = record.memo || '없음';
+    saved.hidden = false;
+    message.textContent = '접수가 저장되었습니다.';
+    message.className = 'message success';
+  });
+})();
+</script>
+</body>
+</html>
