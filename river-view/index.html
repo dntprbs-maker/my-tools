@@ -83,6 +83,9 @@
 (() => {
   const apiUrl = '/api/river-view';
   const auth = firebase.initializeApp(window.riverViewFirebaseConfig).auth();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(error => { console.error('Firebase Auth persistence error', error.code, error.message); });
   const allowedEmail = 'dntprbs@gmail.com';
   const photoKey = 'riverViewPhotos';
   const photoFiles = new Map();
@@ -219,7 +222,8 @@
     } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'message error'; }
     finally { submitButton.disabled = false; }
   });
-  loginButton.addEventListener('click', async () => { authError.textContent = ''; loginButton.disabled = true; try { await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (error) { authError.textContent = `로그인 실패: ${error.message}`; loginButton.disabled = false; } });
+  loginButton.addEventListener('click', async () => { authError.textContent = ''; loginButton.disabled = true; try { await auth.signInWithPopup(googleProvider); } catch (error) { console.error('Firebase Auth sign-in error', error.code, error.message); if (error.code === 'auth/popup-blocked') { try { await auth.signInWithRedirect(googleProvider); return; } catch (redirectError) { console.error('Firebase Auth redirect error', redirectError.code, redirectError.message); authError.textContent = `로그인 실패: ${redirectError.message}`; } } else authError.textContent = `로그인 실패: ${error.message}`; loginButton.disabled = false; } });
+  auth.getRedirectResult().catch(error => { console.error('Firebase Auth redirect result error', error.code, error.message); authError.textContent = `로그인 결과 처리 실패: ${error.message}`; loginButton.disabled = false; });
   logoutButton.addEventListener('click', async () => { authError.textContent = ''; try { await auth.signOut(); } catch (error) { authError.textContent = `로그아웃 실패: ${error.message}`; } });
   auth.onAuthStateChanged(async user => {
     appShell.hidden = true; loginButton.hidden = true; logoutButton.hidden = true; authError.textContent = '';
