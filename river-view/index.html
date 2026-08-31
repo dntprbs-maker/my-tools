@@ -74,8 +74,7 @@
 </main>
 <script>
 (() => {
-  const intakeKey = 'riverViewIntakes';
-  const latestKey = 'riverViewLatestIntake';
+  const apiUrl = '/api/river-view';
   const photoKey = 'riverViewPhotos';
   const photoFiles = new Map();
   const previewUrls = new Set();
@@ -107,22 +106,14 @@
   const pad = value => String(value).padStart(2, '0');
   const localDateTime = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   const formatDate = value => value ? value.replace('T', ' ') : '일시 없음';
-  const readRecords = () => {
-    try {
-      const parsed = JSON.parse(localStorage.getItem(intakeKey) || '[]');
-      if (Array.isArray(parsed)) return parsed;
-    } catch (error) { /* 손상된 값은 빈 목록으로 처리 */ }
-    try {
-      const latest = JSON.parse(localStorage.getItem(latestKey) || 'null');
-      if (latest && latest.content) return [{ id: `legacy-${Date.now()}`, ...latest, status: '신규' }];
-    } catch (error) { /* 이전 값이 없으면 빈 목록 */ }
-    return [];
-  };
-  let records = readRecords();
+  let records = [];
+  let recordsReady = false;
+  let recordsError = '';
   let photos = (() => { try { const parsed = JSON.parse(localStorage.getItem(photoKey) || '[]'); return Array.isArray(parsed) ? parsed : []; } catch (error) { return []; } })();
   let activeStatus = '전체';
-  const saveRecords = () => localStorage.setItem(intakeKey, JSON.stringify(records));
   const savePhotos = () => localStorage.setItem(photoKey, JSON.stringify(photos));
+  const apiRequest = async (method, body) => { const response = await fetch(apiUrl, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || `요청 실패 (${response.status})`); return data; };
+  const loadRecords = async () => { recordsReady = false; recordsError = ''; renderList(); try { const data = await apiRequest('GET'); records = Array.isArray(data.jobs) ? data.jobs.sort((a, b) => String(b.receivedAt || '').localeCompare(String(a.receivedAt || ''))) : []; recordsReady = true; renderList(); if (!queryView.hidden) renderQuery(); } catch (error) { recordsError = error.message; renderList(); if (!queryView.hidden) renderQuery(); } };
   const setView = name => { clearPreviewUrls(); const isList = name === 'list'; const isForm = name === 'form'; listView.hidden = !isList; formView.hidden = !isForm; queryView.hidden = name !== 'query'; listButton.classList.toggle('active', isList); formButton.classList.toggle('active', isForm); queryButton.classList.toggle('active', name === 'query'); if (isList) renderList(); if (name === 'query') renderQuery(); };
   const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
   function renderPhotos(record) {
@@ -161,12 +152,13 @@
     editForm.append(makeField('처리내용', processContent), makeField('처리일', processDate), makeField('비용(원)', processCost), makeField('담당업체', processVendor), makeField('상태', status));
     const saveButton = make('button', 'detail-save', '처리정보 저장'); saveButton.type = 'submit'; editForm.append(saveButton);
     const detailMessage = make('div', 'detail-message'); detailMessage.setAttribute('role', 'status'); detailMessage.setAttribute('aria-live', 'polite'); editForm.append(detailMessage); detail.append(editForm);
-    editForm.addEventListener('submit', event => { event.preventDefault(); const index = records.findIndex(item => item.id === record.id); if (index < 0) return; records[index] = { ...records[index], processContent: processContent.value.trim(), processDate: processDate.value, cost: processCost.value === '' ? '' : Number(processCost.value), vendor: processVendor.value, status: status.value }; record = records[index]; saveRecords(); localStorage.setItem(latestKey, JSON.stringify(record)); detailMessage.textContent = '처리정보가 저장되었습니다.'; renderList(); renderDetail(record); });
+    editForm.addEventListener('submit', async event => { event.preventDefault(); const index = records.findIndex(item => item.id === record.id); if (index < 0) return; saveButton.disabled = true; detailMessage.textContent = '저장 중…'; try { const result = await apiRequest('PATCH', { action: 'update', id: record.id, data: { processContent: processContent.value.trim(), processDate: processDate.value, cost: processCost.value === '' ? '' : Number(processCost.value), vendor: processVendor.value, status: status.value } }); records[index] = result.job; record = result.job; detailMessage.textContent = '처리정보가 저장되었습니다.'; renderList(); renderDetail(record); } catch (error) { detailMessage.textContent = `저장 실패: ${error.message}`; } finally { saveButton.disabled = false; } });
     detail.append(renderPhotos(record));
     const back = make('button', 'back-list', '목록으로 돌아가기'); back.type = 'button'; back.addEventListener('click', () => { detail.hidden = true; }); detail.append(back);
   }
   function renderQuery() {
     queryError.textContent = '';
+    if (!recordsReady) { queryResults.replaceChildren(make('div', 'query-empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…')); return; }
     const start = queryStart.value; const end = queryEnd.value;
     if (start && end && start > end) { queryError.textContent = '시작일은 종료일보다 늦을 수 없습니다.'; return; }
     const query = queryText.value.trim().toLowerCase();
@@ -188,6 +180,7 @@
     filtered.forEach(record => { const button = make('button', 'query-result'); button.type = 'button'; const top = make('div', 'query-result-top'); top.append(make('span', 'query-result-date', `접수일 ${formatDate(record.receivedAt)}`)); top.append(make('span', `badge ${(record.status || '신규') === '신규' ? 'new' : record.status === '처리중' ? 'progress' : record.status === '완료' ? 'done' : ''}`, record.status || '신규')); button.append(top, make('div', 'query-result-content', record.content || '내용 없음')); const meta = make('div', 'query-result-meta'); meta.append(make('span', `담당업체 · ${record.vendor || '미정'}`), make('span', `처리일 · ${record.processDate || '미입력'}`), make('span', `비용 · ${Number(record.cost) > 0 ? Number(record.cost).toLocaleString('ko-KR') + '원' : '0원'}`)); button.append(meta); button.addEventListener('click', () => { setView('list'); renderDetail(record); }); queryResults.append(button); });
   }
   function renderList() {
+    if (!recordsReady) { count.textContent = '…'; list.replaceChildren(make('div', 'empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…')); detail.hidden = true; return; }
     const query = search.value.trim().toLowerCase();
     const filtered = records.filter(record => { const matchesStatus = activeStatus === '전체' || (record.status || '신규') === activeStatus; const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return matchesStatus && (!query || haystack.includes(query)); });
     count.textContent = `${filtered.length}건`;
@@ -200,14 +193,19 @@
   document.getElementById('resetQuery').addEventListener('click', () => { queryBasis.value = 'received'; queryStatus.value = '전체'; queryStart.value = ''; queryEnd.value = ''; queryVendor.value = '전체'; queryText.value = ''; renderQuery(); });
   document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeStatus = button.dataset.status; document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item === button)); renderList(); }));
   receivedAt.value = localDateTime(new Date());
-  formView.querySelector('form').addEventListener('submit', event => {
+  formView.querySelector('form').addEventListener('submit', async event => {
     event.preventDefault(); message.textContent = ''; message.className = 'message';
     if (!receivedAt.value || !content.value.trim()) { message.textContent = '접수일시와 접수내용을 입력해 주세요.'; message.className = 'message error'; return; }
-    const record = { id: `intake-${Date.now()}`, receivedAt: receivedAt.value, content: content.value.trim(), vendor: vendor.value || '미정', memo: memo.value.trim(), status: '신규' };
-    records = [record, ...records]; saveRecords(); localStorage.setItem(latestKey, JSON.stringify(record));
-    document.getElementById('savedAt').textContent = formatDate(record.receivedAt); document.getElementById('savedContent').textContent = record.content; document.getElementById('savedVendor').textContent = record.vendor; document.getElementById('savedMemo').textContent = record.memo || '없음'; saved.hidden = false; message.textContent = '접수가 저장되었습니다.'; message.className = 'message success';
+    const submitButton = formView.querySelector('button[type="submit"]'); submitButton.disabled = true; message.textContent = '저장 중…'; message.className = 'message';
+    try {
+      const result = await apiRequest('POST', { action: 'create', job: { receivedAt: receivedAt.value, content: content.value.trim(), vendor: vendor.value || '미정', memo: memo.value.trim(), status: '신규' } });
+      const record = result.job; records = [record, ...records]; recordsReady = true;
+      document.getElementById('savedAt').textContent = formatDate(record.receivedAt); document.getElementById('savedContent').textContent = record.content; document.getElementById('savedVendor').textContent = record.vendor; document.getElementById('savedMemo').textContent = record.memo || '없음'; saved.hidden = false; message.textContent = '접수가 Firestore에 저장되었습니다.'; message.className = 'message success'; content.value = ''; memo.value = ''; renderList();
+    } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'message error'; }
+    finally { submitButton.disabled = false; }
   });
   renderList();
+  loadRecords();
 })();
 </script>
 </body>
