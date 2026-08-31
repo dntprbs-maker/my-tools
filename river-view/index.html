@@ -3,112 +3,119 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>리버뷰 접수 등록</title>
+<title>리버뷰 접수 관리</title>
 <style>
-  :root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--primary:#1769e0;--primary-dark:#0f55bd;--card:#fff;--bg:#f4f7fb;--success:#087443}
+  :root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--primary:#1769e0;--primary-dark:#0f55bd;--card:#fff;--bg:#f4f7fb;--success:#087443;--chip:#eef3f9}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-  main{width:min(100%,640px);margin:0 auto;padding:20px 16px 32px}
-  header{margin-bottom:20px}
-  h1{font-size:25px;letter-spacing:-.6px;margin:0 0 7px}
-  .subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
-  .field{margin-bottom:16px}.field:last-of-type{margin-bottom:0}
-  label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
-  input,textarea,select{width:100%;border:1px solid #c5cfdd;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:12px;outline:none}
-  input,select{min-height:48px}textarea{min-height:112px;resize:vertical;line-height:1.5}
+  main{width:min(100%,680px);margin:0 auto;padding:18px 14px 32px}
+  header{margin-bottom:16px}.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  h1{font-size:25px;letter-spacing:-.6px;margin:0 0 6px}.subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
+  .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.nav button{margin:0;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:44px;font-size:14px}.nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
+  .field{margin-bottom:15px}.field:last-of-type{margin-bottom:0}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
+  input,textarea,select{width:100%;border:1px solid #c5cfdd;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:11px;outline:none}input,select{min-height:46px}textarea{min-height:104px;resize:vertical;line-height:1.5}
   input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(23 105 224 / 14%)}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px}
-  button{width:100%;min-height:50px;margin-top:20px;border:0;border-radius:12px;background:var(--primary);color:#fff;font:inherit;font-weight:800;font-size:16px;cursor:pointer}
-  button:hover{background:var(--primary-dark)}button:active{transform:translateY(1px)}
-  .message{min-height:22px;margin:14px 2px 0;font-size:13px;font-weight:700}.message.success{color:var(--success)}.message.error{color:#b42318}
-  .saved{margin-top:18px;padding:14px;border-radius:12px;background:#f0faf5;border:1px solid #b7e2c8}.saved[hidden]{display:none}
-  .saved-title{font-size:13px;font-weight:800;color:var(--success);margin-bottom:8px}.saved p{margin:4px 0;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
-  @media (max-width:420px){main{padding:16px 12px 28px}.card{padding:15px}h1{font-size:23px}}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}.primary{width:100%;min-height:50px;margin-top:19px;border:0;border-radius:12px;background:var(--primary);color:#fff;font:inherit;font-weight:800;font-size:16px;cursor:pointer}.primary:hover{background:var(--primary-dark)}
+  .message{min-height:22px;margin:13px 2px 0;font-size:13px;font-weight:700}.message.success{color:var(--success)}.message.error{color:#b42318}
+  .saved{margin-top:16px;padding:13px;border-radius:12px;background:#f0faf5;border:1px solid #b7e2c8}.saved[hidden],.view[hidden]{display:none}.saved-title{font-size:13px;font-weight:800;color:var(--success);margin-bottom:7px}.saved p{margin:4px 0;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
+  .list-toolbar{display:grid;gap:11px}.search{position:relative}.search input{padding-left:38px}.search-icon{position:absolute;left:13px;top:12px;color:var(--muted)}
+  .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.filter{min-height:38px;margin:0;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.filter.active{background:#dceaff;border-color:#8cb8f5;color:#0f55bd}
+  .list-meta{display:flex;justify-content:space-between;align-items:center;margin:17px 2px 9px;color:var(--muted);font-size:12px}.list{display:grid;gap:9px}.empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:13px}
+  .record{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;cursor:pointer;color:var(--ink)}.record:hover,.record:focus-visible{border-color:#8cb8f5;box-shadow:0 0 0 3px rgb(23 105 224 / 10%)}.record-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.record-date{font-size:12px;color:var(--muted)}.badge{border-radius:999px;padding:4px 8px;background:#eef3f9;color:#526173;font-size:11px;font-weight:800;white-space:nowrap}.badge.new{background:#e8f1ff;color:#1769e0}.badge.progress{background:#fff4d8;color:#9a6700}.badge.done{background:#e4f7eb;color:#087443}.record-content{font-size:15px;font-weight:800;line-height:1.4;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.record-vendor{font-size:12px;color:var(--muted);margin-top:8px}.detail{margin-top:14px;padding:15px;border-radius:13px;background:#f7faff;border:1px solid #cfe0f8}.detail h2{font-size:16px;margin:0 0 11px}.detail-row{display:grid;grid-template-columns:76px 1fr;gap:8px;margin:7px 0;font-size:13px;line-height:1.45}.detail-label{color:var(--muted);font-weight:700}.detail-value{white-space:pre-wrap;overflow-wrap:anywhere}.back-list{width:100%;min-height:40px;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+  @media (max-width:420px){main{padding:15px 11px 28px}h1{font-size:23px}.panel{padding:14px}.filters{gap:4px}.filter{font-size:11px;padding:0 2px}.detail-row{grid-template-columns:70px 1fr}}
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <h1>리버뷰 접수 등록</h1>
-    <p class="subtitle">유지보수 요청을 접수하고 내용을 저장합니다.</p>
-  </header>
-  <form class="card" id="intakeForm" novalidate>
-    <div class="field">
-      <label for="receivedAt">접수일시</label>
-      <input id="receivedAt" name="receivedAt" type="datetime-local" required>
+  <header><div class="title-row"><div><h1>리버뷰 접수 관리</h1><p class="subtitle">유지보수 요청을 등록하고 접수 현황을 확인합니다.</p></div></div></header>
+  <nav class="nav" aria-label="화면 선택"><button type="button" id="showList" class="active">접수 목록</button><button type="button" id="showForm">접수 등록</button></nav>
+
+  <section id="listView" class="view">
+    <div class="panel">
+      <div class="list-toolbar">
+        <label class="search" aria-label="접수 검색"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="접수내용 또는 담당업체 검색"></label>
+        <div class="filters" role="group" aria-label="접수 상태 필터"><button class="filter active" data-status="전체" type="button">전체</button><button class="filter" data-status="신규" type="button">신규</button><button class="filter" data-status="처리중" type="button">처리중</button><button class="filter" data-status="완료" type="button">완료</button></div>
+      </div>
+      <div class="list-meta"><strong id="listCount">0건</strong><span>접수를 누르면 상세 내용을 확인합니다.</span></div>
+      <div id="recordList" class="list" aria-live="polite"></div>
+      <section id="detail" class="detail" hidden></section>
     </div>
-    <div class="field">
-      <label for="content">접수내용</label>
-      <textarea id="content" name="content" placeholder="요청받은 유지보수 내용을 입력하세요." required></textarea>
-    </div>
-    <div class="field">
-      <label for="vendor">담당업체</label>
-      <select id="vendor" name="vendor">
-        <option value="미정">미정</option>
-        <option value="직접 처리">직접 처리</option>
-        <option value="외주업체">외주업체</option>
-      </select>
-      <div class="hint">담당업체가 정해지지 않은 접수도 저장할 수 있습니다.</div>
-    </div>
-    <div class="field">
-      <label for="memo">기타 메모</label>
-      <textarea id="memo" name="memo" placeholder="추가로 남길 내용을 입력하세요."></textarea>
-    </div>
-    <button type="submit">접수 저장</button>
-    <div id="message" class="message" role="status" aria-live="polite"></div>
-    <section id="saved" class="saved" hidden aria-live="polite">
-      <div class="saved-title">저장된 접수</div>
-      <p><strong>접수일시</strong> <span id="savedAt"></span></p>
-      <p><strong>접수내용</strong> <span id="savedContent"></span></p>
-      <p><strong>담당업체</strong> <span id="savedVendor"></span></p>
-      <p><strong>기타 메모</strong> <span id="savedMemo"></span></p>
-    </section>
-  </form>
+  </section>
+
+  <section id="formView" class="view" hidden>
+    <form class="panel" id="intakeForm" novalidate>
+      <div class="field"><label for="receivedAt">접수일시</label><input id="receivedAt" name="receivedAt" type="datetime-local" required></div>
+      <div class="field"><label for="content">접수내용</label><textarea id="content" name="content" placeholder="요청받은 유지보수 내용을 입력하세요." required></textarea></div>
+      <div class="field"><label for="vendor">담당업체</label><select id="vendor" name="vendor"><option value="미정">미정</option><option value="직접 처리">직접 처리</option><option value="외주업체">외주업체</option></select><div class="hint">담당업체가 정해지지 않은 접수도 저장할 수 있습니다.</div></div>
+      <div class="field"><label for="memo">기타 메모</label><textarea id="memo" name="memo" placeholder="추가로 남길 내용을 입력하세요."></textarea></div>
+      <button class="primary" type="submit">접수 저장</button><div id="message" class="message" role="status" aria-live="polite"></div>
+      <section id="saved" class="saved" hidden><div class="saved-title">저장된 접수</div><p><strong>접수일시</strong> <span id="savedAt"></span></p><p><strong>접수내용</strong> <span id="savedContent"></span></p><p><strong>담당업체</strong> <span id="savedVendor"></span></p><p><strong>기타 메모</strong> <span id="savedMemo"></span></p></section>
+    </form>
+  </section>
 </main>
 <script>
 (() => {
-  const form = document.getElementById('intakeForm');
+  const intakeKey = 'riverViewIntakes';
+  const latestKey = 'riverViewLatestIntake';
+  const listView = document.getElementById('listView');
+  const formView = document.getElementById('formView');
+  const listButton = document.getElementById('showList');
+  const formButton = document.getElementById('showForm');
+  const list = document.getElementById('recordList');
+  const detail = document.getElementById('detail');
+  const search = document.getElementById('search');
+  const count = document.getElementById('listCount');
   const receivedAt = document.getElementById('receivedAt');
   const content = document.getElementById('content');
   const vendor = document.getElementById('vendor');
   const memo = document.getElementById('memo');
   const message = document.getElementById('message');
   const saved = document.getElementById('saved');
-  const savedFields = {
-    receivedAt: document.getElementById('savedAt'),
-    content: document.getElementById('savedContent'),
-    vendor: document.getElementById('savedVendor'),
-    memo: document.getElementById('savedMemo')
-  };
   const pad = value => String(value).padStart(2, '0');
   const localDateTime = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  const formatDate = value => value ? value.replace('T', ' ') : '일시 없음';
+  const readRecords = () => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(intakeKey) || '[]');
+      if (Array.isArray(parsed)) return parsed;
+    } catch (error) { /* 손상된 값은 빈 목록으로 처리 */ }
+    try {
+      const latest = JSON.parse(localStorage.getItem(latestKey) || 'null');
+      if (latest && latest.content) return [{ id: `legacy-${Date.now()}`, ...latest, status: '신규' }];
+    } catch (error) { /* 이전 값이 없으면 빈 목록 */ }
+    return [];
+  };
+  let records = readRecords();
+  let activeStatus = '전체';
+  const saveRecords = () => localStorage.setItem(intakeKey, JSON.stringify(records));
+  const setView = name => { const isList = name === 'list'; listView.hidden = !isList; formView.hidden = isList; listButton.classList.toggle('active', isList); formButton.classList.toggle('active', !isList); if (isList) renderList(); };
+  const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
+  function renderDetail(record) {
+    detail.hidden = false; detail.replaceChildren();
+    detail.append(make('h2', '', '접수 상세'));
+    [['접수일시', formatDate(record.receivedAt)], ['접수내용', record.content], ['담당업체', record.vendor || '미정'], ['상태', record.status || '신규'], ['기타 메모', record.memo || '없음']].forEach(([label, value]) => { const row = make('div', 'detail-row'); row.append(make('div', 'detail-label', label), make('div', 'detail-value', value)); detail.append(row); });
+    const back = make('button', 'back-list', '목록으로 돌아가기'); back.type = 'button'; back.addEventListener('click', () => { detail.hidden = true; }); detail.append(back);
+  }
+  function renderList() {
+    const query = search.value.trim().toLowerCase();
+    const filtered = records.filter(record => { const matchesStatus = activeStatus === '전체' || (record.status || '신규') === activeStatus; const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return matchesStatus && (!query || haystack.includes(query)); });
+    count.textContent = `${filtered.length}건`;
+    list.replaceChildren(); detail.hidden = true;
+    if (!filtered.length) { list.append(make('div', 'empty', records.length ? '검색 조건에 맞는 접수가 없습니다.' : '아직 등록된 접수가 없습니다.\n접수 등록에서 첫 요청을 저장해 보세요.')); return; }
+    filtered.forEach(record => { const button = make('button', 'record'); button.type = 'button'; const top = make('div', 'record-top'); const date = make('span', 'record-date', formatDate(record.receivedAt)); const status = record.status || '신규'; const badge = make('span', `badge ${status === '신규' ? 'new' : status === '처리중' ? 'progress' : status === '완료' ? 'done' : ''}`, status); top.append(date, badge); button.append(top, make('div', 'record-content', record.content || '내용 없음'), make('div', 'record-vendor', `담당업체 · ${record.vendor || '미정'}`)); button.addEventListener('click', () => renderDetail(record)); list.append(button); });
+  }
+  listButton.addEventListener('click', () => setView('list')); formButton.addEventListener('click', () => setView('form')); search.addEventListener('input', renderList);
+  document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeStatus = button.dataset.status; document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item === button)); renderList(); }));
   receivedAt.value = localDateTime(new Date());
-
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    message.textContent = '';
-    message.className = 'message';
-    if (!receivedAt.value || !content.value.trim()) {
-      message.textContent = '접수일시와 접수내용을 입력해 주세요.';
-      message.className = 'message error';
-      return;
-    }
-    const record = {
-      receivedAt: receivedAt.value,
-      content: content.value.trim(),
-      vendor: vendor.value || '미정',
-      memo: memo.value.trim()
-    };
-    localStorage.setItem('riverViewLatestIntake', JSON.stringify(record));
-    savedFields.receivedAt.textContent = record.receivedAt.replace('T', ' ');
-    savedFields.content.textContent = record.content;
-    savedFields.vendor.textContent = record.vendor;
-    savedFields.memo.textContent = record.memo || '없음';
-    saved.hidden = false;
-    message.textContent = '접수가 저장되었습니다.';
-    message.className = 'message success';
+  formView.querySelector('form').addEventListener('submit', event => {
+    event.preventDefault(); message.textContent = ''; message.className = 'message';
+    if (!receivedAt.value || !content.value.trim()) { message.textContent = '접수일시와 접수내용을 입력해 주세요.'; message.className = 'message error'; return; }
+    const record = { id: `intake-${Date.now()}`, receivedAt: receivedAt.value, content: content.value.trim(), vendor: vendor.value || '미정', memo: memo.value.trim(), status: '신규' };
+    records = [record, ...records]; saveRecords(); localStorage.setItem(latestKey, JSON.stringify(record));
+    document.getElementById('savedAt').textContent = formatDate(record.receivedAt); document.getElementById('savedContent').textContent = record.content; document.getElementById('savedVendor').textContent = record.vendor; document.getElementById('savedMemo').textContent = record.memo || '없음'; saved.hidden = false; message.textContent = '접수가 저장되었습니다.'; message.className = 'message success';
   });
+  renderList();
 })();
 </script>
 </body>
