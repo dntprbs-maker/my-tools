@@ -11,7 +11,7 @@
   main{width:min(100%,680px);margin:0 auto;padding:18px 14px 32px}
   header{margin-bottom:16px}.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   h1{font-size:25px;letter-spacing:-.6px;margin:0 0 6px}.subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
-  .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0}.nav button{margin:0;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:44px;font-size:14px}.nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
+  .nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.nav button{margin:0;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:44px;font-size:14px}.nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
   .field{margin-bottom:15px}.field:last-of-type{margin-bottom:0}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
   input,textarea,select{width:100%;border:1px solid #c5cfdd;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:11px;outline:none}input,select{min-height:46px}textarea{min-height:104px;resize:vertical;line-height:1.5}
@@ -23,13 +23,14 @@
   .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.filter{min-height:38px;margin:0;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.filter.active{background:#dceaff;border-color:#8cb8f5;color:#0f55bd}
   .list-meta{display:flex;justify-content:space-between;align-items:center;margin:17px 2px 9px;color:var(--muted);font-size:12px}.list{display:grid;gap:9px}.empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:13px}
   .record{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;cursor:pointer;color:var(--ink)}.record:hover,.record:focus-visible{border-color:#8cb8f5;box-shadow:0 0 0 3px rgb(23 105 224 / 10%)}.record-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.record-date{font-size:12px;color:var(--muted)}.badge{border-radius:999px;padding:4px 8px;background:#eef3f9;color:#526173;font-size:11px;font-weight:800;white-space:nowrap}.badge.new{background:#e8f1ff;color:#1769e0}.badge.progress{background:#fff4d8;color:#9a6700}.badge.done{background:#e4f7eb;color:#087443}.record-content{font-size:15px;font-weight:800;line-height:1.4;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.record-vendor{font-size:12px;color:var(--muted);margin-top:8px}.detail{margin-top:14px;padding:15px;border-radius:13px;background:#f7faff;border:1px solid #cfe0f8}.detail h2{font-size:16px;margin:0 0 11px}.detail-row{display:grid;grid-template-columns:76px 1fr;gap:8px;margin:7px 0;font-size:13px;line-height:1.45}.detail-label{color:var(--muted);font-weight:700}.detail-value{white-space:pre-wrap;overflow-wrap:anywhere}.photo-section{margin-top:16px;padding-top:14px;border-top:1px solid #dbe7f5}.photo-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.photo-title{font-size:14px;font-weight:800;margin:0}.photo-add{width:auto;min-height:38px;margin:0;padding:0 12px;border:1px solid #8cb8f5;border-radius:9px;background:#e8f1ff;color:#0f55bd;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.photo-help{font-size:12px;color:var(--muted);margin:8px 0 11px;line-height:1.4}.photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.photo-card{min-width:0;border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}.photo-thumb{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#eef3f9;cursor:zoom-in}.photo-placeholder{display:grid;place-items:center;width:100%;aspect-ratio:1;padding:8px;text-align:center;background:#eef3f9;color:var(--muted);font-size:11px;line-height:1.35}.photo-meta{padding:7px}.photo-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.photo-controls{display:grid;grid-template-columns:1fr auto;gap:5px;margin-top:6px}.photo-category{width:100%;min-height:30px;padding:4px;font-size:11px;border-radius:7px}.photo-delete{min-height:30px;margin:0;padding:0 7px;border:1px solid #f0b8b8;border-radius:7px;background:#fff4f4;color:#b42318;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.photo-empty{padding:15px 8px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12px;text-align:center}.photo-dialog{width:min(92vw,560px);max-height:90vh;padding:10px;border:0;border-radius:14px;background:#172033}.photo-dialog::backdrop{background:rgb(0 0 0 / 65%)}.photo-dialog img{display:block;width:100%;max-height:78vh;object-fit:contain}.photo-dialog-close{width:100%;min-height:40px;margin-top:9px;border:1px solid #667085;border-radius:9px;background:#27364d;color:#fff;font:inherit;font-weight:800;cursor:pointer}.detail-divider{border:0;border-top:1px solid #dbe7f5;margin:16px 0 13px}.detail-form-title{font-size:14px;font-weight:800;margin:0 0 10px}.detail-form label{margin-top:10px}.detail-form input,.detail-form textarea,.detail-form select{font-size:14px;padding:9px;min-height:42px}.detail-form textarea{min-height:86px}.detail-save{width:100%;min-height:44px;margin-top:14px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:inherit;font-weight:800;cursor:pointer}.detail-message{min-height:19px;margin:9px 1px 0;font-size:12px;font-weight:700;color:var(--success)}.back-list{width:100%;min-height:40px;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
-  @media (max-width:420px){main{padding:15px 11px 28px}h1{font-size:23px}.panel{padding:14px}.filters{gap:4px}.filter{font-size:11px;padding:0 2px}.detail-row{grid-template-columns:70px 1fr}}
+  .query-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.query-field{margin:0}.query-field.full{grid-column:1/-1}.query-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.query-button,.query-reset{min-height:46px;margin:0;border-radius:10px;font:inherit;font-weight:800;cursor:pointer}.query-button{border:0;background:var(--primary);color:#fff}.query-reset{border:1px solid var(--line);background:#fff;color:var(--ink)}.query-error{min-height:21px;margin:10px 1px 0;color:#b42318;font-size:13px;font-weight:700}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:16px 0 12px}.summary-card{padding:10px 5px;text-align:center;border:1px solid var(--line);border-radius:10px;background:#f8fafc}.summary-label{font-size:10px;color:var(--muted);white-space:nowrap}.summary-value{margin-top:4px;font-size:17px;font-weight:800}.summary-cost{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:11px 13px}.query-results{display:grid;gap:8px}.query-result{width:100%;padding:12px;text-align:left;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);cursor:pointer}.query-result:hover,.query-result:focus-visible{border-color:#8cb8f5;box-shadow:0 0 0 3px rgb(23 105 224 / 10%)}.query-result-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.query-result-date,.query-result-process-date{font-size:11px;color:var(--muted)}.query-result-content{margin-top:7px;font-size:14px;font-weight:800;line-height:1.4}.query-result-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px;font-size:11px;color:var(--muted)}.query-empty{text-align:center;padding:25px 10px;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:10px}
+  @media (max-width:420px){main{padding:15px 11px 28px}h1{font-size:23px}.panel{padding:14px}.filters{gap:4px}.filter{font-size:11px;padding:0 2px}.detail-row{grid-template-columns:70px 1fr}.query-grid{gap:9px}.query-field.full{grid-column:1/-1}.summary{gap:4px}.summary-value{font-size:15px}.summary-label{font-size:9px}}
 </style>
 </head>
 <body>
 <main>
   <header><div class="title-row"><div><h1>리버뷰 접수 관리</h1><p class="subtitle">유지보수 요청을 등록하고 접수 현황을 확인합니다.</p></div></div></header>
-  <nav class="nav" aria-label="화면 선택"><button type="button" id="showList" class="active">접수 목록</button><button type="button" id="showForm">접수 등록</button></nav>
+  <nav class="nav" aria-label="화면 선택"><button type="button" id="showList" class="active">접수 목록</button><button type="button" id="showForm">접수 등록</button><button type="button" id="showQuery">조회</button></nav>
 
   <section id="listView" class="view">
     <div class="panel">
@@ -53,6 +54,23 @@
       <section id="saved" class="saved" hidden><div class="saved-title">저장된 접수</div><p><strong>접수일시</strong> <span id="savedAt"></span></p><p><strong>접수내용</strong> <span id="savedContent"></span></p><p><strong>담당업체</strong> <span id="savedVendor"></span></p><p><strong>기타 메모</strong> <span id="savedMemo"></span></p></section>
     </form>
   </section>
+  <section id="queryView" class="view" hidden>
+    <div class="panel">
+      <h2 class="detail-form-title">접수 조회·집계</h2>
+      <div class="query-grid">
+        <label class="query-field">검색 기준<select id="queryBasis"><option value="received">접수일</option><option value="processed">처리일</option></select></label>
+        <label class="query-field">상태<select id="queryStatus"><option value="전체">전체</option><option value="신규">신규</option><option value="처리중">처리중</option><option value="완료">완료</option></select></label>
+        <label class="query-field">시작일<input id="queryStart" type="date"></label>
+        <label class="query-field">종료일<input id="queryEnd" type="date"></label>
+        <label class="query-field">담당업체<select id="queryVendor"><option value="전체">전체</option><option value="미정">미정</option><option value="직접 처리">직접 처리</option><option value="외주업체">외주업체</option></select></label>
+        <label class="query-field full">검색어<input id="queryText" type="search" placeholder="접수내용·처리내용·메모·담당업체"></label>
+      </div>
+      <div id="queryError" class="query-error" role="alert" aria-live="polite"></div>
+      <div class="query-actions"><button id="runQuery" class="query-button" type="button">조회</button><button id="resetQuery" class="query-reset" type="button">조건 초기화</button></div>
+      <div class="summary" aria-label="조회 요약"><div class="summary-card"><div class="summary-label">전체</div><div id="sumTotal" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">신규</div><div id="sumNew" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">처리중</div><div id="sumProgress" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">완료</div><div id="sumDone" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">비용</div><div id="sumCost" class="summary-value">0원</div></div></div>
+      <div id="queryResults" class="query-results" aria-live="polite"></div>
+    </div>
+  </section>
 </main>
 <script>
 (() => {
@@ -60,10 +78,22 @@
   const latestKey = 'riverViewLatestIntake';
   const photoKey = 'riverViewPhotos';
   const photoFiles = new Map();
+  const previewUrls = new Set();
+  const clearPreviewUrls = () => { previewUrls.forEach(url => URL.revokeObjectURL(url)); previewUrls.clear(); };
   const listView = document.getElementById('listView');
   const formView = document.getElementById('formView');
   const listButton = document.getElementById('showList');
   const formButton = document.getElementById('showForm');
+  const queryButton = document.getElementById('showQuery');
+  const queryView = document.getElementById('queryView');
+  const queryBasis = document.getElementById('queryBasis');
+  const queryStatus = document.getElementById('queryStatus');
+  const queryStart = document.getElementById('queryStart');
+  const queryEnd = document.getElementById('queryEnd');
+  const queryVendor = document.getElementById('queryVendor');
+  const queryText = document.getElementById('queryText');
+  const queryError = document.getElementById('queryError');
+  const queryResults = document.getElementById('queryResults');
   const list = document.getElementById('recordList');
   const detail = document.getElementById('detail');
   const search = document.getElementById('search');
@@ -93,7 +123,7 @@
   let activeStatus = '전체';
   const saveRecords = () => localStorage.setItem(intakeKey, JSON.stringify(records));
   const savePhotos = () => localStorage.setItem(photoKey, JSON.stringify(photos));
-  const setView = name => { const isList = name === 'list'; listView.hidden = !isList; formView.hidden = isList; listButton.classList.toggle('active', isList); formButton.classList.toggle('active', !isList); if (isList) renderList(); };
+  const setView = name => { clearPreviewUrls(); const isList = name === 'list'; const isForm = name === 'form'; listView.hidden = !isList; formView.hidden = !isForm; queryView.hidden = name !== 'query'; listButton.classList.toggle('active', isList); formButton.classList.toggle('active', isForm); queryButton.classList.toggle('active', name === 'query'); if (isList) renderList(); if (name === 'query') renderQuery(); };
   const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
   function renderPhotos(record) {
     const section = make('section', 'photo-section');
@@ -105,7 +135,7 @@
     if (!ownPhotos.length) grid.append(make('div', 'photo-empty', '아직 등록된 작업 사진이 없습니다.'));
     ownPhotos.forEach(photo => {
       const card = make('article', 'photo-card'); const file = photoFiles.get(photo.id); let previewUrl = '';
-      if (file) { previewUrl = URL.createObjectURL(file); const image = make('img', 'photo-thumb'); image.src = previewUrl; image.alt = `${photo.name} 미리보기`; image.addEventListener('click', () => { const dialog = make('dialog', 'photo-dialog'); const large = make('img'); large.src = previewUrl; large.alt = `${photo.name} 확대`; const close = make('button', 'photo-dialog-close', '닫기'); close.type = 'button'; close.addEventListener('click', () => { dialog.close(); dialog.remove(); }); dialog.append(large, close); document.body.append(dialog); dialog.showModal(); }); card.append(image); } else card.append(make('div', 'photo-placeholder', '새로고침 후에는\n미리보기가 사라집니다.'));
+      if (file) { previewUrl = URL.createObjectURL(file); previewUrls.add(previewUrl); const image = make('img', 'photo-thumb'); image.src = previewUrl; image.alt = `${photo.name} 미리보기`; image.addEventListener('click', () => { const dialog = make('dialog', 'photo-dialog'); const large = make('img'); large.src = previewUrl; large.alt = `${photo.name} 확대`; const close = make('button', 'photo-dialog-close', '닫기'); close.type = 'button'; close.addEventListener('click', () => { dialog.close(); dialog.remove(); }); dialog.append(large, close); document.body.append(dialog); dialog.showModal(); }); card.append(image); } else card.append(make('div', 'photo-placeholder', '새로고침 후에는\n미리보기가 사라집니다.'));
       const meta = make('div', 'photo-meta'); meta.append(make('div', 'photo-name', photo.name));
       const controls = make('div', 'photo-controls'); const category = document.createElement('select'); category.className = 'photo-category'; [['before','작업 전'],['during','작업 중'],['after','작업 후']].forEach(([value, label]) => { const option = make('option', '', label); option.value = value; category.append(option); }); category.value = photo.category || 'after'; category.addEventListener('change', () => { photo.category = category.value; savePhotos(); });
       const remove = make('button', 'photo-delete', '삭제'); remove.type = 'button'; remove.addEventListener('click', () => { const index = photos.findIndex(item => item.id === photo.id); if (index >= 0) photos.splice(index, 1); photoFiles.delete(photo.id); savePhotos(); renderDetail(record); }); controls.append(category, remove); meta.append(controls); card.append(meta); grid.append(card); if (previewUrl) card.dataset.preview = previewUrl;
@@ -115,6 +145,7 @@
     return section;
   }
   function renderDetail(record) {
+    clearPreviewUrls();
     detail.hidden = false; detail.replaceChildren();
     detail.append(make('h2', '', '접수 상세'));
     [['접수일시', formatDate(record.receivedAt)], ['접수내용', record.content], ['담당업체', record.vendor || '미정'], ['기타 메모', record.memo || '없음']].forEach(([label, value]) => { const row = make('div', 'detail-row'); row.append(make('div', 'detail-label', label), make('div', 'detail-value', value)); detail.append(row); });
@@ -134,6 +165,28 @@
     detail.append(renderPhotos(record));
     const back = make('button', 'back-list', '목록으로 돌아가기'); back.type = 'button'; back.addEventListener('click', () => { detail.hidden = true; }); detail.append(back);
   }
+  function renderQuery() {
+    queryError.textContent = '';
+    const start = queryStart.value; const end = queryEnd.value;
+    if (start && end && start > end) { queryError.textContent = '시작일은 종료일보다 늦을 수 없습니다.'; return; }
+    const query = queryText.value.trim().toLowerCase();
+    const filtered = records.filter(record => {
+      const status = record.status || '신규'; const vendor = record.vendor || '미정';
+      if (queryStatus.value !== '전체' && status !== queryStatus.value) return false;
+      if (queryVendor.value !== '전체' && vendor !== queryVendor.value) return false;
+      const dateValue = queryBasis.value === 'received' ? (record.receivedAt || '').slice(0, 10) : (record.processDate || '');
+      if (start && (!dateValue || dateValue < start)) return false;
+      if (end && (!dateValue || dateValue > end)) return false;
+      const haystack = `${record.content || ''} ${record.processContent || ''} ${record.memo || ''} ${vendor}`.toLowerCase();
+      return !query || haystack.includes(query);
+    });
+    const total = filtered.length; const newCount = filtered.filter(record => (record.status || '신규') === '신규').length; const progressCount = filtered.filter(record => record.status === '처리중').length; const doneCount = filtered.filter(record => record.status === '완료').length;
+    const cost = filtered.reduce((sum, record) => { const value = Number(record.cost); return sum + (Number.isFinite(value) ? value : 0); }, 0);
+    document.getElementById('sumTotal').textContent = total; document.getElementById('sumNew').textContent = newCount; document.getElementById('sumProgress').textContent = progressCount; document.getElementById('sumDone').textContent = doneCount; document.getElementById('sumCost').textContent = `${cost.toLocaleString('ko-KR')}원`;
+    queryResults.replaceChildren();
+    if (!filtered.length) { queryResults.append(make('div', 'query-empty', '조건에 맞는 작업이 없습니다.')); return; }
+    filtered.forEach(record => { const button = make('button', 'query-result'); button.type = 'button'; const top = make('div', 'query-result-top'); top.append(make('span', 'query-result-date', `접수일 ${formatDate(record.receivedAt)}`)); top.append(make('span', `badge ${(record.status || '신규') === '신규' ? 'new' : record.status === '처리중' ? 'progress' : record.status === '완료' ? 'done' : ''}`, record.status || '신규')); button.append(top, make('div', 'query-result-content', record.content || '내용 없음')); const meta = make('div', 'query-result-meta'); meta.append(make('span', `담당업체 · ${record.vendor || '미정'}`), make('span', `처리일 · ${record.processDate || '미입력'}`), make('span', `비용 · ${Number(record.cost) > 0 ? Number(record.cost).toLocaleString('ko-KR') + '원' : '0원'}`)); button.append(meta); button.addEventListener('click', () => { setView('list'); renderDetail(record); }); queryResults.append(button); });
+  }
   function renderList() {
     const query = search.value.trim().toLowerCase();
     const filtered = records.filter(record => { const matchesStatus = activeStatus === '전체' || (record.status || '신규') === activeStatus; const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return matchesStatus && (!query || haystack.includes(query)); });
@@ -142,7 +195,9 @@
     if (!filtered.length) { list.append(make('div', 'empty', records.length ? '검색 조건에 맞는 접수가 없습니다.' : '아직 등록된 접수가 없습니다.\n접수 등록에서 첫 요청을 저장해 보세요.')); return; }
     filtered.forEach(record => { const button = make('button', 'record'); button.type = 'button'; const top = make('div', 'record-top'); const date = make('span', 'record-date', formatDate(record.receivedAt)); const status = record.status || '신규'; const badge = make('span', `badge ${status === '신규' ? 'new' : status === '처리중' ? 'progress' : status === '완료' ? 'done' : ''}`, status); top.append(date, badge); button.append(top, make('div', 'record-content', record.content || '내용 없음'), make('div', 'record-vendor', `담당업체 · ${record.vendor || '미정'}`)); button.addEventListener('click', () => renderDetail(record)); list.append(button); });
   }
-  listButton.addEventListener('click', () => setView('list')); formButton.addEventListener('click', () => setView('form')); search.addEventListener('input', renderList);
+  listButton.addEventListener('click', () => setView('list')); formButton.addEventListener('click', () => setView('form')); queryButton.addEventListener('click', () => setView('query')); search.addEventListener('input', renderList);
+  document.getElementById('runQuery').addEventListener('click', renderQuery);
+  document.getElementById('resetQuery').addEventListener('click', () => { queryBasis.value = 'received'; queryStatus.value = '전체'; queryStart.value = ''; queryEnd.value = ''; queryVendor.value = '전체'; queryText.value = ''; renderQuery(); });
   document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeStatus = button.dataset.status; document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item === button)); renderList(); }));
   receivedAt.value = localDateTime(new Date());
   formView.querySelector('form').addEventListener('submit', event => {
