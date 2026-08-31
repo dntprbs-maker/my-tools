@@ -11,6 +11,7 @@
   main{width:min(100%,680px);margin:0 auto;padding:18px 14px 32px}
   header{margin-bottom:16px}.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
   h1{font-size:25px;letter-spacing:-.6px;margin:0 0 6px}.subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
+  .auth-panel{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.auth-status{font-size:13px;line-height:1.5;color:var(--muted);margin:0}.auth-actions{display:flex;gap:8px;margin-top:11px}.auth-button{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}.auth-button.primary{margin-top:0;background:var(--primary);border-color:var(--primary);color:#fff}.auth-error{margin-top:9px;color:#b42318;font-size:12px;font-weight:700}.auth-panel[hidden],#appShell[hidden]{display:none}
   .nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.nav button{margin:0;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:44px;font-size:14px}.nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
   .field{margin-bottom:15px}.field:last-of-type{margin-bottom:0}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
@@ -30,6 +31,8 @@
 <body>
 <main>
   <header><div class="title-row"><div><h1>리버뷰 접수 관리</h1><p class="subtitle">유지보수 요청을 등록하고 접수 현황을 확인합니다.</p></div></div></header>
+  <section id="authPanel" class="auth-panel" aria-live="polite"><p id="authStatus" class="auth-status">인증 상태를 확인하는 중입니다…</p><div class="auth-actions"><button id="loginButton" class="auth-button primary" type="button" hidden>Google로 로그인</button><button id="logoutButton" class="auth-button" type="button" hidden>로그아웃</button></div><div id="authError" class="auth-error" role="alert"></div></section>
+  <div id="appShell" hidden>
   <nav class="nav" aria-label="화면 선택"><button type="button" id="showList" class="active">접수 목록</button><button type="button" id="showForm">접수 등록</button><button type="button" id="showQuery">조회</button></nav>
 
   <section id="listView" class="view">
@@ -71,10 +74,16 @@
       <div id="queryResults" class="query-results" aria-live="polite"></div>
     </div>
   </section>
+  </div>
 </main>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="./firebase-config.js"></script>
 <script>
 (() => {
   const apiUrl = '/api/river-view';
+  const auth = firebase.initializeApp(window.riverViewFirebaseConfig).auth();
+  const allowedEmail = 'dntprbs@gmail.com';
   const photoKey = 'riverViewPhotos';
   const photoFiles = new Map();
   const previewUrls = new Set();
@@ -103,6 +112,12 @@
   const memo = document.getElementById('memo');
   const message = document.getElementById('message');
   const saved = document.getElementById('saved');
+  const authPanel = document.getElementById('authPanel');
+  const appShell = document.getElementById('appShell');
+  const authStatus = document.getElementById('authStatus');
+  const authError = document.getElementById('authError');
+  const loginButton = document.getElementById('loginButton');
+  const logoutButton = document.getElementById('logoutButton');
   const pad = value => String(value).padStart(2, '0');
   const localDateTime = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
   const formatDate = value => value ? value.replace('T', ' ') : '일시 없음';
@@ -112,7 +127,7 @@
   let photos = (() => { try { const parsed = JSON.parse(localStorage.getItem(photoKey) || '[]'); return Array.isArray(parsed) ? parsed : []; } catch (error) { return []; } })();
   let activeStatus = '전체';
   const savePhotos = () => localStorage.setItem(photoKey, JSON.stringify(photos));
-  const apiRequest = async (method, body) => { const response = await fetch(apiUrl, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || `요청 실패 (${response.status})`); return data; };
+  const apiRequest = async (method, body) => { if (!auth.currentUser) throw new Error('로그인이 필요합니다.'); const token = await auth.currentUser.getIdToken(); const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }; const response = await fetch(apiUrl, { method, headers, body: body ? JSON.stringify(body) : undefined }); const data = await response.json().catch(() => ({})); if (response.status === 401) throw new Error('인증이 만료되었거나 유효하지 않습니다. 다시 로그인해 주세요.'); if (response.status === 403) throw new Error('허용되지 않은 계정입니다.'); if (!response.ok) throw new Error(data.error || `요청 실패 (${response.status})`); return data; };
   const loadRecords = async () => { recordsReady = false; recordsError = ''; renderList(); try { const data = await apiRequest('GET'); records = Array.isArray(data.jobs) ? data.jobs.sort((a, b) => String(b.receivedAt || '').localeCompare(String(a.receivedAt || ''))) : []; recordsReady = true; renderList(); if (!queryView.hidden) renderQuery(); } catch (error) { recordsError = error.message; renderList(); if (!queryView.hidden) renderQuery(); } };
   const setView = name => { clearPreviewUrls(); const isList = name === 'list'; const isForm = name === 'form'; listView.hidden = !isList; formView.hidden = !isForm; queryView.hidden = name !== 'query'; listButton.classList.toggle('active', isList); formButton.classList.toggle('active', isForm); queryButton.classList.toggle('active', name === 'query'); if (isList) renderList(); if (name === 'query') renderQuery(); };
   const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
@@ -204,8 +219,16 @@
     } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'message error'; }
     finally { submitButton.disabled = false; }
   });
+  loginButton.addEventListener('click', async () => { authError.textContent = ''; loginButton.disabled = true; try { await auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); } catch (error) { authError.textContent = `로그인 실패: ${error.message}`; loginButton.disabled = false; } });
+  logoutButton.addEventListener('click', async () => { authError.textContent = ''; try { await auth.signOut(); } catch (error) { authError.textContent = `로그아웃 실패: ${error.message}`; } });
+  auth.onAuthStateChanged(async user => {
+    appShell.hidden = true; loginButton.hidden = true; logoutButton.hidden = true; authError.textContent = '';
+    if (!user) { authStatus.textContent = '업무 데이터를 보려면 아빠 Google 계정으로 로그인해 주세요.'; loginButton.hidden = false; return; }
+    logoutButton.hidden = false;
+    if (user.email !== allowedEmail || user.emailVerified !== true) { authStatus.textContent = `로그인 계정: ${user.email || '이메일 없음'}`; authError.textContent = '허용된 아빠 계정만 사용할 수 있습니다.'; return; }
+    authStatus.textContent = `로그인됨: ${user.email}`; appShell.hidden = false; await loadRecords();
+  });
   renderList();
-  loadRecords();
 })();
 </script>
 </body>
