@@ -13,13 +13,13 @@
   <style>
     #usage-pace-app{background:light-dark(#f6f8fb,#111418);color:light-dark(#172033,#f3f5f8);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:24px;box-sizing:border-box;border-radius:0}
     #usage-pace-app *{box-sizing:border-box}
-    .wrap{max-width:900px;margin:0 auto;overflow:hidden}.ai-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+    .wrap{max-width:900px;width:100%;margin:0 auto;overflow:hidden}.ai-grid{display:grid;width:100%;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
     .panel{background:light-dark(#fff,#1b2027);border:1px solid light-dark(#e2e7ee,#303640);border-radius:16px;padding:18px;margin-bottom:16px}
     .inputs{display:grid;grid-template-columns:1fr;gap:10px;min-width:0}.field{min-width:0;overflow:hidden}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:5px;line-height:1.3}.field input{display:block;width:100%;max-width:100%;min-width:0;min-height:42px;border:2px solid light-dark(#ccd4df,#49515d);border-radius:10px;background:light-dark(#fff,#14181d);color:inherit;padding:8px 9px;font-size:14px;line-height:1.2;overflow:hidden;appearance:none;-webkit-appearance:none}.field input:focus{outline:none;box-shadow:0 0 0 3px rgb(37 99 235 / 12%)}.week-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}.week-actions button{width:100%;min-width:0;min-height:40px;border:1px solid light-dark(#ccd4df,#49515d);border-radius:10px;background:light-dark(#f3f6fa,#242a32);color:inherit;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap}.ai-card{min-width:0;padding:12px;border-radius:16px;background:light-dark(#fff,#1b2027);border:3px solid light-dark(#60a5fa,#2563eb);margin-bottom:0;box-shadow:0 4px 12px rgb(37 99 235 / 12%);overflow:hidden}.ai-card:nth-child(even){border-color:light-dark(#a78bfa,#7c3aed);box-shadow:0 4px 12px rgb(124 58 237 / 12%)}.ai-card:nth-child(odd) .field label,.ai-card:nth-child(odd) .metric .value{color:light-dark(#1d4ed8,#93c5fd)}.ai-card:nth-child(even) .field label,.ai-card:nth-child(even) .metric .value{color:light-dark(#6d28d9,#c4b5fd)}.ai-card:nth-child(odd) .field input{border-color:light-dark(#93c5fd,#2563eb)}.ai-card:nth-child(even) .field input{border-color:light-dark(#c4b5fd,#7c3aed)}.ai-card:nth-child(odd) .field input:focus{border-color:light-dark(#2563eb,#60a5fa)}.ai-card:nth-child(even) .field input:focus{border-color:light-dark(#7c3aed,#a78bfa);box-shadow:0 0 0 3px rgb(124 58 237 / 12%)}.ai-card:nth-child(odd) .week-actions button{background:light-dark(#eff6ff,#172554);border-color:light-dark(#bfdbfe,#1d4ed8);color:light-dark(#1d4ed8,#bfdbfe)}.ai-card:nth-child(even) .week-actions button{background:light-dark(#f5f3ff,#2e1065);border-color:light-dark(#ddd6fe,#7c3aed);color:light-dark(#6d28d9,#ddd6fe)}.ai-card:nth-child(even) .planned{background:#7c3aed}.card-tools{display:flex;justify-content:flex-end;margin:-2px 0 7px}
     .delete-btn{border:1px solid light-dark(#fecaca,#7f1d1d);border-radius:8px;background:light-dark(#fff1f2,#3f1518);color:light-dark(#b91c1c,#fecaca);font-size:11px;font-weight:800;padding:5px 9px;cursor:pointer;line-height:1.2}
     .delete-btn:disabled{opacity:.45;cursor:not-allowed}
     .ai-title{font-size:18px;font-weight:800;margin-bottom:12px}.add-btn{width:100%;min-height:46px;margin-top:12px;border:1px dashed light-dark(#60a5fa,#3b82f6);border-radius:12px;background:light-dark(#eff6ff,#172554);color:light-dark(#1d4ed8,#bfdbfe);font-size:15px;font-weight:800;cursor:pointer}
-    .status-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;min-width:0}.metric{min-width:0;padding:12px;border-radius:12px;background:light-dark(#f6f8fb,#15191f);border:1px solid light-dark(#e4e8ee,#2e343d)}.metric .label{font-size:11px;color:light-dark(#697588,#aab3c0);margin-bottom:4px;line-height:1.35}.metric .value{font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.15}.target-metric .value{font-size:30px}.metric .sub{font-size:11px;margin-top:5px;color:light-dark(#738094,#a4adba);line-height:1.35;word-break:keep-all}
+    .current-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.current-grid .metric{padding:10px}.current-grid .metric .value{font-size:22px}.current-input{margin-top:10px}.current-input input{font-variant-numeric:tabular-nums}.metric .label{font-size:11px;color:light-dark(#697588,#aab3c0);margin-bottom:4px;line-height:1.35}.metric .value{font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.15}.target-metric .value{font-size:30px}.metric .sub{font-size:11px;margin-top:5px;color:light-dark(#738094,#a4adba);line-height:1.35;word-break:keep-all}
     .bar-row{margin-top:10px}.bar-labels{display:flex;justify-content:space-between;gap:6px;font-size:10px;margin-bottom:5px;color:light-dark(#667387,#adb6c4)}.track{height:16px;background:light-dark(#e8edf3,#303640);border-radius:999px;overflow:hidden;position:relative}.planned{position:absolute;left:0;top:0;bottom:0;background:#2563eb;border-radius:999px}
     .error{margin-top:12px;color:light-dark(#b42318,#ffaaa6);font-size:13px;font-weight:650;min-height:20px}
     @media(max-width:640px){#usage-pace-app{padding:8px 6px}.wrap{max-width:none}.ai-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.ai-card{padding:9px 8px;border-radius:14px}.card-tools{margin:-1px 0 6px}.delete-btn{font-size:10px;padding:4px 7px}.inputs{gap:8px}.field label{font-size:11px}.field input{font-size:12px;padding:7px 6px;min-height:40px;border-radius:9px}.field input[type="datetime-local"]{font-size:11px;letter-spacing:-.25px}.week-actions{gap:6px}.week-actions button{font-size:11px;min-height:38px;padding:0 4px;border-radius:9px}.status-grid{gap:7px;margin-top:8px}.metric{padding:9px 8px}.metric .label{font-size:10px}.metric .value{font-size:20px}.target-metric .value{font-size:26px}.metric .sub{font-size:9px}.bar-row{margin-top:8px}.bar-labels{font-size:9px}.bar-labels span:nth-child(2){display:none}.track{height:14px}.add-btn{margin-top:8px;min-height:44px;font-size:14px}}
@@ -43,7 +43,9 @@
       }
       let items=[];
       try{items=JSON.parse(localStorage.getItem(storageKey)||'[]')}catch(e){items=[]}
-      if(!Array.isArray(items)||!items.length)items=[{name:'AI 1',expiry:''},{name:'AI 2',expiry:''}];
+      if(!Array.isArray(items)||!items.length)items=[{name:'Claude',expiry:'',usage:0},{name:'Codex',expiry:'',remaining:100}];
+      const normalize=item=>{const usage=Number(item.usage),remaining=Number(item.remaining);if(Number.isFinite(usage)&&usage>=0&&usage<=100){item.usage=usage;item.remaining=100-usage}else if(Number.isFinite(remaining)&&remaining>=0&&remaining<=100){item.remaining=remaining;item.usage=100-remaining}else{item.usage=0;item.remaining=100}return item};
+      items=items.map(normalize);
       const save=()=>localStorage.setItem(storageKey,JSON.stringify(items));
       function render(){
         const list=root.querySelector('#aiList');
@@ -56,6 +58,8 @@
             <div class="field"><label>이름</label><input class="name-input" type="text" value="${String(item.name||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"></div>
             <div class="field"><label>주간 사용 한도 만료일시</label><input class="expiry-input" type="datetime-local" value="${item.expiry||''}"></div>
             <div class="week-actions"><button class="prev" type="button">− 1주</button><button class="next" type="button">+ 1주</button></div>
+            <div class="field current-input"><label class="current-input-label">현재 사용량 입력 (%)</label><input class="current-input-value" type="number" min="0" max="100" step="1" inputmode="decimal" placeholder="0~100"></div>
+            <div class="current-grid"><div class="metric"><div class="label">현재 사용량</div><div class="value current-usage">-</div></div><div class="metric"><div class="label">현재 잔여량</div><div class="value current-remaining">-</div></div></div>
           </div>
           <div class="error" aria-live="polite"></div>
           <div class="status-grid results" hidden>
@@ -63,9 +67,14 @@
             <div class="metric"><div class="label">만료까지 남은 시간</div><div class="value remaining-value">-</div><div class="sub remaining">-</div></div>
           </div>
           <div class="bar-row results-bar" hidden><div class="bar-labels"><span>0%</span><span>오늘 종료 목표 잔여량</span><span>100%</span></div><div class="track"><div class="planned"></div></div></div>`;
-          const nameInput=card.querySelector('.name-input'), expiryInput=card.querySelector('.expiry-input');
+          const nameInput=card.querySelector('.name-input'), expiryInput=card.querySelector('.expiry-input'), currentInput=card.querySelector('.current-input-value');
+          const isCodex=String(item.name||'').trim().toLowerCase()==='codex';
+          const currentLabel=card.querySelector('.current-input-label'); currentLabel.textContent=isCodex?'현재 잔여량 입력 (%)':'현재 사용량 입력 (%)';
+          currentInput.value=isCodex?item.remaining:item.usage;
           function calculate(){
             const error=card.querySelector('.error'), results=card.querySelector('.results'), bar=card.querySelector('.results-bar');
+            const usage=Math.max(0,Math.min(100,Number(item.usage)||0)), remaining=100-usage;
+            card.querySelector('.current-usage').textContent=fmt(usage); card.querySelector('.current-remaining').textContent=fmt(remaining);
             error.textContent='';
             const exp=new Date(expiryInput.value), now=new Date();
             if(!expiryInput.value||Number.isNaN(exp.getTime())){results.hidden=true;bar.hidden=true;return}
@@ -87,7 +96,8 @@
             results.hidden=false;bar.hidden=false;
           }
           function shift(days){if(!expiryInput.value)return;const d=new Date(expiryInput.value);if(Number.isNaN(d.getTime()))return;d.setDate(d.getDate()+days);expiryInput.value=localInputValue(d);items[index].expiry=expiryInput.value;save();calculate()}
-          nameInput.addEventListener('input',()=>{items[index].name=nameInput.value;save()});
+          nameInput.addEventListener('input',()=>{items[index].name=nameInput.value;const codex=String(nameInput.value).trim().toLowerCase()==='codex';currentLabel.textContent=codex?'현재 잔여량 입력 (%)':'현재 사용량 입력 (%)';currentInput.value=codex?items[index].remaining:items[index].usage;save();calculate()});
+          currentInput.addEventListener('input',()=>{let value=Number(currentInput.value);if(!Number.isFinite(value))value=0;value=Math.max(0,Math.min(100,value));const codex=String(items[index].name||'').trim().toLowerCase()==='codex';if(codex){items[index].remaining=value;items[index].usage=100-value}else{items[index].usage=value;items[index].remaining=100-value}save();calculate()});
           expiryInput.addEventListener('input',()=>{items[index].expiry=expiryInput.value;save();calculate()});
           expiryInput.addEventListener('change',()=>{items[index].expiry=expiryInput.value;save();calculate()});
           card.querySelector('.prev').addEventListener('click',()=>shift(-7));
