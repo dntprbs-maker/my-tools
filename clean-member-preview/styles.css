@@ -1,133 +1,238 @@
 :root {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
   color: #172033;
-  background: #f4f7fb;
+  background: #f3f4f6;
   font-synthesis: none;
 }
 
 * { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  min-width: 320px;
-}
+html, body { margin: 0; min-width: 320px; min-height: 100%; }
 
-.preview {
-  width: min(100% - 28px, 720px);
-  margin: 0 auto;
-  padding: 28px 0 36px;
-}
+body { background: #f3f4f6; }
 
-.preview-header { margin-bottom: 22px; }
-
-.eyebrow {
-  margin: 0 0 7px;
-  color: #5873a3;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .04em;
-}
-
-h1, h2, p { margin-top: 0; }
-
-h1 {
-  margin-bottom: 8px;
-  font-size: 26px;
-  line-height: 1.25;
-}
-
-.description {
-  margin-bottom: 0;
-  color: #65738b;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.screen {
-  margin-bottom: 18px;
-  padding: 18px 14px 16px;
-  overflow: hidden;
-  border: 1px solid #dce4f0;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgb(41 65 100 / 8%);
-}
-
-.screen-heading {
+.app-shell {
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  height: 100svh;
+  min-height: 620px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 0 24px rgb(15 23 42 / 7%);
+}
+
+.app-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin: 0 2px 14px;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
 }
 
-.screen-label {
-  color: #5873a3;
-  font-size: 13px;
+.header-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.header-copy h1 {
+  overflow: hidden;
+  margin: 0;
+  color: #172033;
+  font-size: 16px;
   font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-h2 {
-  margin-bottom: 0;
-  color: #24324a;
-  font-size: 18px;
+.header-copy p {
+  overflow: hidden;
+  margin: 2px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+}
+
+.notification,
+.more-button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  color: #4b5563;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.register-button {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.register-button b { font-size: 18px; font-weight: 400; line-height: 1; }
+
+.dashboard-content {
+  width: 100%;
+  max-width: 672px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
+.filter-area {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin: 0 -16px;
+  padding: 0 16px 8px;
+  background: #ffffff;
 }
 
 .tabs {
   display: flex;
   width: 100%;
   overflow-x: auto;
-  gap: 0;
-  padding: 0 0 5px;
+  padding: 0;
   scrollbar-width: thin;
 }
 
 .tab {
   flex: 0 0 auto;
-  padding: 9px 10px 10px;
+  height: 32px;
+  padding: 4px 8px;
   border-bottom: 2px solid transparent;
-  color: #7a879b;
+  color: #6b7280;
   font-size: 20px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 24px;
   white-space: nowrap;
 }
 
 .tab.active {
-  border-bottom-color: #4478d5;
-  color: #245ebd;
+  border-bottom-color: #2563eb;
+  color: #2563eb;
 }
 
-.placeholder-card {
-  margin-top: 16px;
-  padding: 17px;
-  border-radius: 11px;
-  background: #f5f8fc;
+.job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0 0;
 }
 
-.placeholder-line {
-  width: 68%;
-  height: 10px;
-  margin-bottom: 10px;
-  border-radius: 99px;
-  background: #dce5f1;
+.job-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.placeholder-line.wide { width: 88%; }
-.placeholder-line.short { width: 42%; margin-bottom: 0; }
-
-.note {
-  margin: 3px 2px 0;
-  color: #718097;
-  font-size: 13px;
-  text-align: center;
+.badge {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 2px 9px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 18px;
 }
 
-@media (max-width: 420px) {
-  .preview { width: min(100% - 20px, 720px); padding-top: 22px; }
-  .screen { padding-inline: 10px; }
-  .screen-heading { display: block; }
-  .screen-label { display: block; margin-bottom: 5px; }
-  h2 { font-size: 17px; }
-  .tab { padding-inline: 9px; }
+.badge.primary {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.job-description {
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #172033;
+  font-size: 14px;
+  line-height: 24px;
+  white-space: pre-wrap;
+}
+
+.job-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.job-footer p {
+  overflow: hidden;
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.job-actions { display: flex; flex-shrink: 0; gap: 6px; }
+.edit-button, .delete-button {
+  display: inline-flex;
+  height: 28px;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.edit-button { background: #3b82f6; color: #ffffff; }
+.delete-button { background: #dc2626; color: #ffffff; }
+
+.applicant-toggle {
+  align-self: flex-start;
+  padding: 4px 8px;
+  color: #475569;
+  font-size: 12px;
+}
+
+.applicant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.applicant strong { font-size: 14px; font-weight: 500; }
+.applicant p { margin: 4px 0 0; color: #6b7280; font-size: 12px; }
+.applicant-status { color: #64748b; font-size: 12px; white-space: nowrap; }
+
+@media (min-width: 481px) {
+  .app-shell { min-height: 100svh; }
 }
