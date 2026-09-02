@@ -1,32 +1,56 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>클린맴버</title>
-    <meta name="description" content="클린맴버는 청소 팀장과 팀원을 연결하는 청소 중개 플랫폼입니다.">
-    <meta name="author" content="클린맴버" />
-
-    <!-- TODO: Update og:title to match your application name -->
-
-
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3d6d40d0-2057-4dc7-9db0-b7fd9d583dc9/id-preview-c852f525--e8b9ecd9-2192-47f2-8fd4-bb2e4ddaf139.lovable.app-1776689169678.png">
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3d6d40d0-2057-4dc7-9db0-b7fd9d583dc9/id-preview-c852f525--e8b9ecd9-2192-47f2-8fd4-bb2e4ddaf139.lovable.app-1776689169678.png">
-    <meta property="og:title" content="클린맴버">
-  <meta name="twitter:title" content="클린맴버">
-  <meta property="og:description" content="클린맴버는 청소 팀장과 팀원을 연결하는 청소 중개 플랫폼입니다.">
-  <meta name="twitter:description" content="클린맴버는 청소 팀장과 팀원을 연결하는 청소 중개 플랫폼입니다.">
-  <link rel="icon" type="image/png" href="./favicon.png">
-  <script type="module" crossorigin src="./assets/index-Bn5tYHBP.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Da4h8qJO.css">
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>작업 미리보기 - 클린멤버</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
+<body>
+  <main class="preview">
+    <header class="preview-header">
+      <p class="eyebrow">UI 작업 미리보기</p>
+      <h1>클린멤버 상단 탭</h1>
+      <p class="description">스마트폰 화면에서 탭 글씨 크기와 굵기를 확인하는 화면 모형입니다.</p>
+    </header>
 
-  <body>
-    <div id="root"></div>
-  </body>
+    <section class="screen" aria-labelledby="leader-title">
+      <div class="screen-heading">
+        <span class="screen-label">팀장 대시보드</span>
+        <h2 id="leader-title">구인 현황</h2>
+      </div>
+      <nav class="tabs" aria-label="팀장 대시보드 상단 메뉴">
+        <span class="tab active">구인중</span>
+        <span class="tab">구인마감</span>
+        <span class="tab">작업완료</span>
+        <span class="tab">취소건</span>
+      </nav>
+      <div class="placeholder-card">
+        <div class="placeholder-line wide"></div>
+        <div class="placeholder-line"></div>
+        <div class="placeholder-line short"></div>
+      </div>
+    </section>
+
+    <section class="screen" aria-labelledby="member-title">
+      <div class="screen-heading">
+        <span class="screen-label">팀원 대시보드</span>
+        <h2 id="member-title">지원 현황</h2>
+      </div>
+      <nav class="tabs" aria-label="팀원 대시보드 상단 메뉴">
+        <span class="tab active">구인중</span>
+        <span class="tab">지원중</span>
+        <span class="tab">수락됨</span>
+        <span class="tab">지난 작업</span>
+      </nav>
+      <div class="placeholder-card">
+        <div class="placeholder-line wide"></div>
+        <div class="placeholder-line"></div>
+        <div class="placeholder-line short"></div>
+      </div>
+    </section>
+
+    <p class="note">상단 탭 텍스트: 20px · 700</p>
+  </main>
+</body>
 </html>
