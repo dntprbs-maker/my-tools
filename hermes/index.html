@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hermes Agent</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{--bg:#0b1523;--card:#101d30;--text:#f2f6fb;--muted:#9fb2c9;--line:rgba(255,255,255,.12);--accent:#5aa9ff}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.7;padding:32px 18px 60px}
+  main{max-width:640px;margin:0 auto}
+  h1{font-size:clamp(24px,4vw,32px);margin:0 0 6px;letter-spacing:-0.5px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 28px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 20px;margin-bottom:16px}
+  .card h2{font-size:16px;margin:0 0 10px;color:var(--accent)}
+  .card p{margin:0 0 10px;font-size:15px}
+  .card p:last-child{margin-bottom:0}
+  ul{margin:8px 0 0;padding-left:20px}
+  li{margin-bottom:6px;font-size:15px}
+  .services{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .services span{background:rgba(90,169,255,.12);border:1px solid rgba(90,169,255,.3);color:var(--accent);font-size:13px;padding:5px 12px;border-radius:999px}
+  footer{margin-top:28px;text-align:center;font-size:14px}
+  footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(90,169,255,.4)}
+  footer a:hover{border-bottom-color:var(--accent)}
+</style>
+</head>
+<body>
+<main>
+  <h1>Hermes Agent</h1>
+  <p class="sub">개인용 업무 자동화 도구</p>
+
+  <section class="card">
+    <h2>이 앱은 무엇인가요</h2>
+    <p>Hermes Agent는 프로젝트 소유자 본인의 개인 업무 자동화를 위해 사용하는 AI 도구입니다.</p>
+    <p>이 앱을 사용하는 사람은 프로젝트 소유자 1명뿐이며, 불특정 다수를 대상으로 하는 공개 서비스나 일반 사용자 모집용 애플리케이션이 아닙니다.</p>
+  </section>
+
+  <section class="card">
+    <h2>Google 서비스 이용 목적</h2>
+    <p>본인의 Google 계정에 연결하여 아래 서비스를 통해 개인 업무를 처리하는 데 사용합니다.</p>
+    <div class="services">
+      <span>Gmail</span>
+      <span>Google Drive</span>
+      <span>Google Calendar</span>
+      <span>Google Docs</span>
+      <span>Google Sheets</span>
+      <span>Google Contacts</span>
+    </div>
+  </section>
+
+  <footer>
+    <a href="./privacy/">개인정보처리방침</a>
+  </footer>
+</main>
+</body>
+</html>
