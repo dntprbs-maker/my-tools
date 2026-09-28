@@ -64,14 +64,14 @@ function duration(ms){
  return min+'분';
 }
 function bar(p,elapsed=false,color=null){const v=n(p)??0;const style=color?'background:'+color+';':'';return '<div class="barwrap '+(elapsed?'elapsed':'')+'"><div class="bar"><div class="fill" style="width:'+v+'%;'+style+'"></div></div><span class="pct">'+Math.round(v)+'%</span></div>'}
-function weeklyPaceColor(used,elapsed){const diff=used-elapsed;if(diff < -10)return '#1769d2';if(diff <= 10)return '#f59e0b';return '#dc2626'}
+function paceColor(used,elapsed){const diff=(n(used)??0)-(n(elapsed)??0);if(diff < -10)return '#1769d2';if(diff <= 10)return '#f59e0b';return '#dc2626'}
 function limitBlock(r,kind){
  const isFive=kind==='five',cycle=isFive?5*60*60*1000:7*24*60*60*1000,label=isFive?'5시간 한도':'주간 한도';
  const used=getUsage(r,kind),reset=getReset(r,kind),now=new Date();
  if(used===null||!reset)return '<section class="limit"><h3>['+label+']</h3><div class="error">기록에 필요한 값이 없습니다.</div></section>';
  const start=new Date(reset.getTime()-cycle),elapsedPct=n(((now-start)/cycle)*100),remain=reset-now,expired=remain<=0;
  return '<section class="limit"><h3>['+label+'] — 최신 기록 기준</h3><div class="rows">'+
- '<div class="row"><div class="label">사용량</div><div>'+bar(used,false,isFive?null:weeklyPaceColor(used,expired?100:elapsedPct))+'</div></div>'+
+ '<div class="row"><div class="label">사용량</div><div>'+bar(used,false,paceColor(used,expired?100:elapsedPct))+'</div></div>'+
  '<div class="row"><div class="label">시간경과</div><div>'+(expired?bar(100,true):bar(elapsedPct,true))+'</div></div>'+
  '<div class="row mobile-reset-row"><div class="label">초기화</div><div class="value">'+(expired?'새 기록 필요':duration(remain)+' · '+esc(fmtDate(reset)))+'</div></div>'+
  '<div class="row"><div class="label">초기화까지</div><div class="value '+(expired?'stale':'')+'">'+(expired?'초기화 시각 지남 · 새 기록 필요':duration(remain))+'</div></div>'+
