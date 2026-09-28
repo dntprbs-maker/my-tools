@@ -1,0 +1,15 @@
+# 로컬 조회 결과·로그 — 절대 GitHub 에 올리지 않는다
+data/
+# 인증 관련 파일이 실수로 들어오는 것 차단
+*.credentials*
+.credentials.json*
+auth.json
+*.bak*
+*.tmp
+__pycache__/
+
+# 빌드 산출물·가상환경
+.venv/
+build/
+dist/
+*.spec

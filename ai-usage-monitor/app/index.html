@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI 사용량 현황</title>
+<link rel="icon" type="image/png" href="./icon-v2-192.png">
+<link rel="apple-touch-icon" href="./icon-v2-512.png">
+<link rel="manifest" href="./manifest-v2.webmanifest">
+<style>
+:root{color-scheme:light dark;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#6b778c;--line:#dfe6ef;--blue:#1769d2;--green:#22a447;--track:#e7ebf0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:1180px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.top h1{font-size:24px;margin:0}.refresh{border:1px solid #b8c8dc;background:#fff;color:#174f9d;border-radius:12px;padding:10px 15px;font-weight:800;cursor:pointer}.refresh:disabled{opacity:.55}.status{font-size:12px;color:var(--muted);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.worker{background:var(--card);border:2px solid #7eb6ff;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px #1b4f8a12}.worker.dex{border-color:#b399ff}.worker-head{padding:16px 18px;border-bottom:1px solid var(--line);background:#eef6ff}.dex .worker-head{background:#f5f0ff}.worker-head h2{font-size:22px;margin:0 0 4px}.meta{font-size:12px;color:var(--muted)}
+.limit{padding:16px 18px 18px}.limit+.limit{border-top:10px solid var(--bg)}.limit h3{font-size:18px;margin:0 0 13px}.rows{border-top:1px solid var(--line)}.row{display:grid;grid-template-columns:145px 1fr;align-items:center;min-height:54px;border-bottom:1px solid var(--line);gap:14px}.label{font-weight:800}.value{font-weight:750}.barwrap{display:flex;align-items:center;gap:10px}.bar{height:22px;flex:1;min-width:80px;background:repeating-linear-gradient(45deg,#e5e7eb,#e5e7eb 3px,#f7f7f7 3px,#f7f7f7 6px);border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 1px #d7dce3}.fill{height:100%;background:var(--blue);border-radius:7px}.elapsed .fill{background:var(--green)}.pct{min-width:46px;font-size:18px;font-weight:900}.stale{color:#b45309}.error{padding:24px;text-align:center;color:#b42318;font-weight:750}.mobile-reset-row{display:none}
+@media(max-width:760px){
+.app{padding:5px 7px}.top{margin-bottom:3px}.top h1{font-size:17px}.refresh{padding:6px 9px;border-radius:9px;font-size:12px}
+.status{font-size:9px;margin:0 0 4px}.grid{grid-template-columns:1fr;gap:5px}.worker{border-radius:12px}
+.worker-head{padding:6px 9px}.worker-head h2{font-size:16px;margin:0}.meta{font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.limit{padding:5.5px 9px 6.5px}.limit+.limit{border-top:4px solid var(--bg)}.limit h3{font-size:14.3px;margin:0 0 2px}
+.row{grid-template-columns:72px 1fr;gap:5.5px;min-height:30px}.label{font-size:12.65px}.value{font-size:11.55px}.pct{font-size:13.2px;min-width:33px}
+.barwrap{gap:5.5px}.bar{height:13.2px}.mobile-reset-row{display:grid}.rows .row:nth-child(4),.rows .row:nth-child(5){display:none}
+}
+@media(prefers-color-scheme:dark){:root{--bg:#101419;--card:#191f27;--text:#f3f5f8;--muted:#aab4c1;--line:#333c48;--track:#303640}.refresh{background:#1d2631;color:#b9d7ff;border-color:#3d5877}.worker-head{background:#15273a}.dex .worker-head{background:#251d3b}.bar{background:repeating-linear-gradient(45deg,#333a44,#333a44 3px,#252a31 3px,#252a31 6px);box-shadow:inset 0 0 0 1px #46505d}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="top"><h1>AI 사용량 현황</h1><button id="refresh" class="refresh" type="button">↻ 새로고침</button></div>
+  <p id="status" class="status">저장된 최신 값을 불러오는 중…</p>
+  <div id="grid" class="grid"></div>
+</main>
+<script>
+(()=>{
+// AI Usage Monitor: 이 PC의 로컬 서버(127.0.0.1)가 관리하는 최신 usage.json 을 표시한다
+const DATA_URL='./api/usage',REFRESH_URL='./api/refresh';
+const WORKERS=[
+ {key:'claude',title:'Claude (Claude Code)',cls:''},
+ {key:'codex',title:'Codex',cls:'dex'}
+];
+const STATE_TEXT={rate_limited:'요청 제한(429)',auth:'로그인 문제',network:'네트워크 실패',error:'조회 실패'};
+const $=s=>document.querySelector(s),grid=$('#grid'),status=$('#status'),refresh=$('#refresh');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function n(v){v=Number(v);return Number.isFinite(v)?Math.max(0,Math.min(100,v)):null}
+function getUsage(r,kind){
+ if(kind==='five'){
+   return n(r.five_hour?.used_percent ?? r.usage?.five_hour_pct ?? r.five_hour_pct);
+ }
+ return n(r.weekly?.used_percent ?? r.usage?.weekly_all_models_pct ?? r.usage?.weekly_pct ?? r.weekly_pct);
+}
+function getReset(r,kind){
+ let v=kind==='five'
+   ?(r.five_hour?.reset_at ?? r.reset_at?.five_hour ?? r.five_hour_reset_at)
+   :(r.weekly?.reset_at ?? r.reset_at?.weekly ?? r.weekly_reset_at);
+ const d=v?new Date(v):null;return d&&!Number.isNaN(d.getTime())?d:null;
+}
+function fmtDate(d){return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)}
+function fmtStamp(d){return new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(d)}
+function duration(ms){
+ if(ms<=0)return '0분';
+ let m=Math.ceil(ms/60000),days=Math.floor(m/1440);m%=1440;let h=Math.floor(m/60),min=m%60;
+ if(days)return days+'일 '+h+'시간 '+min+'분';
+ if(h)return h+'시간 '+min+'분';
+ return min+'분';
+}
+function bar(p,elapsed=false,color=null){const v=n(p)??0;const style=color?'background:'+color+';':'';return '<div class="barwrap '+(elapsed?'elapsed':'')+'"><div class="bar"><div class="fill" style="width:'+v+'%;'+style+'"></div></div><span class="pct">'+Math.round(v)+'%</span></div>'}
+function weeklyPaceColor(used,elapsed){const diff=used-elapsed;if(diff < -10)return '#1769d2';if(diff <= 10)return '#f59e0b';return '#dc2626'}
+function limitBlock(r,kind){
+ const isFive=kind==='five',cycle=isFive?5*60*60*1000:7*24*60*60*1000,label=isFive?'5시간 한도':'주간 한도';
+ const used=getUsage(r,kind),reset=getReset(r,kind),now=new Date();
+ if(used===null||!reset)return '<section class="limit"><h3>['+label+']</h3><div class="error">기록에 필요한 값이 없습니다.</div></section>';
+ const start=new Date(reset.getTime()-cycle),elapsedPct=n(((now-start)/cycle)*100),remain=reset-now,expired=remain<=0;
+ return '<section class="limit"><h3>['+label+'] — 최신 기록 기준</h3><div class="rows">'+
+ '<div class="row"><div class="label">사용량</div><div>'+bar(used,false,isFive?null:weeklyPaceColor(used,expired?100:elapsedPct))+'</div></div>'+
+ '<div class="row"><div class="label">시간경과</div><div>'+(expired?bar(100,true):bar(elapsedPct,true))+'</div></div>'+
+ '<div class="row mobile-reset-row"><div class="label">초기화</div><div class="value">'+(expired?'새 기록 필요':duration(remain)+' · '+esc(fmtDate(reset)))+'</div></div>'+
+ '<div class="row"><div class="label">초기화까지</div><div class="value '+(expired?'stale':'')+'">'+(expired?'초기화 시각 지남 · 새 기록 필요':duration(remain))+'</div></div>'+
+ '<div class="row"><div class="label">초기화</div><div class="value">'+esc(fmtDate(reset))+'</div></div>'+
+ '</div></section>';
+}
+function svcStatus(r){
+ const s=r&&r.status;if(!s||s.state==='ok')return '';
+ let t=(STATE_TEXT[s.state]||'조회 실패')+' · '+esc(s.message||'');
+ if(s.blocked_until)t+=' · '+esc(fmtDate(new Date(s.blocked_until)))+' 이후 다시 시도';
+ return '<div class="meta stale">⚠ '+t+(r.last_success_at?' — 마지막 정상값 표시 중':'')+'</div>';
+}
+function card(w,r){
+ if(!r||!r.last_success_at)return '<article class="worker '+w.cls+'"><div class="worker-head"><h2>'+w.title+'</h2>'+svcStatus(r)+'</div><div class="error">저장된 사용량이 없습니다. 새로고침을 눌러 조회하세요.</div></article>';
+ const t=new Date(r.last_success_at);
+ return '<article class="worker '+w.cls+'"><header class="worker-head"><h2>'+w.title+'</h2><div class="meta">마지막 업데이트: '+esc(fmtStamp(t))+(r.plan?' · '+esc(r.plan):'')+'</div>'+svcStatus(r)+'</header>'+limitBlock(r,'five')+limitBlock(r,'week')+'</article>';
+}
+function render(data){grid.innerHTML=WORKERS.map(w=>card(w,data[w.key])).join('')}
+async function call(url,opt){const res=await fetch(url,{cache:'no-store',...opt});if(!res.ok)throw new Error('HTTP '+res.status);return res.json()}
+async function load(){
+ status.textContent='저장된 최신 값을 불러오는 중…';
+ try{const d=await call(DATA_URL);render(d);status.textContent='저장된 최신 값 표시 중 · 화면 확인 '+fmtStamp(new Date())}
+ catch(e){status.textContent='불러오기 실패: '+e.message;if(!grid.innerHTML)grid.innerHTML='<div class="error">프로그램 서버에 연결하지 못했습니다. 프로그램을 다시 실행하세요.</div>'}
+}
+async function doRefresh(){
+ refresh.disabled=true;const label=refresh.textContent;refresh.textContent='조회 중…';status.textContent='Claude·Codex 사용량을 조회하는 중…';
+ try{
+   const d=await call(REFRESH_URL,{method:'POST'});render(d);
+   const bad=WORKERS.filter(w=>d[w.key]?.status?.state!=='ok').map(w=>w.title.split(' ')[0]);
+   status.textContent=(bad.length?'일부 조회 실패('+bad.join(', ')+') · ':'새로고침 완료 · ')+fmtStamp(new Date());
+ }catch(e){status.textContent='새로고침 실패: '+e.message}
+ finally{refresh.disabled=false;refresh.textContent=label}
+}
+refresh.addEventListener('click',doRefresh);load();
+setInterval(()=>{if(!refresh.disabled)load()},60000); // 시간경과·남은시간 표시만 갱신 (API 호출 아님)
+})();
+</script>
+</body>
+</html>
