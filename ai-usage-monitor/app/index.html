@@ -13,6 +13,9 @@
 .app{max-width:1180px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.top h1{font-size:24px;margin:0}.refresh{border:1px solid #b8c8dc;background:#fff;color:#174f9d;border-radius:12px;padding:10px 15px;font-weight:800;cursor:pointer}.refresh:disabled{opacity:.55}.status{font-size:12px;color:var(--muted);margin:0 0 12px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.worker{background:var(--card);border:2px solid #7eb6ff;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px #1b4f8a12}.worker.dex{border-color:#b399ff}.worker-head{padding:16px 18px;border-bottom:1px solid var(--line);background:#eef6ff}.dex .worker-head{background:#f5f0ff}.worker-head h2{font-size:22px;margin:0 0 4px}.meta{font-size:12px;color:var(--muted)}
 .limit{padding:16px 18px 18px}.limit+.limit{border-top:10px solid var(--bg)}.limit h3{font-size:18px;margin:0 0 13px}.rows{border-top:1px solid var(--line)}.row{display:grid;grid-template-columns:145px 1fr;align-items:center;min-height:54px;border-bottom:1px solid var(--line);gap:14px}.label{font-weight:800}.value{font-weight:750}.barwrap{display:flex;align-items:center;gap:10px}.bar{height:22px;flex:1;min-width:80px;background:repeating-linear-gradient(45deg,#e5e7eb,#e5e7eb 3px,#f7f7f7 3px,#f7f7f7 6px);border-radius:7px;overflow:hidden;box-shadow:inset 0 0 0 1px #d7dce3}.fill{height:100%;background:var(--blue);border-radius:7px}.elapsed .fill{background:var(--green)}.pct{min-width:46px;font-size:18px;font-weight:900}.stale{color:#b45309}.error{padding:24px;text-align:center;color:#b42318;font-weight:750}.mobile-reset-row{display:none}
+.pace-banner{margin:0 0 14px;padding:14px 18px;border-radius:16px;background:linear-gradient(135deg,#eef6ff,#f5f0ff);border:1px solid #b8c8dc;text-align:center;box-shadow:0 4px 14px #1b4f8a12}
+.pace-banner .pb-emoji{font-size:22px;margin-right:6px;vertical-align:-2px}
+.pace-banner .pb-text{font-size:16px;font-weight:800;color:var(--text)}
 @media(max-width:760px){
 .app{padding:5px 7px}.top{margin-bottom:3px}.top h1{font-size:17px}.refresh{padding:6px 9px;border-radius:9px;font-size:12px}
 .status{font-size:9px;margin:0 0 4px}.grid{grid-template-columns:1fr;gap:5px}.worker{border-radius:12px}
@@ -20,14 +23,16 @@
 .limit{padding:5.5px 9px 6.5px}.limit+.limit{border-top:4px solid var(--bg)}.limit h3{font-size:14.3px;margin:0 0 2px}
 .row{grid-template-columns:72px 1fr;gap:5.5px;min-height:30px}.label{font-size:12.65px}.value{font-size:11.55px}.pct{font-size:13.2px;min-width:33px}
 .barwrap{gap:5.5px}.bar{height:13.2px}.mobile-reset-row{display:grid}.rows .row:nth-child(4),.rows .row:nth-child(5){display:none}
+.pace-banner{padding:9px 10px;border-radius:11px;margin:0 0 6px}.pace-banner .pb-emoji{font-size:16px;margin-right:4px}.pace-banner .pb-text{font-size:12px}
 }
-@media(prefers-color-scheme:dark){:root{--bg:#101419;--card:#191f27;--text:#f3f5f8;--muted:#aab4c1;--line:#333c48;--track:#303640}.refresh{background:#1d2631;color:#b9d7ff;border-color:#3d5877}.worker-head{background:#15273a}.dex .worker-head{background:#251d3b}.bar{background:repeating-linear-gradient(45deg,#333a44,#333a44 3px,#252a31 3px,#252a31 6px);box-shadow:inset 0 0 0 1px #46505d}}
+@media(prefers-color-scheme:dark){:root{--bg:#101419;--card:#191f27;--text:#f3f5f8;--muted:#aab4c1;--line:#333c48;--track:#303640}.refresh{background:#1d2631;color:#b9d7ff;border-color:#3d5877}.worker-head{background:#15273a}.dex .worker-head{background:#251d3b}.bar{background:repeating-linear-gradient(45deg,#333a44,#333a44 3px,#252a31 3px,#252a31 6px);box-shadow:inset 0 0 0 1px #46505d}.pace-banner{background:linear-gradient(135deg,#15273a,#251d3b);border-color:#3d5877}}
 </style>
 </head>
 <body>
 <main class="app">
   <div class="top"><h1>AI 사용량 현황</h1><button id="refresh" class="refresh" type="button">↻ 새로고침</button></div>
   <p id="status" class="status">저장된 최신 값을 불러오는 중…</p>
+  <div id="paceBanner"></div>
   <div id="grid" class="grid"></div>
 </main>
 <script>
@@ -90,7 +95,46 @@ function card(w,r,login){
  const t=new Date(r.last_success_at);
  return '<article class="worker '+w.cls+'"><header class="worker-head"><h2>'+w.title+'</h2><div class="meta">마지막 업데이트: '+esc(fmtStamp(t))+(r.plan?' · '+esc(r.plan):'')+'</div>'+svcStatus(r)+'</header>'+limitBlock(r,'five')+limitBlock(r,'week')+'</article>';
 }
-function render(data){grid.innerHTML=WORKERS.map(w=>card(w,data[w.key],(data.login||{})[w.key])).join('')}
+// ---- 주간 페이스 우선 사용 안내(신규, 기존 계산식·색상 기준 재사용만 함) ----
+const COLOR_RANK={'#1769d2':0,'#f59e0b':1,'#dc2626':2};
+const COLOR_EMOJI={'#1769d2':'🔵','#f59e0b':'🟠','#dc2626':'🔴'};
+const FIVE_HOUR_EXHAUSTED_PCT=95; // 5시간 한도 거의 소진(임시 사용 불가로 간주)으로 볼 기준
+function weeklyPaceInfo(r){
+ if(!r||!r.last_success_at)return null;
+ const used=getUsage(r,'week'),reset=getReset(r,'week');
+ if(used===null||!reset)return null;
+ const cycle=7*24*60*60*1000,now=new Date(),start=new Date(reset.getTime()-cycle);
+ const elapsedPct=n(((now-start)/cycle)*100),expired=(reset-now)<=0;
+ return {used,color:paceColor(used,expired?100:elapsedPct)};
+}
+function fiveHourExhausted(r){
+ if(!r||!r.last_success_at)return false;
+ const used=getUsage(r,'five');
+ return used!==null&&used>=FIVE_HOUR_EXHAUSTED_PCT;
+}
+function buildPaceBanner(data){
+ const infos=WORKERS.map(w=>({key:w.key,name:w.title.split(' ')[0],pace:weeklyPaceInfo(data[w.key]),exhausted:fiveHourExhausted(data[w.key])}));
+ if(infos.some(x=>!x.pace))return ''; // 둘 다 실제 조회된 값이 있어야 안내(추측 금지)
+ const [a,b]=infos;
+ const ra=COLOR_RANK[a.pace.color],rb=COLOR_RANK[b.pace.color];
+ const priority=ra<=rb?a:b, other=ra<=rb?b:a; // 같은 색이면 코드D를 기본 우선으로
+ let emoji,text;
+ if(priority.exhausted&&other.exhausted){
+   emoji='⏳';text='지금은 코드D·덱스D 둘 다 5시간 한도가 거의 찼어요. 초기화를 기다려주세요.';
+ }else if(priority.exhausted){
+   emoji=COLOR_EMOJI[other.pace.color];text=priority.name+'는 5시간 한도가 거의 찼어요. 지금은 '+other.name+'를 대신 사용하세요.';
+ }else if(ra===rb){
+   const sameMsg={0:'둘 다 열심히 사용하셔도 돼요 😄',1:'잘 쓰고 계시네요 👍',2:'그만 쓰세요 ㅋㅋ'};
+   emoji=COLOR_EMOJI[priority.pace.color];text=sameMsg[ra];
+ }else{
+   emoji=COLOR_EMOJI[priority.pace.color];text=priority.name+'를 우선 사용하세요.';
+ }
+ return '<div class="pace-banner"><span class="pb-emoji">'+emoji+'</span><span class="pb-text">'+esc(text)+'</span></div>';
+}
+function render(data){
+ const pb=$('#paceBanner');if(pb)pb.innerHTML=buildPaceBanner(data);
+ grid.innerHTML=WORKERS.map(w=>card(w,data[w.key],(data.login||{})[w.key])).join('')
+}
 async function call(url,opt){const res=await fetch(url,{cache:'no-store',...opt});if(!res.ok)throw new Error('HTTP '+res.status);return res.json()}
 async function load(){
  status.textContent='저장된 최신 값을 불러오는 중…';
