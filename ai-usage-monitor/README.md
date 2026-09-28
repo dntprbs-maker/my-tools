@@ -34,6 +34,15 @@
 - 로컬 서버는 `127.0.0.1`에만 바인딩하고, 다른 Host/Origin 요청은 403으로 거부합니다.
 - `data/`, 인증 파일, 백업, 빌드 산출물은 `.gitignore`로 차단합니다.
 
+## 다른 PC에서 쓰기 (배포판)
+
+- 배포 ZIP = `dist\AI Usage Monitor` 폴더 + `사용안내.txt`. Python·개발도구 설치 불필요.
+- 인증정보는 배포판에 넣지 않습니다. 실행한 Windows 사용자 자신의 로그인 파일을 찾습니다
+  (`%USERPROFILE%\.claude\.credentials.json` 또는 `CLAUDE_CONFIG_DIR`, `%USERPROFILE%\.codex\auth.json` 또는 `CODEX_HOME`).
+- 로그인이 없거나(Codex API 키 방식 포함) 파일이 없으면 화면에 "로그인 필요" 안내가 뜹니다.
+- 실행 폴더에 쓸 수 없으면(예: Program Files) 기록은 `%LOCALAPPDATA%\AI Usage Monitor\data`에 저장합니다.
+- WebView2 런타임이 없으면 설치 안내 창을 띄우고 종료합니다.
+
 ## 빌드
 
 ```bat

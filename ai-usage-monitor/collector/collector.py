@@ -18,12 +18,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 USAGE_FILE = ROOT / "data" / "usage.json"
 
-CLAUDE_CRED = Path.home() / ".claude" / ".credentials.json"
+# 실행한 Windows 사용자 자신의 로그인 폴더를 쓴다 (다른 사람의 인증정보는 배포판에 포함하지 않음).
+# Claude Code / Codex 가 공식 지원하는 폴더 변경 환경변수도 따른다.
+CLAUDE_CRED = Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude") / ".credentials.json"
 CLAUDE_USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 CLAUDE_TOKEN_URL = "https://platform.claude.com/v1/oauth/token"
 CLAUDE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"  # Claude Code 공식 OAuth client id
 
-CODEX_AUTH = Path.home() / ".codex" / "auth.json"
+CODEX_AUTH = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex") / "auth.json"
+
+LOGIN_HINT = {
+    "claude": "이 PC에서 Claude Code에 로그인되어 있지 않습니다. Claude Code(터미널의 claude 명령)를 설치·로그인한 뒤 새로고침하세요.",
+    "codex": "이 PC에서 Codex에 ChatGPT 계정으로 로그인되어 있지 않습니다. Codex를 실행해 ChatGPT 계정으로 로그인한 뒤 새로고침하세요.",
+}
 CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"
 
 UA = "ai-usage-monitor/1.0"
@@ -67,10 +74,25 @@ def _http_json(url, headers, data=None):
             ra = int(ra) if ra and ra.isdigit() else None
             raise FetchError("rate_limited", "요청이 잦아 서버가 잠시 막았습니다", ra)
         if e.code in (401, 403):
-            raise FetchError("auth", f"로그인 인증이 거부됐습니다 (HTTP {e.code})")
+            raise FetchError("auth", f"로그인 인증이 거부됐습니다 (HTTP {e.code}) — 해당 프로그램에 다시 로그인한 뒤 새로고침하세요")
         raise FetchError("error", f"서버 오류 (HTTP {e.code})")
     except (urllib.error.URLError, TimeoutError, OSError) as e:
         raise FetchError("network", f"네트워크 연결 실패 ({type(e).__name__})")
+
+
+def _read_json(path):
+    try:
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except (OSError, ValueError):
+        return {}
+
+
+def login_status():
+    """네트워크 없이 로그인 파일 존재 여부만 확인 (최초 실행 화면 안내용). 토큰 값은 반환하지 않는다."""
+    claude = bool((_read_json(CLAUDE_CRED).get("claudeAiOauth") or {}).get("accessToken"))
+    codex = bool((_read_json(CODEX_AUTH).get("tokens") or {}).get("access_token"))
+    return {"claude": {"found": claude, "hint": None if claude else LOGIN_HINT["claude"]},
+            "codex": {"found": codex, "hint": None if codex else LOGIN_HINT["codex"]}}
 
 
 # ---------------- Claude ----------------
@@ -102,9 +124,9 @@ def _claude_refresh(cred):
 
 
 def fetch_claude():
-    if not CLAUDE_CRED.exists():
-        raise FetchError("auth", "Claude Code 로그인 파일이 없습니다")
-    cred = json.loads(CLAUDE_CRED.read_text(encoding="utf-8"))
+    cred = _read_json(CLAUDE_CRED)
+    if not (cred.get("claudeAiOauth") or {}).get("accessToken"):
+        raise FetchError("login", LOGIN_HINT["claude"])
     refreshed = False
     if cred["claudeAiOauth"].get("expiresAt", 0) < (time.time() + 120) * 1000:
         cred = _claude_refresh(cred)
@@ -135,11 +157,9 @@ def fetch_claude():
 # ---------------- Codex ----------------
 
 def fetch_codex():
-    if not CODEX_AUTH.exists():
-        raise FetchError("auth", "Codex 로그인 파일이 없습니다")
-    tokens = json.loads(CODEX_AUTH.read_text(encoding="utf-8")).get("tokens") or {}
-    if not tokens.get("access_token"):
-        raise FetchError("auth", "Codex 로그인 정보가 없습니다")
+    tokens = _read_json(CODEX_AUTH).get("tokens") or {}
+    if not tokens.get("access_token"):  # 파일 없음 / API 키 방식 / 키체인 저장 방식
+        raise FetchError("login", LOGIN_HINT["codex"])
     headers = {"Authorization": "Bearer " + tokens["access_token"], "Accept": "application/json"}
     if tokens.get("account_id"):
         headers["ChatGPT-Account-Id"] = tokens["account_id"]

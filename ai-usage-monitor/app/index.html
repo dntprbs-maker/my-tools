@@ -38,7 +38,7 @@ const WORKERS=[
  {key:'claude',title:'Claude (Claude Code)',cls:''},
  {key:'codex',title:'Codex',cls:'dex'}
 ];
-const STATE_TEXT={rate_limited:'요청 제한(429)',auth:'로그인 문제',network:'네트워크 실패',error:'조회 실패'};
+const STATE_TEXT={rate_limited:'요청 제한(429)',login:'로그인 필요',auth:'로그인 문제',network:'네트워크 실패',error:'조회 실패'};
 const $=s=>document.querySelector(s),grid=$('#grid'),status=$('#status'),refresh=$('#refresh');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function n(v){v=Number(v);return Number.isFinite(v)?Math.max(0,Math.min(100,v)):null}
@@ -84,12 +84,13 @@ function svcStatus(r){
  if(s.blocked_until)t+=' · '+esc(fmtDate(new Date(s.blocked_until)))+' 이후 다시 시도';
  return '<div class="meta stale">⚠ '+t+(r.last_success_at?' — 마지막 정상값 표시 중':'')+'</div>';
 }
-function card(w,r){
- if(!r||!r.last_success_at)return '<article class="worker '+w.cls+'"><div class="worker-head"><h2>'+w.title+'</h2>'+svcStatus(r)+'</div><div class="error">저장된 사용량이 없습니다. 새로고침을 눌러 조회하세요.</div></article>';
+function card(w,r,login){
+ const needLogin=login&&!login.found;
+ if(!r||!r.last_success_at)return '<article class="worker '+w.cls+'"><div class="worker-head"><h2>'+w.title+'</h2>'+(needLogin?'':svcStatus(r))+'</div><div class="error">'+(needLogin?'로그인 필요 — '+esc(login.hint):'저장된 사용량이 없습니다. 새로고침을 눌러 조회하세요.')+'</div></article>';
  const t=new Date(r.last_success_at);
  return '<article class="worker '+w.cls+'"><header class="worker-head"><h2>'+w.title+'</h2><div class="meta">마지막 업데이트: '+esc(fmtStamp(t))+(r.plan?' · '+esc(r.plan):'')+'</div>'+svcStatus(r)+'</header>'+limitBlock(r,'five')+limitBlock(r,'week')+'</article>';
 }
-function render(data){grid.innerHTML=WORKERS.map(w=>card(w,data[w.key])).join('')}
+function render(data){grid.innerHTML=WORKERS.map(w=>card(w,data[w.key],(data.login||{})[w.key])).join('')}
 async function call(url,opt){const res=await fetch(url,{cache:'no-store',...opt});if(!res.ok)throw new Error('HTTP '+res.status);return res.json()}
 async function load(){
  status.textContent='저장된 최신 값을 불러오는 중…';
@@ -101,7 +102,7 @@ async function doRefresh(){
  try{
    const d=await call(REFRESH_URL,{method:'POST'});render(d);
    const bad=WORKERS.filter(w=>d[w.key]?.status?.state!=='ok').map(w=>w.title.split(' ')[0]);
-   status.textContent=(bad.length?'일부 조회 실패('+bad.join(', ')+') · ':'새로고침 완료 · ')+fmtStamp(new Date());
+   status.textContent=(bad.length===WORKERS.length?'조회 실패 · ':bad.length?'일부 조회 실패('+bad.join(', ')+') · ':'새로고침 완료 · ')+fmtStamp(new Date());
  }catch(e){status.textContent='새로고침 실패: '+e.message}
  finally{refresh.disabled=false;refresh.textContent=label}
 }
