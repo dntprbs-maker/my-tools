@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AI 사용량</string>
+    <string name="title_activity_main">AI 사용량</string>
+    <string name="package_name">com.woos.aiusage</string>
+    <string name="custom_url_scheme">com.woos.aiusage</string>
+</resources>

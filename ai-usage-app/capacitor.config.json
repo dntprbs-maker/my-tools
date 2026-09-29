@@ -1,0 +1,7 @@
+{
+  "appId": "com.woos.aiusage",
+  "appName": "AI 사용량",
+  "webDir": "www",
+  "android": { "allowMixedContent": false },
+  "plugins": { "CapacitorHttp": { "enabled": true } }
+}
