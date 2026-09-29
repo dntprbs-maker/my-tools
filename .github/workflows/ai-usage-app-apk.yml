@@ -25,6 +25,8 @@ jobs:
           java-version: '21'
       - name: Install
         run: npm ci || npm install
+      - name: Stamp version
+        run: echo "window.APP_VERSION='$(date -u -d '+9 hours' +%m%d.%H%M)-${GITHUB_SHA::7}';" > www/version.js
       - name: Sync web assets into Android project
         run: npx cap sync android
       - name: Build debug APK

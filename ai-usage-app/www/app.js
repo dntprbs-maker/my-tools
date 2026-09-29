@@ -162,6 +162,7 @@
     else body = '<div class="box err">' + esc(s.message || '오류') + (s.relogin ? '<div class="actions"><button class="btn primary" data-login="' + w.key + '">다시 로그인</button></div>' : '') + '</div>';
     return '<article class="worker ' + w.cls + '"><header class="worker-head"><h2>' + w.title + '</h2><span class="meta">' + (s.at ? esc(fmt(s.at)) + ' 조회' : '') + '</span></header>' + body + '</article>';
   }
+  let lastBanner = '';
   function banner() {
     const a = state.claude, b = state.codex;
     if (a.status !== 'ok' || b.status !== 'ok') return '';
@@ -176,6 +177,7 @@
     else if (ex(pri.s)) t = emoji[oth.c] + ' ' + pri.name + '는 5시간 한도가 거의 찼어요. 지금은 ' + oth.name + '를 쓰세요.';
     else if (ra === rb) t = emoji[ca] + ' ' + ({ 0: '둘 다 열심히 사용하셔도 돼요 😄', 1: '잘 쓰고 계시네요 👍', 2: '그만 쓰세요 ㅋㅋ' })[ra];
     else t = emoji[pri.c] + ' ' + pri.name + '를 우선 사용하세요.';
+    lastBanner = t;
     return '<div class="pace-banner">' + esc(t) + '</div>';
   }
   function render() {
@@ -194,8 +196,12 @@
       }
     };
     await Promise.all([run('claude', () => claudeUsage()), run('codex', () => codexUsage())]);
+    lastBanner = '';
     render();
     $('#status').textContent = '마지막 조회 ' + fmt(new Date());
+    // 홈 화면 위젯용 요약(앱을 나갈 때 위젯이 이 값을 읽는다)
+    const sum = (s) => (s.status === 'ok' ? { five: n(s.five.used), week: n(s.week.used) } : null);
+    try { await save('widget', { claude: sum(state.claude), codex: sum(state.codex), banner: lastBanner || 'AI 사용량', at: fmt(new Date()) }); } catch (e) {}
     $('#refresh').disabled = false;
   }
 
@@ -236,7 +242,8 @@
     if (p && !(await load('claude'))) { state.claude = { status: 'paste' }; render(); }
   }
   // 앱으로 돌아오는 즉시 확인
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCodexLogin(); });
+  // 위젯을 눌러 들어오거나 앱으로 돌아오면 바로 새로 조회한다.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkCodexLogin(); refreshAll(); } });
 
   document.addEventListener('click', async (e) => {
     const t = e.target;

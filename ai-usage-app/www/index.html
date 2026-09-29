@@ -32,6 +32,9 @@ input{width:100%;font:inherit;border:1px solid #cfd8e3;border-radius:10px;paddin
   <div id="paceBanner"></div>
   <div id="cards"></div>
 </main>
+<p id="ver" class="status" style="text-align:center"></p>
+<script src="version.js"></script>
+<script>document.getElementById('ver').textContent = '버전 ' + (window.APP_VERSION || '개발용');</script>
 <script src="app.js"></script>
 </body>
 </html>
