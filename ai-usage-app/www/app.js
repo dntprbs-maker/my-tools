@@ -37,14 +37,14 @@
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_auth_id: s.deviceAuthId, user_code: s.userCode }),
     });
     if (r.status === 403 || r.status === 404) return null; // 아직 입력 전
-    if (!r.ok) throw new Error('로그인 확인 실패 (HTTP ' + r.status + ')');
+    if (!r.ok) throw Object.assign(new Error('로그인 확인 실패 (HTTP ' + r.status + ')'), { http: true });
     const d = await r.json();
     const form = new URLSearchParams({
       grant_type: 'authorization_code', code: d.authorization_code,
       redirect_uri: CODEX.issuer + '/deviceauth/callback', client_id: CODEX.clientId, code_verifier: d.code_verifier,
     });
     const t = await fetch(CODEX.issuer + '/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form.toString() });
-    if (!t.ok) throw new Error('로그인 마무리 실패 (HTTP ' + t.status + ')');
+    if (!t.ok) throw Object.assign(new Error('로그인 마무리 실패 (HTTP ' + t.status + ')'), { http: true });
     const tok = await t.json();
     const auth = jwtClaims(tok.id_token)['https://api.openai.com/auth'] || {};
     return { access_token: tok.access_token, refresh_token: tok.refresh_token, account_id: auth.chatgpt_account_id, expires_at: Date.now() + (Number(tok.expires_in) || 3600) * 1000 };
@@ -157,7 +157,7 @@
     if (s.status === 'ok') body = limit(s.five, '5시간 한도', 5) + limit(s.week, '주간 한도', 168);
     else if (s.status === 'paste') body = '<div class="box">열린 페이지에서 로그인·승인하면 코드가 나옵니다. 그 코드를 복사해 아래에 붙여 넣으세요.<input id="claudeCode" placeholder="코드 붙여넣기" autocomplete="off"><div class="actions"><button class="btn primary" data-finish="claude">확인</button><button class="btn" data-login="claude">페이지 다시 열기</button></div></div>';
     else if (s.status === 'login') body = '<div class="box">로그인이 필요합니다.<div class="actions"><button class="btn primary" data-login="' + w.key + '">' + (w.key === 'codex' ? 'Codex' : 'Claude') + ' 로그인</button></div></div>';
-    else if (s.status === 'device') body = '<div class="box">아래 코드를 복사한 뒤 [로그인 페이지 열기]를 눌러 입력하세요.<div class="code">' + esc(s.userCode) + '</div><div class="actions"><button class="btn primary" data-open="codex">로그인 페이지 열기</button><button class="btn" data-copy="' + esc(s.userCode) + '">코드 복사</button></div><div class="meta">입력을 마치면 자동으로 연결됩니다(15분 안).</div></div>';
+    else if (s.status === 'device') body = '<div class="box">아래 코드를 복사한 뒤 [로그인 페이지 열기]를 눌러 입력하세요.<div class="code">' + esc(s.userCode) + '</div><div class="actions"><button class="btn primary" data-open="codex">로그인 페이지 열기</button><button class="btn" data-copy="' + esc(s.userCode) + '">코드 복사</button></div><div class="meta">' + esc(s.note || '입력을 마치면 자동으로 연결됩니다(15분 안).') + '</div></div>';
     else if (s.status === 'limited') body = '<div class="box">요청이 잦아 잠시 막혔습니다. 조금 뒤 다시 조회하세요.</div>';
     else body = '<div class="box err">' + esc(s.message || '오류') + (s.relogin ? '<div class="actions"><button class="btn primary" data-login="' + w.key + '">다시 로그인</button></div>' : '') + '</div>';
     return '<article class="worker ' + w.cls + '"><header class="worker-head"><h2>' + w.title + '</h2><span class="meta">' + (s.at ? esc(fmt(s.at)) + ' 조회' : '') + '</span></header>' + body + '</article>';
@@ -188,7 +188,10 @@
     const run = async (key, fn) => {
       if (state[key].status === 'device' || state[key].status === 'paste') return; // 로그인 진행 중이면 건드리지 않음
       try { state[key] = { ...(await fn()), at: new Date() }; }
-      catch (e) { state[key] = { status: 'error', message: e.message, relogin: !!e.relogin }; }
+      catch (e) {
+        const net = !e.relogin && !/HTTP \d/.test(e.message); // 연결 문제는 로그인 문제가 아니다
+        state[key] = { status: 'error', message: net ? '인터넷 연결 문제로 조회하지 못했습니다. 잠시 뒤 [지금 조회]를 눌러 주세요.' : e.message, relogin: !!e.relogin };
+      }
     };
     await Promise.all([run('claude', () => claudeUsage()), run('codex', () => codexUsage())]);
     render();
@@ -206,7 +209,10 @@
     try {
       const tok = await codexPollOnce(s);
       if (tok) { clearInterval(polling); await save('codex', tok); await remove('codex_pending'); state.codex = { status: 'login' }; await refreshAll(); }
-    } catch (e) { clearInterval(polling); await remove('codex_pending'); state.codex = { status: 'error', message: e.message, relogin: true }; render(); }
+    } catch (e) {
+      if (!e.http) { state.codex = { status: 'device', userCode: s.userCode, note: '인터넷 연결을 기다리는 중… 자동으로 다시 확인합니다.' }; render(); }
+      else { clearInterval(polling); await remove('codex_pending'); state.codex = { status: 'error', message: e.message, relogin: true }; render(); }
+    }
     finally { checking = false; }
   }
   function watchCodexLogin(s) {
