@@ -196,27 +196,45 @@
     $('#refresh').disabled = false;
   }
 
-  let polling = null;
+  // 로그인 페이지에 가 있는 사이 휴대폰이 앱을 꺼도 이어갈 수 있게 진행 중인 로그인을 저장해 둔다.
+  let polling = null, checking = false;
+  async function checkCodexLogin() {
+    const s = await load('codex_pending');
+    if (!s || checking) return;
+    if (Date.now() > s.deadline) { clearInterval(polling); await remove('codex_pending'); state.codex = { status: 'error', message: '시간이 지났습니다. 다시 로그인해 주세요.', relogin: true }; render(); return; }
+    checking = true;
+    try {
+      const tok = await codexPollOnce(s);
+      if (tok) { clearInterval(polling); await save('codex', tok); await remove('codex_pending'); state.codex = { status: 'login' }; await refreshAll(); }
+    } catch (e) { clearInterval(polling); await remove('codex_pending'); state.codex = { status: 'error', message: e.message, relogin: true }; render(); }
+    finally { checking = false; }
+  }
+  function watchCodexLogin(s) {
+    state.codex = { status: 'device', userCode: s.userCode };
+    render();
+    clearInterval(polling);
+    polling = setInterval(checkCodexLogin, (s.interval || 5) * 1000);
+  }
   async function startCodexLogin() {
     try {
       const s = await codexStart();
-      state.codex = { status: 'device', userCode: s.userCode };
-      render();
-      const deadline = Date.now() + 15 * 60000;
-      clearInterval(polling);
-      polling = setInterval(async () => {
-        if (Date.now() > deadline) { clearInterval(polling); state.codex = { status: 'error', message: '시간이 지났습니다. 다시 로그인해 주세요.', relogin: true }; render(); return; }
-        try {
-          const tok = await codexPollOnce(s);
-          if (tok) { clearInterval(polling); await save('codex', tok); await refreshAll(); }
-        } catch (e) { clearInterval(polling); state.codex = { status: 'error', message: e.message, relogin: true }; render(); }
-      }, s.interval * 1000);
+      s.deadline = Date.now() + 15 * 60000;
+      await save('codex_pending', s);
+      watchCodexLogin(s);
     } catch (e) { state.codex = { status: 'error', message: e.message, relogin: true }; render(); }
   }
+  async function resumePending() {
+    const s = await load('codex_pending');
+    if (s && Date.now() < s.deadline) { watchCodexLogin(s); checkCodexLogin(); }
+    const p = await load('claude_pending');
+    if (p && !(await load('claude'))) { state.claude = { status: 'paste' }; render(); }
+  }
+  // 앱으로 돌아오는 즉시 확인
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkCodexLogin(); });
 
   document.addEventListener('click', async (e) => {
     const t = e.target;
-    if (t.dataset.login === 'codex') { await remove('codex'); startCodexLogin(); }
+    if (t.dataset.login === 'codex') { await remove('codex'); await remove('codex_pending'); startCodexLogin(); }
     if (t.dataset.login === 'claude') {
       try { const url = await claudeStart(); state.claude = { status: 'paste' }; render(); if (Browser) Browser.open({ url }); }
       catch (e) { state.claude = { status: 'error', message: e.message, relogin: true }; render(); }
@@ -231,5 +249,5 @@
   });
   $('#refresh').addEventListener('click', refreshAll);
   render();
-  refreshAll();
+  resumePending().then(refreshAll);
 })();
