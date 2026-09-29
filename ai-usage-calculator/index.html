@@ -29,6 +29,10 @@
   <div class="top"><h1>AI 사용량 현황</h1><button id="refresh" class="refresh" type="button">↻ 새로고침</button></div>
   <p id="status" class="status">GitHub 최신 기록을 불러오는 중…</p>
   <div id="grid" class="grid"></div>
+
+  <div class="top" style="margin-top:22px"><h1 style="font-size:18px">지금 실제 사용량</h1><button id="liveRefresh" class="refresh" type="button">↻ 지금 조회</button></div>
+  <p id="liveStatus" class="status">아직 조회 안 함 — 위 버튼을 눌러 확인하세요.</p>
+  <div id="liveGrid" class="grid"></div>
 </main>
 <script>
 (()=>{
@@ -99,6 +103,30 @@ async function load(){
  }finally{refresh.disabled=false}
 }
 refresh.addEventListener('click',load);load();
+
+const liveGrid=$('#liveGrid'),liveStatus=$('#liveStatus'),liveBtn=$('#liveRefresh');
+const LIVE_WORKERS=[{title:'코드D (Claude)',cls:'',key:'claude'},{title:'덱스D (Codex)',cls:'dex',key:'codex'}];
+function liveCard(title,cls,entry){
+ if(!entry)return '<article class="worker '+cls+'"><header class="worker-head"><h2>'+title+'</h2></header><div class="error">조회 결과 없음</div></article>';
+ if(entry.status==='auth_required')return '<article class="worker '+cls+'"><header class="worker-head"><h2>'+title+'</h2><div class="meta">⚠ 인증 필요</div></header><div class="error">'+esc(entry.message||'다시 로그인/인증이 필요합니다')+'</div></article>';
+ if(entry.status==='rate_limited')return '<article class="worker '+cls+'"><header class="worker-head"><h2>'+title+'</h2><div class="meta">⚠ 요청 제한</div></header><div class="error">'+esc(entry.message||'잠시 후 다시 시도하세요')+'</div></article>';
+ if(entry.status!=='ok')return '<article class="worker '+cls+'"><header class="worker-head"><h2>'+title+'</h2></header><div class="error">'+esc(entry.message||'조회 실패')+'</div></article>';
+ const r={five_hour:{used_percent:entry.fiveHour?.usedPercent,reset_at:entry.fiveHour?.resetAt},weekly:{used_percent:entry.weekly?.usedPercent,reset_at:entry.weekly?.resetAt}};
+ return '<article class="worker '+cls+'"><header class="worker-head"><h2>'+title+'</h2><div class="meta">방금 실시간 조회</div></header>'+limitBlock(r,'five')+limitBlock(r,'week')+'</article>';
+}
+async function loadLive(){
+ liveBtn.disabled=true;liveStatus.textContent='실시간 조회 중…';
+ try{
+   const res=await fetch('/api/usage-now?t='+Date.now(),{cache:'no-store'});
+   const data=await res.json();
+   if(!res.ok)throw new Error(data.error||('HTTP '+res.status));
+   liveGrid.innerHTML=LIVE_WORKERS.map(w=>liveCard(w.title,w.cls,data[w.key])).join('');
+   liveStatus.textContent='마지막 실시간 조회: '+fmtStamp(new Date());
+ }catch(e){
+   liveStatus.textContent='실시간 조회 실패: '+e.message;
+ }finally{liveBtn.disabled=false}
+}
+liveBtn.addEventListener('click',loadLive);
 })();
 </script>
 </body>
