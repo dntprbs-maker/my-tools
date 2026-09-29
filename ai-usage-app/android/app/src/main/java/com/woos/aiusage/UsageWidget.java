@@ -11,17 +11,41 @@ import android.widget.RemoteViews;
 import org.json.JSONObject;
 
 // 홈 화면 위젯: 앱이 마지막으로 조회해 저장한 값(Preferences "widget")을 보여 준다.
-// 누르면 앱이 열리고, 앱이 새로 조회한 뒤 나갈 때 위젯이 갱신된다.
+// 약 15분마다 UsageWorker가 새로 조회하고, ↻ 를 누르면 즉시 조회한다. 나머지 부분을 누르면 앱이 열린다.
 public class UsageWidget extends AppWidgetProvider {
+    static final String ACTION_REFRESH = "com.woos.aiusage.WIDGET_REFRESH";
+    private static boolean refreshing = false;
+
     @Override
     public void onUpdate(Context context, AppWidgetManager manager, int[] ids) {
         for (int id : ids) manager.updateAppWidget(id, build(context));
+        UsageWorker.schedule(context);
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        androidx.work.WorkManager.getInstance(context).cancelUniqueWork("usage-periodic");
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        super.onReceive(context, intent);
+        if (ACTION_REFRESH.equals(intent.getAction())) {
+            refreshing = true;
+            updateAll(context);
+            UsageWorker.refreshNow(context);
+        }
     }
 
     public static void updateAll(Context context) {
         AppWidgetManager manager = AppWidgetManager.getInstance(context);
         int[] ids = manager.getAppWidgetIds(new ComponentName(context, UsageWidget.class));
         if (ids.length > 0) manager.updateAppWidget(ids, build(context));
+    }
+
+    static void doneRefreshing(Context context) {
+        refreshing = false;
+        updateAll(context);
     }
 
     private static String line(JSONObject all, String key, String name) {
@@ -41,7 +65,7 @@ public class UsageWidget extends AppWidgetProvider {
             String raw = context.getSharedPreferences("CapacitorStorage", Context.MODE_PRIVATE).getString("widget", null);
             if (raw == null) throw new Exception("empty");
             JSONObject all = new JSONObject(raw);
-            text = line(all, "claude", "코드D") + "\n" + line(all, "codex", "덱스D") + "\n" + all.optString("at", "") + " 기준 · 눌러서 새로고침";
+            text = line(all, "claude", "코드D") + "\n" + line(all, "codex", "덱스D") + "\n" + (refreshing ? "조회 중…" : all.optString("at", "") + " 기준");
             views.setTextViewText(R.id.widget_banner, all.optString("banner", "AI 사용량"));
         } catch (Exception e) {
             text = "앱을 한 번 열어 조회해 주세요.";
@@ -52,6 +76,9 @@ public class UsageWidget extends AppWidgetProvider {
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         views.setOnClickPendingIntent(R.id.widget_root, pi);
+        Intent refresh = new Intent(context, UsageWidget.class).setAction(ACTION_REFRESH);
+        PendingIntent rpi = PendingIntent.getBroadcast(context, 1, refresh, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        views.setOnClickPendingIntent(R.id.widget_refresh, rpi);
         return views;
     }
 }

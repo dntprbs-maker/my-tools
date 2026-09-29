@@ -200,7 +200,8 @@
     render();
     $('#status').textContent = '마지막 조회 ' + fmt(new Date());
     // 홈 화면 위젯용 요약(앱을 나갈 때 위젯이 이 값을 읽는다)
-    const sum = (s) => (s.status === 'ok' ? { five: n(s.five.used), week: n(s.week.used) } : null);
+    const t = (d) => (d ? d.getTime() : 0);
+    const sum = (s) => (s.status === 'ok' ? { five: n(s.five.used), week: n(s.week.used), fiveReset: t(s.five.reset), weekReset: t(s.week.reset) } : null);
     try { await save('widget', { claude: sum(state.claude), codex: sum(state.codex), banner: lastBanner || 'AI 사용량', at: fmt(new Date()) }); } catch (e) {}
     $('#refresh').disabled = false;
   }
