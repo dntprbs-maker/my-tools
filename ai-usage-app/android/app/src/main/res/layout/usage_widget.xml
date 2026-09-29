@@ -4,29 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="12dp"
+    android:padding="6dp"
     android:background="@drawable/widget_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingStart="10dp">
 
         <TextView
-            android:id="@+id/widget_banner"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:maxLines="2"
             android:text="AI 사용량"
-            android:textColor="#174F9D"
-            android:textSize="14sp"
+            android:textColor="#172033"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/widget_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:textColor="#6B778C"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/widget_refresh"
-            android:layout_width="40dp"
+            android:layout_width="44dp"
             android:layout_height="40dp"
             android:gravity="center"
             android:text="↻"
@@ -35,13 +42,10 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/widget_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="앱을 한 번 열어 조회해 주세요."
-        android:textColor="#172033"
-        android:textSize="13sp"
-        android:lineSpacingExtra="2dp" />
+    <ImageView
+        android:id="@+id/widget_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter"
+        android:contentDescription="AI 사용량" />
 </LinearLayout>

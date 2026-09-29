@@ -48,30 +48,20 @@ public class UsageWidget extends AppWidgetProvider {
         updateAll(context);
     }
 
-    private static String line(JSONObject all, String key, String name) {
-        JSONObject w = all.optJSONObject(key);
-        if (w == null) return name + "  로그인 필요";
-        return name + "  5시간 " + pct(w, "five") + "  ·  주간 " + pct(w, "week");
-    }
-
-    private static String pct(JSONObject w, String key) {
-        return w.isNull(key) ? "-" : Math.round(w.optDouble(key)) + "%";
-    }
-
     private static RemoteViews build(Context context) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.usage_widget);
-        String text;
+        JSONObject all;
         try {
             String raw = context.getSharedPreferences("CapacitorStorage", Context.MODE_PRIVATE).getString("widget", null);
-            if (raw == null) throw new Exception("empty");
-            JSONObject all = new JSONObject(raw);
-            text = line(all, "claude", "코드D") + "\n" + line(all, "codex", "덱스D") + "\n" + (refreshing ? "조회 중…" : all.optString("at", "") + " 기준");
-            views.setTextViewText(R.id.widget_banner, all.optString("banner", "AI 사용량"));
+            all = raw == null ? new JSONObject() : new JSONObject(raw);
         } catch (Exception e) {
-            text = "앱을 한 번 열어 조회해 주세요.";
-            views.setTextViewText(R.id.widget_banner, "AI 사용량");
+            all = new JSONObject();
         }
-        views.setTextViewText(R.id.widget_text, text);
+        if (!all.has("banner")) {
+            try { all.put("banner", "앱을 한 번 열어 조회해 주세요."); } catch (Exception ignored) { }
+        }
+        views.setTextViewText(R.id.widget_time, refreshing ? "조회 중…" : (all.optString("at", "").isEmpty() ? "" : all.optString("at") + " 기준"));
+        try { views.setImageViewBitmap(R.id.widget_image, WidgetRenderer.draw(context, all)); } catch (Exception ignored) { }
         Intent open = new Intent(context, MainActivity.class);
         open.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pi = PendingIntent.getActivity(context, 0, open, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
