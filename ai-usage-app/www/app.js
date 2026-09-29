@@ -58,14 +58,14 @@
     const d = await r.json();
     return { ...c, access_token: d.access_token, refresh_token: d.refresh_token || c.refresh_token, expires_at: Date.now() + (Number(d.expires_in) || 3600) * 1000 };
   }
-  async function codexUsage() {
+  async function codexUsage(retried) {
     let c = await load('codex');
     if (!c) return { status: 'login' };
     if (Date.now() > (c.expires_at || 0) - 120000) { c = await codexRefresh(c); await save('codex', c); }
     const r = await fetch(CODEX.usageUrl, { headers: { Authorization: 'Bearer ' + c.access_token, 'ChatGPT-Account-Id': c.account_id || '', Accept: 'application/json' } });
-    if (r.status === 401 || r.status === 403) {
+    if ((r.status === 401 || r.status === 403) && !retried) {
       c = await codexRefresh(c); await save('codex', c);
-      return codexUsage();
+      return codexUsage(true);
     }
     if (r.status === 429) return { status: 'limited' };
     if (!r.ok) throw new Error('조회 실패 (HTTP ' + r.status + ')');
@@ -74,12 +74,68 @@
     return { status: 'ok', five: w(rl.primary_window), week: w(rl.secondary_window) };
   }
 
+  // ---------- Claude: 공식 로그인(코드 붙여넣기 방식) ----------
+  const CLAUDE = {
+    clientId: '9d1c250a-e61b-44d9-88ed-5944d1962f5e', // Claude Code 공개 client id
+    authorize: 'https://claude.com/cai/oauth/authorize',
+    token: 'https://platform.claude.com/v1/oauth/token',
+    redirect: 'https://platform.claude.com/oauth/code/callback',
+    usageUrl: 'https://api.anthropic.com/api/oauth/usage',
+  };
+  const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const rand = (n) => b64url(crypto.getRandomValues(new Uint8Array(n)));
+  async function claudeStart() {
+    const verifier = rand(32), st = rand(24);
+    const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+    await save('claude_pending', { verifier, state: st });
+    const q = new URLSearchParams({
+      code: 'true', client_id: CLAUDE.clientId, response_type: 'code', redirect_uri: CLAUDE.redirect,
+      scope: 'user:profile user:inference', code_challenge: challenge, code_challenge_method: 'S256', state: st,
+    });
+    return CLAUDE.authorize + '?' + q.toString();
+  }
+  async function claudeFinish(pasted) {
+    const p = await load('claude_pending');
+    if (!p) throw new Error('로그인을 처음부터 다시 시작해 주세요.');
+    const [code, st] = String(pasted).trim().split('#');
+    if (!code) throw new Error('코드를 붙여 넣어 주세요.');
+    const r = await fetch(CLAUDE.token, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant_type: 'authorization_code', code, redirect_uri: CLAUDE.redirect, client_id: CLAUDE.clientId, code_verifier: p.verifier, state: st || p.state }),
+    });
+    if (!r.ok) throw new Error('로그인 마무리 실패 (HTTP ' + r.status + ') — 코드를 다시 받아 주세요.');
+    const d = await r.json();
+    await save('claude', { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (Number(d.expires_in) || 3600) * 1000 });
+    await remove('claude_pending');
+  }
+  async function claudeRefresh(c) {
+    const r = await fetch(CLAUDE.token, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: c.refresh_token, client_id: CLAUDE.clientId }),
+    });
+    if (!r.ok) throw Object.assign(new Error('다시 로그인이 필요합니다'), { relogin: true });
+    const d = await r.json();
+    return { access_token: d.access_token, refresh_token: d.refresh_token || c.refresh_token, expires_at: Date.now() + (Number(d.expires_in) || 3600) * 1000 };
+  }
+  async function claudeUsage(retried) {
+    let c = await load('claude');
+    if (!c) return { status: 'login' };
+    if (Date.now() > (c.expires_at || 0) - 120000) { c = await claudeRefresh(c); await save('claude', c); }
+    const r = await fetch(CLAUDE.usageUrl, { headers: { Authorization: 'Bearer ' + c.access_token, 'anthropic-beta': 'oauth-2025-04-20', Accept: 'application/json' } });
+    if ((r.status === 401 || r.status === 403) && !retried) { c = await claudeRefresh(c); await save('claude', c); return claudeUsage(true); }
+    if (r.status === 429) return { status: 'limited' };
+    if (!r.ok) throw new Error('조회 실패 (HTTP ' + r.status + ')');
+    const d = await r.json();
+    const w = (x) => ({ used: x ? x.utilization : null, reset: x && x.resets_at ? new Date(x.resets_at) : null });
+    return { status: 'ok', five: w(d.five_hour), week: w(d.seven_day) };
+  }
+
   // ---------- 화면 ----------
   const WORKERS = [
     { key: 'claude', title: '코드D (Claude)', cls: '' },
     { key: 'codex', title: '덱스D (Codex)', cls: 'dex' },
   ];
-  const state = { claude: { status: 'soon' }, codex: { status: 'login' } };
+  const state = { claude: { status: 'login' }, codex: { status: 'login' } };
   const n = (v) => { v = Number(v); return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : null; };
   function fmt(d) { return new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(d); }
   function dur(ms) { if (ms <= 0) return '0분'; let m = Math.ceil(ms / 60000), dd = Math.floor(m / 1440); m %= 1440; const h = Math.floor(m / 60), mm = m % 60; return (dd ? dd + '일 ' : '') + (h ? h + '시간 ' : '') + mm + '분'; }
@@ -99,7 +155,7 @@
     const s = state[w.key];
     let body;
     if (s.status === 'ok') body = limit(s.five, '5시간 한도', 5) + limit(s.week, '주간 한도', 168);
-    else if (s.status === 'soon') body = '<div class="box meta">Claude 로그인은 다음 단계에서 추가됩니다.</div>';
+    else if (s.status === 'paste') body = '<div class="box">열린 페이지에서 로그인·승인하면 코드가 나옵니다. 그 코드를 복사해 아래에 붙여 넣으세요.<input id="claudeCode" placeholder="코드 붙여넣기" autocomplete="off"><div class="actions"><button class="btn primary" data-finish="claude">확인</button><button class="btn" data-login="claude">페이지 다시 열기</button></div></div>';
     else if (s.status === 'login') body = '<div class="box">로그인이 필요합니다.<div class="actions"><button class="btn primary" data-login="' + w.key + '">' + (w.key === 'codex' ? 'Codex' : 'Claude') + ' 로그인</button></div></div>';
     else if (s.status === 'device') body = '<div class="box">아래 코드를 복사한 뒤 [로그인 페이지 열기]를 눌러 입력하세요.<div class="code">' + esc(s.userCode) + '</div><div class="actions"><button class="btn primary" data-open="codex">로그인 페이지 열기</button><button class="btn" data-copy="' + esc(s.userCode) + '">코드 복사</button></div><div class="meta">입력을 마치면 자동으로 연결됩니다(15분 안).</div></div>';
     else if (s.status === 'limited') body = '<div class="box">요청이 잦아 잠시 막혔습니다. 조금 뒤 다시 조회하세요.</div>';
@@ -129,11 +185,12 @@
 
   async function refreshAll() {
     $('#refresh').disabled = true; $('#status').textContent = '조회 중…';
-    try {
-      state.codex = { ...(await codexUsage()), at: new Date() };
-    } catch (e) {
-      state.codex = { status: 'error', message: e.message, relogin: !!e.relogin };
-    }
+    const run = async (key, fn) => {
+      if (state[key].status === 'device' || state[key].status === 'paste') return; // 로그인 진행 중이면 건드리지 않음
+      try { state[key] = { ...(await fn()), at: new Date() }; }
+      catch (e) { state[key] = { status: 'error', message: e.message, relogin: !!e.relogin }; }
+    };
+    await Promise.all([run('claude', () => claudeUsage()), run('codex', () => codexUsage())]);
     render();
     $('#status').textContent = '마지막 조회 ' + fmt(new Date());
     $('#refresh').disabled = false;
@@ -160,6 +217,15 @@
   document.addEventListener('click', async (e) => {
     const t = e.target;
     if (t.dataset.login === 'codex') { await remove('codex'); startCodexLogin(); }
+    if (t.dataset.login === 'claude') {
+      try { const url = await claudeStart(); state.claude = { status: 'paste' }; render(); if (Browser) Browser.open({ url }); }
+      catch (e) { state.claude = { status: 'error', message: e.message, relogin: true }; render(); }
+    }
+    if (t.dataset.finish === 'claude') {
+      t.disabled = true;
+      try { await claudeFinish($('#claudeCode').value); state.claude = { status: 'login' }; await refreshAll(); }
+      catch (e) { state.claude = { status: 'error', message: e.message, relogin: true }; render(); }
+    }
     if (t.dataset.open === 'codex' && Browser) Browser.open({ url: CODEX.issuer + '/codex/device' });
     if (t.dataset.copy) { try { await navigator.clipboard.writeText(t.dataset.copy); t.textContent = '복사됨'; } catch (err) {} }
   });
