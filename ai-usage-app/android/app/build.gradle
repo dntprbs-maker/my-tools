@@ -7,7 +7,7 @@ android {
         applicationId "com.woos.aiusage"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1") as int)
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -16,7 +16,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // 빌드마다 서명이 바뀌면 휴대폰이 업데이트 설치를 거부한다 → 고정 서명키(GitHub 비밀값에서 복원)를 쓴다.
+    def fixedKey = file('aiusage.p12')
+    signingConfigs {
+        fixed {
+            storeFile fixedKey
+            storeType 'pkcs12'
+            storePassword System.getenv('AIU_KEYSTORE_PASS')
+            keyAlias 'aiusage'
+            keyPassword System.getenv('AIU_KEYSTORE_PASS')
+        }
+    }
     buildTypes {
+        debug {
+            if (fixedKey.exists()) signingConfig signingConfigs.fixed
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
