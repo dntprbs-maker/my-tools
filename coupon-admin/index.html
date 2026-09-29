@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>쿠폰 관리자 열기</title>
+<meta name="referrer" content="no-referrer">
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f6fa;color:#142033;font:16px/1.5 system-ui,sans-serif}.box{max-width:420px;margin:20px;padding:26px;border:1px solid #dce3ec;border-radius:16px;background:#fff;text-align:center}label{display:block;text-align:left;font-weight:700;font-size:13px}input{display:block;width:100%;box-sizing:border-box;margin:6px 0 12px;padding:12px;border:1px solid #b8c3d1;border-radius:10px;font:inherit}button{padding:11px 18px;border:0;border-radius:10px;background:#1769d2;color:#fff;font:inherit;font-weight:700}.meta{font-size:13px;color:#68758a}.error{color:#b42318}</style>
+</head><body><main class="box"><h1>아빠 전용 쿠폰 관리자</h1><p id="status">개발 미리보기 연결 주소를 처음 한 번만 입력해.</p><form id="connect"><label for="owner-url">아빠 전용 /owner 주소</label><input id="owner-url" type="url" required autocomplete="url" placeholder="https://개발서버주소/owner"><button type="submit">쿠폰 관리자 열기</button></form><p class="meta">주소는 이 브라우저에만 보관하고 GitHub에는 올리지 않아. Tailscale 주소라면 스마트폰도 Tailscale에 연결해야 해.</p><p class="error" id="error" role="alert"></p></main>
+<script>
+const storageKey='giftishow-owner-preview-url';
+function validOwner(value){try{const url=new URL(value);const octets=url.hostname.split('.').map(Number);const tailIp=octets.length===4&&octets[0]===100&&octets[1]>=64&&octets[1]<=127&&octets.slice(2).every(x=>Number.isInteger(x)&&x>=0&&x<=255);return url.pathname==='/owner'&&!url.search&&!url.hash&&!url.username&&!url.password&&(url.protocol==='https:'||(url.protocol==='http:'&&tailIp))}catch{return false}}
+const saved=localStorage.getItem(storageKey);
+if(saved&&validOwner(saved))location.replace(saved);
+document.getElementById('connect').addEventListener('submit',event=>{event.preventDefault();const value=document.getElementById('owner-url').value.trim();if(!validOwner(value)){document.getElementById('error').textContent='HTTPS 개발 서버 또는 Tailscale의 /owner 주소를 입력해.';return}localStorage.setItem(storageKey,value);location.replace(value)});
+</script></body></html>
