@@ -177,6 +177,7 @@ public class UsageWorker extends Worker {
         boolean pe = pri.optDouble("five", 0) >= 95, oe = oth.optDouble("five", 0) >= 95;
         if (pe && oe) return "⏳ 둘 다 5시간 한도가 거의 찼어요";
         if (pe) return emoji[or] + " " + on + "를 쓰세요 (" + pn + " 5시간 한도 거의 참)";
+        if (oe) return emoji[pr] + " " + pn + "를 쓰세요 (" + on + " 5시간 한도 거의 참)";
         if (ra == rb) return emoji[ra] + " " + new String[] { "둘 다 열심히 사용하셔도 돼요 😄", "잘 쓰고 계시네요 👍", "그만 쓰세요 ㅋㅋ" }[ra];
         return emoji[pr] + " " + pn + "를 우선 사용하세요";
     }

@@ -144,17 +144,19 @@
   function elapsedPct(reset, hours) { const cycle = hours * 3600000; return n(((Date.now() - (reset.getTime() - cycle)) / cycle) * 100); }
   function bar(p, cls, color) { const v = n(p) ?? 0; return '<div class="barwrap ' + cls + '"><div class="bar"><div class="fill" style="width:' + v + '%;' + (color ? 'background:' + color : '') + '"></div></div><span class="pct">' + Math.round(v) + '%</span></div>'; }
   function limit(w, label, hours) {
-    if (!w || w.used === null || !w.reset) return '<section class="limit"><h3>' + label + '</h3><div class="meta">값 없음</div></section>';
-    const el = elapsedPct(w.reset, hours);
-    return '<section class="limit"><h3>' + label + '</h3>' +
-      '<div class="row"><div class="label">사용량</div>' + bar(w.used, '', paceColor(w.used, el)) + '</div>' +
-      '<div class="row"><div class="label">시간경과</div>' + bar(el, 'elapsed') + '</div>' +
-      '<div class="row"><div class="label">초기화</div><div class="value">' + dur(w.reset - Date.now()) + ' · ' + esc(fmt(w.reset)) + '</div></div></section>';
+    // 한 화면에 두 작업자가 다 보이도록 한도 하나를 두 줄로 압축: 굵은 막대=사용량, 얇은 초록 막대=시간경과
+    if (!w || w.used === null || !w.reset) return '<section class="limit"><div class="lrow"><b class="lname">' + label + '</b><span class="meta">값 없음</span></div></section>';
+    const el = elapsedPct(w.reset, hours), u = n(w.used) ?? 0;
+    return '<section class="limit"><div class="lrow"><b class="lname">' + label + '</b>' +
+      '<div class="lbars"><div class="bar"><div class="fill" style="width:' + u + '%;background:' + paceColor(u, el) + '"></div></div>' +
+      '<div class="bar thin"><div class="fill" style="width:' + (el ?? 0) + '%;background:var(--green)"></div></div></div>' +
+      '<div class="lnum"><b>' + Math.round(u) + '%</b><span>경과 ' + Math.round(el ?? 0) + '%</span></div></div>' +
+      '<div class="lreset">초기화 ' + dur(w.reset - Date.now()) + ' · ' + esc(fmt(w.reset)) + '</div></section>';
   }
   function card(w) {
     const s = state[w.key];
     let body;
-    if (s.status === 'ok') body = limit(s.five, '5시간 한도', 5) + limit(s.week, '주간 한도', 168);
+    if (s.status === 'ok') body = limit(s.five, '5시간', 5) + limit(s.week, '주간', 168);
     else if (s.status === 'paste') body = '<div class="box">열린 페이지에서 로그인·승인하면 코드가 나옵니다. 그 코드를 복사해 아래에 붙여 넣으세요.<input id="claudeCode" placeholder="코드 붙여넣기" autocomplete="off"><div class="actions"><button class="btn primary" data-finish="claude">확인</button><button class="btn" data-login="claude">페이지 다시 열기</button></div></div>';
     else if (s.status === 'login') body = '<div class="box">로그인이 필요합니다.<div class="actions"><button class="btn primary" data-login="' + w.key + '">' + (w.key === 'codex' ? 'Codex' : 'Claude') + ' 로그인</button></div></div>';
     else if (s.status === 'device') body = '<div class="box">아래 코드를 복사한 뒤 [로그인 페이지 열기]를 눌러 입력하세요.<div class="code">' + esc(s.userCode) + '</div><div class="actions"><button class="btn primary" data-open="codex">로그인 페이지 열기</button><button class="btn" data-copy="' + esc(s.userCode) + '">코드 복사</button></div><div class="meta">' + esc(s.note || '입력을 마치면 자동으로 연결됩니다(15분 안).') + '</div></div>';
@@ -175,6 +177,7 @@
     let t;
     if (ex(pri.s) && ex(oth.s)) t = '⏳ 둘 다 5시간 한도가 거의 찼어요. 초기화를 기다려주세요.';
     else if (ex(pri.s)) t = emoji[oth.c] + ' ' + pri.name + '는 5시간 한도가 거의 찼어요. 지금은 ' + oth.name + '를 쓰세요.';
+    else if (ex(oth.s)) t = emoji[pri.c] + ' ' + oth.name + '는 5시간 한도가 거의 찼어요. 지금은 ' + pri.name + '를 쓰세요.';
     else if (ra === rb) t = emoji[ca] + ' ' + ({ 0: '둘 다 열심히 사용하셔도 돼요 😄', 1: '잘 쓰고 계시네요 👍', 2: '그만 쓰세요 ㅋㅋ' })[ra];
     else t = emoji[pri.c] + ' ' + pri.name + '를 우선 사용하세요.';
     lastBanner = t;
