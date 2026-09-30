@@ -10,7 +10,7 @@
 |---|---|---|---|
 | AI 주간 사용량 계산기 | [`ai-usage-calculator/`](./ai-usage-calculator/) | AI별 주간 사용 계획과 잔여량 확인 | 설명 작성 완료 · 실행 파일 등록 대기 |
 | 리버뷰 접수 등록 | [`river-view/`](./river-view/) | 리버뷰 유지보수 접수 내용 등록 | 1차 화면 구현 완료 · 아빠 확인 대기 |
-| 쿠폰 관리자 | [`coupon-admin/`](./coupon-admin/) | 공용 기프티쇼 아빠 전용 관리자 진입점 | 개발 미리보기 연결 · 클라우드 개발 API 준비 중 |
+| 쿠폰 관리자 | [`coupon-admin/`](./coupon-admin/) | 공용 기프티쇼 아빠 전용 관리자 진입점 | Railway 개발 미리보기 HTTPS 연결 · 모의발송 전용 |
 
 ## 관리 원칙
 
