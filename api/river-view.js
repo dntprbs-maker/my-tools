@@ -68,11 +68,14 @@ async function verifyFirebaseIdToken(token) {
 }
 async function resolveSession(req) {
   const testKey = req.headers['x-river-view-test-key'];
-  if (testKey) { const configured = await getDocOrNull(`${databasePath}/riverViewConfig/aiTestKey`); let valid; if (configured) { const doc = fromDocument(configured); if (doc.disabled === 'true') throw new AuthError(403, 'AI 시험 열쇠가 꺼져 있습니다'); valid = typeof doc.hash === 'string' && doc.hash.length > 0 && constantTimeEqual(sha256Hex(testKey), doc.hash); } else { valid = constantTimeEqual(sha256Hex(testKey), defaultTestKeyHash); } if (!valid) throw new AuthError(401, 'AI 시험 열쇠가 올바르지 않습니다'); return { uid: 'ai-tester', email: 'ai-tester@river-view.local', role: 'master', status: 'approved', vendorName: '', isTest: true, viewAs: '', realUid: 'ai-tester' }; }
+  if (testKey) { const configured = await getDocOrNull(`${databasePath}/riverViewConfig/aiTestKey`); let valid; if (configured) { const doc = fromDocument(configured); if (doc.disabled === 'true') throw new AuthError(403, 'AI 시험 열쇠가 꺼져 있습니다'); valid = typeof doc.hash === 'string' && doc.hash.length > 0 && constantTimeEqual(sha256Hex(testKey), doc.hash); } else { valid = constantTimeEqual(sha256Hex(testKey), defaultTestKeyHash); } if (!valid) throw new AuthError(401, 'AI 시험 열쇠가 올바르지 않습니다'); return applyViewAs(req, { uid: 'ai-tester', email: 'ai-tester@river-view.local', role: 'master', status: 'approved', vendorName: '', isTest: true, viewAs: '', realUid: 'ai-tester' }); }
   const match = /^Bearer\s+(.+)$/i.exec(req.headers.authorization || ''); if (!match) throw new AuthError(401, 'Authorization Bearer token is required');
   const payload = await verifyFirebaseIdToken(match[1]); if (payload.email_verified !== true) throw new AuthError(403, 'Google 이메일 인증이 필요합니다');
   const session = { uid: payload.sub, email: payload.email || '', role: '', status: 'none', vendorName: '', isTest: false, viewAs: '', realUid: payload.sub };
   if (payload.email === masterEmail) { session.role = 'master'; session.status = 'approved'; } else { const userDoc = await getDocOrNull(`${databasePath}/riverViewUsers/${encodeURIComponent(payload.sub)}`); if (userDoc) { const user = fromDocument(userDoc); session.role = user.role || ''; session.status = user.status || 'none'; session.vendorName = user.vendorName || ''; } }
+  return applyViewAs(req, session);
+}
+function applyViewAs(req, session) {
   if (session.role === 'master') { const viewAs = req.headers['x-river-view-view-as']; const viewAsVendor = req.headers['x-river-view-view-as-vendor']; if (viewAs === 'company' || viewAs === 'riverview' || viewAs === 'vendor') { session.viewAs = viewAs; session.role = viewAs; if (viewAs === 'vendor' && viewAsVendor) { session.realUid = session.uid; session.uid = viewAsVendor; } } }
   return session;
 }
