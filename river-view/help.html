@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>리버뷰 사용법</title>
+<style>
+  :root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--navy:#1f3a5f;--blue:#1769e0;--sky:#e8f1ff;--green:#087443;--mint:#e4f7eb;--amber:#9a6700;--cream:#fff4d8;--red:#b42318;--rose:#fdecec;--purple:#5b3fc4;--lav:#efebff;--bg:#f4f7fb}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;line-height:1.55}
+  main{width:min(100%,760px);margin:0 auto;padding:16px 14px 40px}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+  .back{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:800;text-decoration:none;font-size:14px}
+  .hero{background:var(--navy);color:#fff;border-radius:18px;padding:22px 20px}
+  .hero h1{margin:0;font-size:26px;letter-spacing:-.5px}.hero p{margin:6px 0 0;color:#cfe0f8;font-size:14px}
+  .tabs{position:sticky;top:0;z-index:5;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0;padding:8px 0;background:var(--bg)}
+  .tabs button{min-height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+  .tabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  section{margin:18px 0}
+  .band{display:flex;align-items:center;gap:10px;background:var(--c,var(--navy));color:#fff;border-radius:12px;padding:11px 14px;margin-bottom:12px}
+  .band b{display:grid;place-items:center;min-width:30px;height:30px;border-radius:8px;background:rgb(255 255 255 / 22%);font-size:15px}
+  .band h2{margin:0;font-size:18px}
+  h3{font-size:16px;margin:16px 0 8px;padding-left:10px;border-left:5px solid var(--blue);color:var(--navy)}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .card{background:var(--f);border-top:5px solid var(--e);border-radius:12px;padding:12px 8px;text-align:center}
+  .card .i{font-size:26px}.card .n{font-weight:800;color:var(--e);margin-top:4px}.card .w{font-size:12px;color:var(--muted)}.card .d{font-size:13px;margin-top:6px}
+  .flow{display:flex;align-items:stretch;gap:4px}
+  .flow div{flex:1;background:var(--f);border:1.5px solid var(--e);border-radius:12px;padding:10px 6px;text-align:center;font-size:13px}
+  .flow div small{display:block;color:var(--e);font-weight:800;font-size:11px}
+  .flow span{align-self:center;color:var(--muted);font-size:14px}
+  .note{background:var(--f,var(--sky));border-left:6px solid var(--e,var(--blue));border-radius:10px;padding:12px 14px;margin:12px 0}
+  .note strong{display:block;color:var(--e,var(--blue));margin-bottom:4px}
+  .note ul{margin:0;padding-left:18px}.note li{margin:3px 0;font-size:14px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:13px}
+  th{background:var(--navy);color:#fff;padding:8px 4px;font-size:12px}
+  td{border-top:1px solid var(--line);padding:8px 6px;text-align:center}
+  td:first-child{text-align:left;font-weight:700}
+  tr:nth-child(even) td{background:#f7f9fc}
+  .y{color:var(--green);font-weight:900}.p{color:var(--amber);font-weight:800;font-size:12px}.n{color:#b0b8c4}
+  .legend{font-size:12px;color:var(--muted);text-align:right;margin-top:6px}
+  .shot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start}
+  .shot figure{margin:0;background:#e9eef5;border-radius:14px;padding:10px;text-align:center}
+  .shot img,.row img{width:100%;max-width:300px;border-radius:10px;border:1px solid var(--line);background:#fff}
+  figcaption{font-size:12px;color:var(--muted);margin-top:6px}
+  ol.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+  ol.steps li{counter-increment:s;display:flex;gap:10px;margin:0 0 10px;font-size:14px}
+  ol.steps li::before{content:counter(s);flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:8px;background:var(--e,var(--blue));color:#fff;font-weight:800}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+  .row figure{margin:0;background:#e9eef5;border-radius:14px;padding:8px;text-align:center}
+  .badge{display:inline-block;border-radius:999px;padding:3px 10px;font-weight:800;font-size:12px}
+  .faq dt{font-weight:800;margin-top:10px;color:var(--navy)}.faq dt::before{content:"Q. ";color:var(--blue)}.faq dd{margin:3px 0 0;font-size:14px}
+  [hidden]{display:none!important}
+  @media (max-width:560px){.cards{grid-template-columns:repeat(2,1fr)}.shot{grid-template-columns:1fr}.shot img{max-width:260px}.flow{flex-wrap:wrap}.flow div{flex:1 1 40%}.flow span{display:none}.hero h1{font-size:23px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><a class="back" href="./">← 리버뷰로 돌아가기</a></div>
+  <div class="hero"><h1>리버뷰 접수 관리 · 사용법</h1><p>접수부터 외주업체 배정, 현장 처리, 완료 확인까지 한눈에</p></div>
+
+  <nav class="tabs" aria-label="역할 선택">
+    <button type="button" data-tab="all">전체</button>
+    <button type="button" data-tab="company">우리 회사</button>
+    <button type="button" data-tab="riverview">리버뷰 관리자</button>
+    <button type="button" data-tab="vendor">외주업체</button>
+  </nav>
+
+  <section data-for="all company riverview vendor">
+    <h3>누가 쓰나요? — 4가지 역할</h3>
+    <div class="cards">
+      <div class="card" style="--e:var(--purple);--f:var(--lav)"><div class="i">👑</div><div class="n">마스터</div><div class="w">사장님</div><div class="d">모든 기능 + 회사 관리자 지정</div></div>
+      <div class="card" style="--e:var(--blue);--f:var(--sky)"><div class="i">🏢</div><div class="n">회사 관리자</div><div class="w">관리팀장·관리 직원</div><div class="d">승인·배정·처리·금액</div></div>
+      <div class="card" style="--e:var(--green);--f:var(--mint)"><div class="i">🏠</div><div class="n">리버뷰 관리자</div><div class="w">발주처 담당자</div><div class="d">접수 등록·진행 확인</div></div>
+      <div class="card" style="--e:var(--amber);--f:var(--cream)"><div class="i">🛠</div><div class="n">외주업체</div><div class="w">현장 기사</div><div class="d">배정된 일·사진·문자</div></div>
+    </div>
+    <h3>일은 이렇게 흘러갑니다</h3>
+    <div class="flow">
+      <div style="--e:var(--green);--f:var(--mint)"><small>리버뷰 관리자</small>① 접수 등록</div><span>▶</span>
+      <div style="--e:var(--blue);--f:var(--sky)"><small>우리 회사</small>② 업체 배정</div><span>▶</span>
+      <div style="--e:var(--amber);--f:var(--cream)"><small>외주업체</small>③ 현장 처리·사진</div><span>▶</span>
+      <div style="--e:var(--purple);--f:var(--lav)"><small>모두</small>④ 완료 확인</div>
+    </div>
+  </section>
+
+  <section data-for="all company">
+    <div class="band"><b>1</b><h2>역할별로 할 수 있는 일</h2></div>
+    <table>
+      <tr><th>할 수 있는 일</th><th>마스터</th><th>회사<br>관리자</th><th>리버뷰<br>관리자</th><th>외주<br>업체</th></tr>
+      <tr><td>접수 등록</td><td class="y">●</td><td class="y">●</td><td class="y">●</td><td class="n">—</td></tr>
+      <tr><td>접수 목록 보기</td><td class="y">●</td><td class="y">●</td><td class="y">●</td><td class="p">배정분만</td></tr>
+      <tr><td>처리내용·상태 입력</td><td class="y">●</td><td class="y">●</td><td class="n">—</td><td class="p">배정분만</td></tr>
+      <tr><td>외주업체 배정</td><td class="y">●</td><td class="y">●</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>매출·매입(금액)</td><td class="y">●</td><td class="y">●</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>작업 사진 올리기</td><td class="y">●</td><td class="y">●</td><td class="p">보기만</td><td class="p">배정분만</td></tr>
+      <tr><td>방문안내 문자</td><td class="y">●</td><td class="y">●</td><td class="n">—</td><td class="y">●</td></tr>
+      <tr><td>접속 신청 승인</td><td class="y">●</td><td class="y">●</td><td class="n">—</td><td class="n">—</td></tr>
+      <tr><td>회사 관리자 지정</td><td class="y">●</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    </table>
+    <div class="legend"><span class="y">●</span> 가능 · <span class="p">일부</span> 배정된 접수만 · <span class="n">—</span> 안 보임</div>
+    <div class="note" style="--e:var(--red);--f:var(--rose)"><strong>🔒 금액은 우리 회사만 봅니다</strong><ul><li><b>매출</b> = 리버뷰(발주처)에서 받는 금액</li><li><b>매입</b> = 외주업체에 주는 금액</li><li>리버뷰 관리자·외주업체 화면에는 금액이 아예 나오지 않습니다.</li></ul></div>
+  </section>
+
+  <section data-for="all company riverview vendor">
+    <div class="band"><b>2</b><h2>시작하기 — 로그인과 접속 신청</h2></div>
+    <div class="row">
+      <figure><img src="help/01-login.png" alt="로그인 화면" loading="lazy"><figcaption>① Google로 로그인</figcaption></figure>
+      <figure><img src="help/02-request.png" alt="접속 신청 화면" loading="lazy"><figcaption>② 처음이면 접속 신청</figcaption></figure>
+      <figure><img src="help/03-pending.png" alt="승인 대기 화면" loading="lazy"><figcaption>③ 승인을 기다림</figcaption></figure>
+    </div>
+    <div class="note" style="--e:var(--amber);--f:var(--cream)"><strong>💡 알아두세요</strong><ul><li>승인 전에는 「승인 대기 중」만 보이고 접수 내용은 보이지 않습니다.</li><li>승인 후 새로고침하면 바로 쓸 수 있습니다.</li><li>홈 화면에 바로가기를 추가하면 앱처럼 쓸 수 있습니다.</li></ul></div>
+  </section>
+
+  <section data-for="all company riverview vendor">
+    <div class="band"><b>3</b><h2>접수 목록 보기</h2></div>
+    <div class="shot">
+      <figure><img src="help/10-master-list.png" alt="접수 목록" loading="lazy"><figcaption>접수 목록 화면</figcaption></figure>
+      <ol class="steps"><li>위쪽 버튼으로 화면을 바꿉니다.</li><li>검색칸에 호수·내용·업체명을 넣어 찾습니다.</li><li>전체·신규·처리중·완료로 걸러 봅니다.</li><li>접수를 누르면 상세 화면이 열립니다.</li></ol>
+    </div>
+    <p><span class="badge" style="background:var(--sky);color:var(--blue)">신규</span> 아직 손대지 않음 &nbsp; <span class="badge" style="background:var(--cream);color:var(--amber)">처리중</span> 작업 중 &nbsp; <span class="badge" style="background:var(--mint);color:var(--green)">완료</span> 처리 끝</p>
+  </section>
+
+  <section data-for="all company riverview">
+    <div class="band" style="--c:var(--green)"><b>4</b><h2>접수 등록</h2></div>
+    <div class="shot" style="--e:var(--green)">
+      <figure><img src="help/14-intake-form.png" alt="접수 등록" loading="lazy"><figcaption>접수 등록 화면</figcaption></figure>
+      <ol class="steps"><li>접수일시를 확인합니다(지금 시각 자동).</li><li>접수내용에 <b>호수 + 고장 내용 + 연락처</b>를 한 줄로 적습니다.</li><li>담당업체를 모르면 「미정」으로 둡니다.</li><li>「접수 저장」 → 목록에 「신규」로 올라갑니다.</li></ol>
+    </div>
+    <div class="note" style="--e:var(--green);--f:var(--mint)"><strong>✍ 이렇게 쓰면 편해요</strong><ul><li>예) <b>301호 욕실 천장 누수 010-1111-2222</b></li><li>연락처를 적으면 방문안내 문자에 번호가 자동으로 들어갑니다.</li></ul></div>
+  </section>
+
+  <section data-for="all company">
+    <div class="band"><b>5</b><h2>처리하기 — 배정·처리정보·금액</h2></div>
+    <div class="shot">
+      <figure><img src="help/11-master-detail.png" alt="처리정보 입력" loading="lazy"><figcaption>처리정보 입력(우리 회사)</figcaption></figure>
+      <ol class="steps"><li>처리내용·처리일을 적습니다.</li><li><b>매출</b>(받을 돈)과 <b>매입</b>(줄 돈)을 나눠 적습니다.</li><li><b>담당업체</b>에서 외주업체를 고르면 그 업체에게만 보입니다.</li><li>상태를 바꾸고 「처리정보 저장」.</li></ol>
+    </div>
+    <div class="note"><strong>🔗 외주업체 배정 순서</strong><ul><li>업체가 접속 신청 → 「계정 관리」에서 외주업체로 승인(업체명 입력)</li><li>그다음 「담당업체」 목록에 그 업체가 나타납니다.</li></ul></div>
+  </section>
+
+  <section data-for="all vendor">
+    <div class="band" style="--c:#b07a00"><b>6</b><h2>외주업체 — 배정된 일 처리하기</h2></div>
+    <div class="row">
+      <figure><img src="help/20-vendor-list.png" alt="외주업체 목록" loading="lazy"><figcaption>나에게 배정된 접수만 보임</figcaption></figure>
+      <figure><img src="help/21-vendor-detail.png" alt="외주업체 처리 입력" loading="lazy"><figcaption>처리내용·상태만 입력</figcaption></figure>
+    </div>
+    <div class="flow" style="margin-top:12px">
+      <div style="--e:var(--amber);--f:var(--cream)">배정 접수 확인</div><span>▶</span>
+      <div style="--e:var(--blue);--f:var(--sky)">방문안내 문자</div><span>▶</span>
+      <div style="--e:var(--green);--f:var(--mint)">작업 전·후 사진</div><span>▶</span>
+      <div style="--e:var(--purple);--f:var(--lav)">「완료」 저장</div>
+    </div>
+    <div class="note" style="--e:var(--muted);--f:#f2f4f7"><strong>🙈 외주업체에게 보이지 않는 것</strong><ul><li>다른 업체·배정 안 된 접수</li><li>매출·매입 같은 금액</li><li>담당업체 변경, 계정 관리</li></ul></div>
+  </section>
+
+  <section data-for="all company vendor">
+    <div class="band"><b>7</b><h2>방문안내 문자 보내기</h2></div>
+    <div class="shot">
+      <figure><img src="help/12-sms.png" alt="방문안내 문자" loading="lazy"><figcaption>방문안내 문자</figcaption></figure>
+      <ol class="steps"><li>받는 번호는 접수내용에서 자동으로 찾아 넣습니다.</li><li>방문 날짜와 시간을 고릅니다.</li><li>미리보기로 완성된 문자를 확인합니다.</li><li><b>「문자 앱 열기」</b> → 휴대폰 문자 앱에서 직접 전송.</li></ol>
+    </div>
+    <div class="note" style="--e:var(--amber);--f:var(--cream)"><strong>💬 문구·요금</strong><ul><li>문구는 고칠 수 있고 그 휴대폰에 저장됩니다.</li><li>{내용} {날짜} {시간}은 자동으로 채워집니다.</li><li>장문(LMS)은 요금이 조금 더 나올 수 있습니다.</li><li>번호가 틀리거나 빈칸이 있으면 버튼이 잠깁니다.</li></ul></div>
+  </section>
+
+  <section data-for="all company vendor riverview">
+    <div class="band" style="--c:var(--green)"><b>8</b><h2>작업 사진</h2></div>
+    <div class="shot" style="--e:var(--green)">
+      <figure><img src="help/13-photos.png" alt="작업 사진" loading="lazy"><figcaption>작업 사진</figcaption></figure>
+      <ol class="steps"><li>작업 전 / 중 / 후 중 하나를 고릅니다.</li><li>「+ 사진 추가」로 여러 장을 올립니다.</li><li>사진을 누르면 크게 봅니다.</li><li>잘못 올린 사진은 「삭제」.</li></ol>
+    </div>
+    <div class="note" style="--e:var(--green);--f:var(--mint)"><strong>📷 저장 위치</strong><ul><li>우리 회사 Google 드라이브에 접수별 폴더로 저장됩니다.</li><li>리버뷰 관리자는 사진을 보기만 합니다.</li></ul></div>
+  </section>
+
+  <section data-for="all company riverview vendor">
+    <div class="band"><b>9</b><h2>조회·집계</h2></div>
+    <div class="shot">
+      <figure><img src="help/15-query.png" alt="조회 집계" loading="lazy"><figcaption>조회·집계 화면</figcaption></figure>
+      <ol class="steps"><li>접수일 또는 처리일 기준으로 기간을 정합니다.</li><li>상태·담당업체·검색어를 함께 겁니다.</li><li>「조회」 → 건수가 집계됩니다.</li><li>우리 회사는 <b>매출·매입·차익</b> 합계도 봅니다.</li></ol>
+    </div>
+  </section>
+
+  <section data-for="all company">
+    <div class="band" style="--c:var(--purple)"><b>10</b><h2>계정 관리</h2></div>
+    <div class="shot" style="--e:var(--purple)">
+      <figure><img src="help/16-accounts.png" alt="계정 관리" loading="lazy"><figcaption>계정 관리</figcaption></figure>
+      <ol class="steps"><li>새 신청은 노란 상자로 맨 위에, 탭에 숫자로 표시됩니다.</li><li>역할을 고릅니다. 외주업체면 업체명을 적습니다.</li><li>「승인」 또는 「거절」.</li><li>그만둔 사람은 「접속 중지」, 다시 쓰면 「다시 허용」.</li></ol>
+    </div>
+    <div class="note" style="--e:var(--purple);--f:var(--lav)"><strong>👑 마스터(사장님)만</strong><ul><li>회사 관리자 지정</li><li>「보기」에서 다른 역할 화면 확인</li><li>AI 시험 열쇠 끄기·재발급</li></ul></div>
+  </section>
+
+  <section data-for="all riverview">
+    <div class="band" style="--c:var(--green)"><b>11</b><h2>리버뷰 관리자 화면</h2></div>
+    <div class="shot" style="--e:var(--green)">
+      <figure><img src="help/30-riverview-detail.png" alt="리버뷰 관리자 상세" loading="lazy"><figcaption>리버뷰 관리자가 보는 상세</figcaption></figure>
+      <ol class="steps"><li>접수를 등록하고 진행 상황을 확인합니다.</li><li>처리내용·처리일·담당업체·상태를 봅니다.</li><li>사진은 볼 수만 있습니다.</li><li>금액은 보이지 않습니다.</li></ol>
+    </div>
+  </section>
+
+  <section data-for="all company riverview vendor">
+    <h3>자주 묻는 질문</h3>
+    <div class="note" style="--f:#fff"><dl class="faq">
+      <dt>「승인 대기 중」만 보여요</dt><dd>아직 승인 전입니다. 우리 회사에 승인을 요청하세요.</dd>
+      <dt>외주업체인데 접수가 없어요</dt><dd>나에게 배정된 접수만 보입니다.</dd>
+      <dt>「문자 앱 열기」가 회색이에요</dt><dd>번호가 틀렸거나 방문 날짜·시간이 비어 있습니다.</dd>
+      <dt>다른 Google 계정으로 들어가졌어요</dt><dd>「로그아웃」 후 올바른 계정으로 다시 로그인하세요.</dd>
+    </dl></div>
+  </section>
+</main>
+<script>
+(() => {
+  const map = { master: 'company', company: 'company', riverview: 'riverview', vendor: 'vendor' };
+  const params = new URLSearchParams(location.search);
+  let tab = map[params.get('role')] || 'all';
+  const buttons = document.querySelectorAll('[data-tab]');
+  const sections = document.querySelectorAll('section[data-for]');
+  const show = name => { tab = name; buttons.forEach(b => b.classList.toggle('on', b.dataset.tab === name)); sections.forEach(s => { s.hidden = !s.dataset.for.split(' ').includes(name); }); };
+  buttons.forEach(b => b.addEventListener('click', () => { show(b.dataset.tab); window.scrollTo({ top: 0 }); }));
+  show(tab);
+})();
+</script>
+</body>
+</html>
