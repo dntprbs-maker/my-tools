@@ -3,113 +3,307 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>리버뷰 접수 관리</title>
+<meta name="theme-color" content="#ffffff">
+<title>리버뷰</title>
 <style>
-  :root{color-scheme:light;--ink:#172033;--muted:#667085;--line:#d9e0ea;--primary:#1769e0;--primary-dark:#0f55bd;--card:#fff;--bg:#f4f7fb;--success:#087443;--chip:#eef3f9}
+  :root{
+    color-scheme:light;
+    --ink:#172033;--muted:#5B6475;--muted2:#8C94A3;
+    --line:#D9DEE6;--line2:#B5BDC9;
+    --primary:#1769E0;--primary-dark:#0F55BD;
+    --surface:#F4F6F9;
+    --accent-bg:#E6F1FB;--accent:#185FA5;
+    --warn-bg:#FAEEDA;--warn:#854F0B;
+    --ok-bg:#EAF3DE;--ok:#3B6D11;--ok-fill:#1D9E75;
+    --danger:#A32D2D;--danger-bg:#FDECEC;--danger-fill:#E24B4A;
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-  main{width:min(100%,680px);margin:0 auto;padding:18px 14px 32px}
-  header{margin-bottom:16px}.title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-  h1{font-size:25px;letter-spacing:-.6px;margin:0 0 6px}.subtitle{color:var(--muted);font-size:14px;margin:0;line-height:1.5}
-  .auth-panel{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}.auth-status{font-size:13px;line-height:1.5;color:var(--muted);margin:0}.auth-actions{display:flex;gap:8px;margin-top:11px}.auth-button{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}.auth-button.primary{margin-top:0;background:var(--primary);border-color:var(--primary);color:#fff}.auth-error{margin-top:9px;color:#b42318;font-size:12px;font-weight:700}.auth-panel[hidden],#appShell[hidden]{display:none}
-  .nav{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}.nav button{margin:0;background:#fff;color:var(--ink);border:1px solid var(--line);min-height:44px;font-size:14px}.nav button.active{background:var(--primary);border-color:var(--primary);color:#fff}
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 8px 24px rgb(23 32 51 / 6%)}
-  .field{margin-bottom:15px}.field:last-of-type{margin-bottom:0}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
-  input,textarea,select{width:100%;border:1px solid #c5cfdd;border-radius:11px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:11px;outline:none}input,select{min-height:46px}textarea{min-height:104px;resize:vertical;line-height:1.5}
-  input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(23 105 224 / 14%)}
-  .hint{font-size:12px;color:var(--muted);margin-top:6px}.primary{width:100%;min-height:50px;margin-top:19px;border:0;border-radius:12px;background:var(--primary);color:#fff;font:inherit;font-weight:800;font-size:16px;cursor:pointer}.primary:hover{background:var(--primary-dark)}
-  .message{min-height:22px;margin:13px 2px 0;font-size:13px;font-weight:700}.message.success{color:var(--success)}.message.error{color:#b42318}
-  .saved{margin-top:16px;padding:13px;border-radius:12px;background:#f0faf5;border:1px solid #b7e2c8}.saved[hidden],.view[hidden]{display:none}.saved-title{font-size:13px;font-weight:800;color:var(--success);margin-bottom:7px}.saved p{margin:4px 0;font-size:13px;line-height:1.45;overflow-wrap:anywhere}
-  .list-toolbar{display:grid;gap:11px}.search{position:relative}.search input{padding-left:38px}.search-icon{position:absolute;left:13px;top:12px;color:var(--muted)}
-  .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.filter{min-height:38px;margin:0;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.filter.active{background:#dceaff;border-color:#8cb8f5;color:#0f55bd}
-  .list-meta{display:flex;justify-content:space-between;align-items:center;margin:17px 2px 9px;color:var(--muted);font-size:12px}.list{display:grid;gap:9px}.empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:14px;border:1px dashed var(--line);border-radius:13px}
-  .record{width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px;cursor:pointer;color:var(--ink)}.record:hover,.record:focus-visible{border-color:#8cb8f5;box-shadow:0 0 0 3px rgb(23 105 224 / 10%)}.record-top{display:flex;justify-content:space-between;gap:10px;align-items:center}.record-date{font-size:12px;color:var(--muted)}.badge{border-radius:999px;padding:4px 8px;background:#eef3f9;color:#526173;font-size:11px;font-weight:800;white-space:nowrap}.badge.new{background:#e8f1ff;color:#1769e0}.badge.progress{background:#fff4d8;color:#9a6700}.badge.done{background:#e4f7eb;color:#087443}.record-content{font-size:15px;font-weight:800;line-height:1.4;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.record-vendor{font-size:12px;color:var(--muted);margin-top:8px}.detail{margin-top:14px;padding:15px;border-radius:13px;background:#f7faff;border:1px solid #cfe0f8}.detail h2{font-size:16px;margin:0 0 11px}.detail-row{display:grid;grid-template-columns:76px 1fr;gap:8px;margin:7px 0;font-size:13px;line-height:1.45}.detail-label{color:var(--muted);font-weight:700}.detail-value{white-space:pre-wrap;overflow-wrap:anywhere}.photo-section{margin-top:16px;padding-top:14px;border-top:1px solid #dbe7f5}.photo-title-row{display:flex;justify-content:space-between;align-items:center;gap:8px}.photo-title{font-size:14px;font-weight:800;margin:0}.photo-add{width:auto;min-height:38px;margin:0;padding:0 12px;border:1px solid #8cb8f5;border-radius:9px;background:#e8f1ff;color:#0f55bd;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.photo-help{font-size:12px;color:var(--muted);margin:8px 0 11px;line-height:1.4}.photo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.photo-card{min-width:0;border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}.photo-thumb{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#eef3f9;cursor:zoom-in}.photo-placeholder{display:grid;place-items:center;width:100%;aspect-ratio:1;padding:8px;text-align:center;background:#eef3f9;color:var(--muted);font-size:11px;line-height:1.35}.photo-meta{padding:7px}.photo-name{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.photo-controls{display:grid;grid-template-columns:1fr auto;gap:5px;margin-top:6px}.photo-category{width:100%;min-height:30px;padding:4px;font-size:11px;border-radius:7px}.photo-delete{min-height:30px;margin:0;padding:0 7px;border:1px solid #f0b8b8;border-radius:7px;background:#fff4f4;color:#b42318;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.photo-empty{padding:15px 8px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:12px;text-align:center}.photo-dialog{width:min(92vw,560px);max-height:90vh;padding:10px;border:0;border-radius:14px;background:#172033}.photo-dialog::backdrop{background:rgb(0 0 0 / 65%)}.photo-dialog img{display:block;width:100%;max-height:78vh;object-fit:contain}.photo-dialog-close{width:100%;min-height:40px;margin-top:9px;border:1px solid #667085;border-radius:9px;background:#27364d;color:#fff;font:inherit;font-weight:800;cursor:pointer}.detail-divider{border:0;border-top:1px solid #dbe7f5;margin:16px 0 13px}.detail-form-title{font-size:14px;font-weight:800;margin:0 0 10px}.detail-form label{margin-top:10px}.detail-form input,.detail-form textarea,.detail-form select{font-size:14px;padding:9px;min-height:42px}.detail-form textarea{min-height:86px}.detail-save{width:100%;min-height:44px;margin-top:14px;border:0;border-radius:10px;background:var(--primary);color:#fff;font:inherit;font-weight:800;cursor:pointer}.detail-message{min-height:19px;margin:9px 1px 0;font-size:12px;font-weight:700;color:var(--success)}.back-list{width:100%;min-height:40px;margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
-  .query-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.query-field{margin:0}.query-field.full{grid-column:1/-1}.query-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.query-button,.query-reset{min-height:46px;margin:0;border-radius:10px;font:inherit;font-weight:800;cursor:pointer}.query-button{border:0;background:var(--primary);color:#fff}.query-reset{border:1px solid var(--line);background:#fff;color:var(--ink)}.query-error{min-height:21px;margin:10px 1px 0;color:#b42318;font-size:13px;font-weight:700}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:16px 0 12px}.summary-card{padding:10px 5px;text-align:center;border:1px solid var(--line);border-radius:10px;background:#f8fafc}.summary-label{font-size:10px;color:var(--muted);white-space:nowrap}.summary-value{margin-top:4px;font-size:17px;font-weight:800}.summary-cost{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding:11px 13px}.query-results{display:grid;gap:8px}.query-result{width:100%;padding:12px;text-align:left;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);cursor:pointer}.query-result:hover,.query-result:focus-visible{border-color:#8cb8f5;box-shadow:0 0 0 3px rgb(23 105 224 / 10%)}.query-result-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.query-result-date,.query-result-process-date{font-size:11px;color:var(--muted)}.query-result-content{margin-top:7px;font-size:14px;font-weight:800;line-height:1.4}.query-result-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:7px;font-size:11px;color:var(--muted)}.query-empty{text-align:center;padding:25px 10px;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:10px}
-  .sms-section{margin-top:16px;padding-top:14px;border-top:1px solid #dbe7f5}.sms-section label{margin-top:10px}.sms-section input,.sms-section textarea{font-size:14px;padding:9px;min-height:42px}.sms-section textarea{min-height:96px}.sms-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sms-preview{margin-top:12px;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.sms-meta{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)}.sms-warn{margin-top:8px;color:#b42318;font-size:12px;font-weight:700;line-height:1.45}.sms-open{display:block;width:100%;min-height:46px;margin-top:12px;border:0;border-radius:10px;background:var(--success);color:#fff;font:inherit;font-weight:800;text-align:center;line-height:46px;text-decoration:none}.sms-open[aria-disabled="true"]{background:#c5cfdd;pointer-events:none}.sms-reset{width:auto;min-height:32px;margin-top:8px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--muted);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
-  @media (max-width:420px){main{padding:15px 11px 28px}h1{font-size:23px}.panel{padding:14px}.filters{gap:4px}.filter{font-size:11px;padding:0 2px}.detail-row{grid-template-columns:70px 1fr}.query-grid{gap:9px}.query-field.full{grid-column:1/-1}.summary{gap:4px}.summary-value{font-size:15px}.summary-label{font-size:9px}}
-  .test-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px;padding:11px 12px;border:1px solid #f0d98c;border-radius:12px;background:#fff7d6;color:#7a5b00;font-size:13px;font-weight:700}
-  .banner-button{min-height:34px;padding:0 10px;border:1px solid #d9b64a;border-radius:8px;background:#fff;color:#7a5b00;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
-  .view-as-row{display:flex;align-items:center;gap:8px;margin-top:12px}.view-as-row label{margin:0;white-space:nowrap}.view-as-row select{min-height:42px;font-size:14px}
-  .nav.four{grid-template-columns:repeat(4,1fr)}.nav button[hidden]{display:none}
-  .summary.no-cost{grid-template-columns:repeat(4,1fr)}
-  .list-hint{margin:0 2px 9px;font-size:12px;color:var(--muted)}
-  .auth-notice{margin:0 0 12px;color:#b42318;font-size:13px;font-weight:700}
-  .test-banner[hidden],.view-as-row[hidden],.list-hint[hidden],.auth-notice[hidden],.ai-key-section[hidden],.ai-key-value[hidden],.ai-key-note[hidden],#sumCostCard[hidden]{display:none}
-  .admin-list{display:grid;gap:10px;margin-top:12px}.admin-user{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}.admin-user.pending{border-color:#f0d98c;background:#fffdf5}
-  .admin-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.admin-name{font-size:15px;font-weight:800}.admin-meta{margin-top:4px;font-size:12px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
-  .admin-controls{display:grid;gap:8px;margin-top:10px}.admin-actions{display:flex;flex-wrap:wrap;gap:6px}.admin-actions button{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:800;cursor:pointer}.admin-actions button:disabled{opacity:.55}
-  .admin-actions button.approve{background:var(--primary);border-color:var(--primary);color:#fff}.admin-actions button.reject{border-color:#f0b8b8;background:#fff4f4;color:#b42318}.admin-actions button.suspend{border-color:#e0cf9a;background:#fff9e8;color:#8a6a00}
-  .admin-message{margin-top:8px;font-size:12px;font-weight:700;color:var(--success)}
-  .badge.status-pending{background:#fff4d8;color:#9a6700}.badge.status-approved{background:#e4f7eb;color:#087443}.badge.status-rejected{background:#fde8e8;color:#b42318}.badge.status-suspended{background:#eef3f9;color:#526173}
-  .ai-key-section{margin-top:18px;padding-top:14px;border-top:1px solid #dbe7f5}.ai-key-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.ai-key-value{margin-top:10px;font-size:13px}
-  @media (max-width:420px){.nav.four{grid-template-columns:repeat(2,1fr)}.admin-actions button{flex:1 1 auto}}
-  .help-link{flex:0 0 auto;display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border:1px solid #8cb8f5;border-radius:10px;background:#e8f1ff;color:#0f55bd;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap}
+  html,body{margin:0}
+  body{background:#fff;color:var(--ink);font-family:system-ui,-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;font-size:14px;line-height:1.45;-webkit-text-size-adjust:100%}
+  [hidden]{display:none!important}
+  button{font:inherit;color:inherit}
+  h1,h2,h3{margin:0}
+
+  /* top bar */
+  #stickyTop{position:sticky;top:0;z-index:40;padding-top:env(safe-area-inset-top);background:#fff}
+  .bar-inner{max-width:520px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 14px;min-height:52px}
+  #topBar{border-bottom:1px solid var(--line)}
+  .brand{font-weight:800;font-size:16px;letter-spacing:-.2px}
+  .user-menu-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;max-width:210px;padding:0 4px 0 10px;border:0;background:transparent;font-weight:700;font-size:14px;cursor:pointer}
+  .user-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dots{font-size:18px;line-height:1;color:var(--muted)}
+  #testBanner{background:#FFF7D6;border-bottom:1px solid #F0D98C}
+  #testBanner .bar-inner{min-height:0;padding:6px 14px;font-size:12px;color:#7A5B00;font-weight:700}
+  #testBanner button{min-height:30px;padding:0 10px;border:1px solid #D9B64A;border-radius:8px;background:#fff;font-size:12px;font-weight:800;cursor:pointer}
+
+  /* centered auth screens */
+  #authScreen{max-width:520px;margin:0 auto;padding:22px 14px calc(24px + env(safe-area-inset-bottom))}
+  .card-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+  .muted{color:var(--muted);font-size:14px;margin:0}
+  .error{margin-top:8px;color:var(--danger);font-size:13px;font-weight:700}
+  .msg{margin-top:10px;font-size:13px;font-weight:700;min-height:18px}
+  .msg.error{color:var(--danger)}
+  .msg.success{color:var(--ok)}
+  .notice{margin:0 0 10px;color:var(--danger);font-size:13px;font-weight:700}
+
+  /* main column */
+  #mainScroll{max-width:520px;margin:0 auto;padding:12px 14px calc(132px + env(safe-area-inset-bottom))}
+  .view{display:block}
+  .list-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .view-title{font-size:18px;font-weight:800}
+  .group-label{margin:14px 2px 8px;font-size:13px;font-weight:800;color:var(--muted)}
+  .group-label:first-child{margin-top:0}
+  .list-meta{margin:12px 2px 8px;font-size:12px;color:var(--muted)}
+  .list-meta strong{color:var(--ink);font-size:13px}
+  .hint{margin:0 2px 8px;font-size:12px;color:var(--muted)}
+  .empty{text-align:center;padding:26px 12px;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:12px}
+
+  /* search + chips */
+  .search-wrap{position:relative;display:block}
+  .search-wrap input{width:100%;min-height:44px;padding:0 12px 0 36px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font:inherit;font-size:16px;color:var(--ink);outline:none}
+  .search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(23 105 224 / 14%)}
+  .search-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted2)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chip{min-height:34px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer}
+  .chip.active{background:var(--accent-bg);border-color:#B6D4EE;color:var(--accent)}
+
+  /* cards */
+  .cards{display:grid;gap:8px}
+  .card{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;color:var(--ink)}
+  .card:active{background:var(--surface)}
+  .card.pending-card{background:var(--warn-bg);border-color:#F0D98C}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .card-title{font-size:14px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}
+  .card-sub{margin-top:4px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+  .card.highlight{border-width:2px;padding:11px}
+  .card.highlight.hl-green{border-color:var(--ok-fill)}
+  .card.highlight.hl-blue{border-color:var(--primary)}
+  .row-line{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .row-line+.row-line{margin-top:6px}
+  .row-line .row-sub{display:block;margin-top:3px;font-size:12px;font-weight:600;color:var(--muted)}
+
+  /* badges */
+  .badge{flex:0 0 auto;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:800;white-space:nowrap;background:var(--surface);color:var(--muted)}
+  .badge.new{background:var(--accent-bg);color:var(--accent)}
+  .badge.progress{background:var(--warn-bg);color:var(--warn)}
+  .badge.done{background:var(--ok-bg);color:var(--ok)}
+
+  /* detail */
+  .detail-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .link-btn{min-height:40px;padding:0 8px 0 0;border:0;background:transparent;color:var(--primary);font-weight:800;font-size:14px;cursor:pointer}
+  .detail-title{font-size:16px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}
+  .detail-sub{margin:6px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere;white-space:pre-line}
+  .detail-memo{margin:6px 0 0;font-size:13px;color:var(--muted);overflow-wrap:anywhere;white-space:pre-line}
+  .money-box{margin-top:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px}
+  .money-box b{display:block;margin-top:3px;font-size:15px}
+  .action-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:12px}
+  .action-row button{min-height:44px;border:1px solid var(--line2);border-radius:9px;background:#fff;font-size:13px;font-weight:800;cursor:pointer}
+  .section{margin-top:16px}
+  .section-label{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .box{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:13px;overflow-wrap:anywhere;white-space:pre-line}
+  .box.dim{color:var(--muted)}
+
+  /* photos */
+  .photo-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .photo-thumb{width:64px;height:64px;border-radius:8px;border:1px solid var(--line);background:var(--surface);object-fit:cover;cursor:pointer}
+  .dim{color:var(--muted);font-size:13px}
+
+  /* query */
+  .query-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .sum-cards{display:grid;gap:6px;margin:10px 0 14px}
+  .count-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .sum-card{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:9px 6px;text-align:center}
+  .sum-card.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;text-align:left}
+  .sum-label{font-size:12px;color:var(--muted)}
+  .sum-value{margin-top:3px;font-size:15px;font-weight:800}
+  .sum-card.wide .sum-value{margin-top:0}
+
+  /* tab bar */
+  #tabBar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,520px);z-index:45;display:flex;background:#fff;border:1px solid var(--line);border-bottom:0;border-radius:12px 12px 0 0;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -4px 14px rgb(23 32 51 / 6%)}
+  #tabBar .tab{flex:1;min-height:56px;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+  #tabBar .tab.active{color:var(--primary)}
+  .badge-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--danger-fill);color:#fff;font-size:11px;font-weight:800}
+
+  /* fab */
+  #fabHost{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(72px + env(safe-area-inset-bottom));width:min(100%,520px);display:flex;justify-content:flex-end;padding:0 14px;z-index:46;pointer-events:none}
+  #fab{pointer-events:auto;min-height:48px;padding:0 18px;border:0;border-radius:999px;background:var(--primary);color:#fff;font-weight:800;font-size:14px;box-shadow:0 8px 20px rgb(23 105 224 / 35%);cursor:pointer}
+
+  /* menu */
+  #menuBackdrop{position:fixed;inset:0;z-index:54;background:transparent}
+  #menuPopover{position:fixed;top:calc(env(safe-area-inset-top) + 55px);left:50%;transform:translateX(-50%);width:min(100%,520px);padding:0 14px;z-index:55}
+  .menu-card{max-width:280px;margin-left:auto;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 10px 30px rgb(23 32 51 / 16%)}
+  .menu-item{display:block;width:100%;text-align:left;min-height:44px;padding:11px 14px;border:0;background:#fff;font-size:14px;font-weight:700;cursor:pointer;color:var(--ink);text-decoration:none}
+  .menu-item+.menu-item{border-top:1px solid var(--line)}
+  .menu-sub{padding:10px 14px 12px;border-top:1px solid var(--line);background:var(--surface)}
+  .menu-sub-title{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:6px}
+  .menu-sub select{width:100%;min-height:42px;font:inherit;font-size:16px;padding:8px 10px;border:1px solid var(--line2);border-radius:9px;background:#fff;color:var(--ink)}
+
+  /* sheets */
+  #sheetHost{position:fixed;inset:0;z-index:60;pointer-events:none}
+  .sheet-backdrop{position:fixed;inset:0;background:rgb(23 32 51 / 42%);opacity:0;transition:opacity .18s ease;pointer-events:auto}
+  .sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);width:min(100%,520px);max-height:88vh;overflow:auto;background:#fff;border-radius:16px 16px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom));transition:transform .22s ease;pointer-events:auto;box-shadow:0 -8px 30px rgb(23 32 51 / 18%)}
+  .sheet.show{transform:translate(-50%,0)}
+  .sheet-backdrop.show{opacity:1}
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .sheet-title{font-size:16px;font-weight:800}
+  .sheet-close{min-width:40px;min-height:40px;border:0;background:transparent;font-size:18px;color:var(--muted);cursor:pointer}
+
+  /* forms */
+  .field{margin-bottom:12px}
+  .field>label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+  .field input,.field select,.field textarea{font-weight:400}
+  input[type=text],input[type=tel],input[type=number],input[type=date],input[type=time],input[type=datetime-local],input[type=search],select,textarea{width:100%;min-height:44px;padding:9px 11px;border:1px solid var(--line2);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-size:16px;outline:none}
+  textarea{min-height:88px;resize:vertical;line-height:1.5}
+  input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(23 105 224 / 14%)}
+
+  /* buttons */
+  .btn{min-height:44px;padding:0 14px;border:1px solid var(--line2);border-radius:10px;background:#fff;font-weight:800;font-size:14px;cursor:pointer}
+  .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+  .btn.ok{background:var(--ok-fill);border-color:var(--ok-fill);color:#fff}
+  .btn.danger{border-color:#F0B8B8;background:var(--danger-bg);color:var(--danger)}
+  .btn.warn{border-color:#E0CF9A;background:#FFF9E8;color:#8A6A00}
+  .btn.block{display:block;width:100%}
+  .btn.big{min-height:52px;font-size:15px}
+  .btn:disabled{opacity:.55}
+  .btn[aria-disabled="true"]{background:#C5CFDD;border-color:#C5CFDD;color:#fff;pointer-events:none}
+  .row-gap{display:flex;gap:8px;flex-wrap:wrap}
+  a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+  a.btn.block{display:flex}
+  .chip-row{display:flex;gap:6px;flex-wrap:wrap}
+  .role-chip{min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:13px;font-weight:800;cursor:pointer}
+  .role-chip.active{background:var(--accent-bg);border-color:#B6D4EE;color:var(--accent)}
+  .info-lines{display:grid;gap:5px;margin-bottom:12px;font-size:13px}
+  .info-lines b{color:var(--muted);font-weight:700;margin-right:6px}
+  .info-lines span{overflow-wrap:anywhere}
+  .sms-preview{margin-top:4px;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+  .sms-meta{display:flex;justify-content:space-between;gap:8px;margin-top:6px;font-size:12px;color:var(--muted)}
+  .warn{margin-top:8px;color:var(--danger);font-size:12px;font-weight:700;line-height:1.45}
+
+  /* toast + photo dialog */
+  #toastHost{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(90px + env(safe-area-inset-bottom));z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+  .toast{background:var(--ink);color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;box-shadow:0 6px 18px rgb(0 0 0 / 22%)}
+  .pv-dialog{position:fixed;inset:0;z-index:90;background:rgb(0 0 0 / 78%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:18px}
+  .pv-dialog img{max-width:100%;max-height:68vh;border-radius:8px;background:#222}
 </style>
 </head>
 <body>
-<main>
-  <header><div class="title-row"><div><h1>리버뷰 접수 관리</h1><p class="subtitle">유지보수 요청을 등록하고 접수 현황을 확인합니다.</p></div><a id="helpLink" class="help-link" href="help.html">📖 사용법</a></div><div id="testBanner" class="test-banner" hidden><span>AI 시험 모드 — 시험 데이터만 보입니다</span><button id="exitTestMode" class="banner-button" type="button">시험 모드 끄기</button></div><div id="viewAsRow" class="view-as-row" hidden><label for="viewAsSelect">보기</label><select id="viewAsSelect"></select></div></header>
-  <section id="authPanel" class="auth-panel" aria-live="polite"><p id="authStatus" class="auth-status">인증 상태를 확인하는 중입니다…</p><div class="auth-actions"><button id="loginButton" class="auth-button primary" type="button" hidden>Google로 로그인</button><button id="refreshSession" class="auth-button" type="button" hidden>새로고침</button><button id="logoutButton" class="auth-button" type="button" hidden>로그아웃</button></div><div id="authError" class="auth-error" role="alert"></div></section>
-  <section id="accessPanel" class="auth-panel" hidden aria-live="polite"><p id="accessNotice" class="auth-notice" hidden></p><div class="field"><label for="accessName">이름 *</label><input id="accessName" type="text" autocomplete="name"></div><div class="field"><label for="accessOrg">소속 *</label><input id="accessOrg" type="text" placeholder="리버뷰 / 외주업체명 / 우리 회사"></div><div class="field"><label for="accessPhone">연락처</label><input id="accessPhone" type="tel" inputmode="tel" autocomplete="tel"></div><button id="requestAccess" class="primary" type="button">접속 신청</button><div id="accessMessage" class="message" role="status" aria-live="polite"></div></section>
-  <div id="appShell" hidden>
-  <nav id="mainNav" class="nav" aria-label="화면 선택"><button type="button" id="showList" class="active">접수 목록</button><button type="button" id="showForm">접수 등록</button><button type="button" id="showQuery">조회</button><button type="button" id="showAdmin" hidden>계정 관리</button></nav>
-
-  <section id="listView" class="view">
-    <div class="panel">
-      <div class="list-toolbar">
-        <label class="search" aria-label="접수 검색"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="접수내용 또는 담당업체 검색"></label>
-        <div class="filters" role="group" aria-label="접수 상태 필터"><button class="filter active" data-status="전체" type="button">전체</button><button class="filter" data-status="신규" type="button">신규</button><button class="filter" data-status="처리중" type="button">처리중</button><button class="filter" data-status="완료" type="button">완료</button></div>
-      </div>
-      <div class="list-meta"><strong id="listCount">0건</strong><span>접수를 누르면 상세 내용을 확인합니다.</span></div>
-      <p id="listHint" class="list-hint" hidden>나에게 배정된 접수만 보입니다.</p>
-      <div id="recordList" class="list" aria-live="polite"></div>
-      <section id="detail" class="detail" hidden></section>
+<div id="stickyTop">
+  <div id="topBar">
+    <div class="bar-inner">
+      <span class="brand">리버뷰</span>
+      <button id="menuButton" class="user-menu-btn" type="button" hidden><span id="userName" class="user-name"></span><span class="dots">⋮</span></button>
     </div>
-  </section>
-
-  <section id="formView" class="view" hidden>
-    <form class="panel" id="intakeForm" novalidate>
-      <div class="field"><label for="receivedAt">접수일시</label><input id="receivedAt" name="receivedAt" type="datetime-local" required></div>
-      <div class="field"><label for="content">접수내용</label><textarea id="content" name="content" placeholder="요청받은 유지보수 내용을 입력하세요." required></textarea></div>
-      <div class="field"><label for="vendor">담당업체</label><select id="vendor" name="vendor"><option value="미정">미정</option><option value="직접 처리">직접 처리</option><option value="외주업체">외주업체</option></select><div class="hint">담당업체가 정해지지 않은 접수도 저장할 수 있습니다.</div></div>
-      <div class="field"><label for="memo">기타 메모</label><textarea id="memo" name="memo" placeholder="추가로 남길 내용을 입력하세요."></textarea></div>
-      <button class="primary" type="submit">접수 저장</button><div id="message" class="message" role="status" aria-live="polite"></div>
-      <section id="saved" class="saved" hidden><div class="saved-title">저장된 접수</div><p><strong>접수일시</strong> <span id="savedAt"></span></p><p><strong>접수내용</strong> <span id="savedContent"></span></p><p><strong>담당업체</strong> <span id="savedVendor"></span></p><p><strong>기타 메모</strong> <span id="savedMemo"></span></p></section>
-    </form>
-  </section>
-  <section id="queryView" class="view" hidden>
-    <div class="panel">
-      <h2 class="detail-form-title">접수 조회·집계</h2>
-      <div class="query-grid">
-        <label class="query-field">검색 기준<select id="queryBasis"><option value="received">접수일</option><option value="processed">처리일</option></select></label>
-        <label class="query-field">상태<select id="queryStatus"><option value="전체">전체</option><option value="신규">신규</option><option value="처리중">처리중</option><option value="완료">완료</option></select></label>
-        <label class="query-field">시작일<input id="queryStart" type="date"></label>
-        <label class="query-field">종료일<input id="queryEnd" type="date"></label>
-        <label class="query-field">담당업체<select id="queryVendor"><option value="전체">전체</option><option value="미정">미정</option><option value="직접 처리">직접 처리</option><option value="외주업체">외주업체</option></select></label>
-        <label class="query-field full">검색어<input id="queryText" type="search" placeholder="접수내용·처리내용·메모·담당업체"></label>
-      </div>
-      <div id="queryError" class="query-error" role="alert" aria-live="polite"></div>
-      <div class="query-actions"><button id="runQuery" class="query-button" type="button">조회</button><button id="resetQuery" class="query-reset" type="button">조건 초기화</button></div>
-      <div class="summary" aria-label="조회 요약"><div class="summary-card"><div class="summary-label">전체</div><div id="sumTotal" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">신규</div><div id="sumNew" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">처리중</div><div id="sumProgress" class="summary-value">0</div></div><div class="summary-card"><div class="summary-label">완료</div><div id="sumDone" class="summary-value">0</div></div><div class="summary-card summary-cost" id="sumCostCard"><div class="summary-label" id="sumCostLabel">금액</div><div id="sumCost" class="summary-value">0원</div></div></div>
-      <div id="queryResults" class="query-results" aria-live="polite"></div>
-    </div>
-  </section>
-  <section id="adminView" class="view" hidden>
-    <div class="panel">
-      <h2 class="detail-form-title">계정 관리</h2>
-      <p class="photo-help">접속 신청한 계정을 승인하거나 역할을 지정합니다.</p>
-      <div id="adminList" class="admin-list" aria-live="polite"></div>
-      <section id="aiKeySection" class="ai-key-section" hidden>
-        <h3 class="detail-form-title">AI 시험 열쇠</h3>
-        <p id="aiKeyStatus" class="auth-status">확인 중…</p>
-        <div class="ai-key-actions"><button id="aiKeyToggleOn" class="auth-button" type="button" hidden>켜기</button><button id="aiKeyToggleOff" class="auth-button" type="button" hidden>끄기</button><button id="aiKeyRotate" class="auth-button" type="button">새 열쇠 발급</button></div>
-        <input id="aiKeyValue" class="ai-key-value" type="text" readonly hidden>
-        <p id="aiKeyNote" class="hint" hidden>코드디·덱스디에게 전달하세요. 다시 볼 수 없습니다.</p>
-      </section>
-    </div>
-  </section>
   </div>
-</main>
+  <div id="testBanner" hidden>
+    <div class="bar-inner"><span>AI 시험 모드 — 시험 데이터만 보입니다</span><button id="exitTestMode" type="button">시험 모드 끄기</button></div>
+  </div>
+</div>
+
+<div id="menuBackdrop" hidden></div>
+<div id="menuPopover" hidden>
+  <div class="menu-card">
+    <a id="helpLink" class="menu-item" href="help.html">사용법</a>
+    <div id="viewAsWrap" class="menu-sub" hidden>
+      <div class="menu-sub-title">다른 역할로 보기</div>
+      <select id="viewAsSelect"></select>
+    </div>
+    <button id="menuAiKey" class="menu-item" type="button" hidden>AI 시험 열쇠</button>
+    <button id="logoutButton" class="menu-item" type="button" hidden>로그아웃</button>
+  </div>
+</div>
+
+<div id="authScreen">
+  <section id="authPanel" class="card-box" aria-live="polite">
+    <p id="authStatus" class="muted">인증 상태를 확인하는 중입니다…</p>
+    <button id="loginButton" class="btn primary block" type="button" style="margin-top:12px" hidden>Google로 로그인</button>
+    <button id="refreshSession" class="btn block" type="button" style="margin-top:12px" hidden>새로고침</button>
+    <div id="authError" class="error" role="alert"></div>
+  </section>
+  <section id="accessPanel" class="card-box" hidden aria-live="polite">
+    <p id="accessNotice" class="notice" hidden>이전 신청이 거절되었습니다. 정보를 확인해 다시 신청해 주세요.</p>
+    <div class="field"><label for="accessName">이름 *</label><input id="accessName" type="text" autocomplete="name"></div>
+    <div class="field"><label for="accessOrg">소속 *</label><input id="accessOrg" type="text" placeholder="리버뷰 / 외주업체명 / 우리 회사"></div>
+    <div class="field"><label for="accessPhone">연락처</label><input id="accessPhone" type="tel" inputmode="tel" autocomplete="tel"></div>
+    <button id="requestAccess" class="btn primary block" type="button">접속 신청</button>
+    <div id="accessMessage" class="msg" role="status" aria-live="polite"></div>
+  </section>
+</div>
+
+<div id="appShell" hidden>
+  <main id="mainScroll">
+    <section id="listView" class="view">
+      <label class="search-wrap" aria-label="접수 검색"><span class="search-ico">⌕</span><input id="search" type="search" placeholder="호수·내용 검색"></label>
+      <div id="filterChips" class="chips" role="group" aria-label="접수 상태 필터"></div>
+      <p id="listHint" class="hint" hidden>나에게 배정된 접수만 보입니다.</p>
+      <div class="list-meta"><strong id="listCount">0건</strong></div>
+      <div id="recordList" class="cards" aria-live="polite"></div>
+    </section>
+
+    <section id="detailView" class="view" hidden>
+      <div class="detail-top"><button id="detailBack" class="link-btn" type="button">← 목록</button><span id="detailBadge"></span></div>
+      <h1 id="detailTitle" class="detail-title"></h1>
+      <p id="detailSub" class="detail-sub"></p>
+      <p id="detailMemo" class="detail-memo" hidden></p>
+      <div id="detailMoney" class="money-box" hidden></div>
+      <div id="detailActions" class="action-row" hidden>
+        <button id="actionProcess" type="button">처리 입력</button>
+        <button id="actionSms" type="button">방문문자</button>
+        <button id="actionPhoto" type="button">사진 추가</button>
+      </div>
+      <div class="section"><div class="section-label">처리 결과</div><div id="detailProcess" class="box dim"></div></div>
+      <div class="section"><div class="section-label" id="detailPhotoLabel">사진 0장</div><div id="detailPhotos" class="photo-row"></div></div>
+    </section>
+
+    <section id="queryView" class="view" hidden>
+      <div class="query-head"><h1 class="view-title">조회</h1><button id="openQuerySheet" class="btn" type="button">조건 ▾</button></div>
+      <p id="querySummary" class="muted"></p>
+      <div id="summaryCards" class="sum-cards"></div>
+      <div id="queryError" class="error" role="alert"></div>
+      <div id="queryResults" class="cards" aria-live="polite"></div>
+      <div hidden>
+        <select id="queryBasis"><option value="received">접수일</option><option value="processed">처리일</option></select>
+        <select id="queryStatus"><option value="전체">전체</option><option value="신규">신규</option><option value="처리중">처리중</option><option value="완료">완료</option></select>
+        <input id="queryStart" type="date">
+        <input id="queryEnd" type="date">
+        <select id="queryVendor"><option value="전체">전체</option><option value="미정">미정</option><option value="직접 처리">직접 처리</option><option value="외주업체">외주업체</option></select>
+        <input id="queryText" type="search">
+      </div>
+    </section>
+
+    <section id="adminView" class="view" hidden>
+      <div class="group-label" id="accountPendingLabel">승인 대기 0</div>
+      <div id="accountPending" class="cards" aria-live="polite"></div>
+      <div class="group-label" id="accountActiveLabel">사용 중 0명</div>
+      <div id="accountActive" class="cards" aria-live="polite"></div>
+      <div class="group-label" id="accountStoppedLabel">중지·거절</div>
+      <div id="accountStopped" class="cards" aria-live="polite"></div>
+      <section id="aiKeySection" class="section" hidden>
+        <div class="group-label" style="margin-left:0">AI 시험 열쇠</div>
+        <p id="aiKeyStatus" class="muted">확인 중…</p>
+        <div class="row-gap" style="margin-top:10px">
+          <button id="aiKeyToggleOn" class="btn" type="button" hidden>켜기</button>
+          <button id="aiKeyToggleOff" class="btn" type="button" hidden>끄기</button>
+          <button id="aiKeyRotate" class="btn" type="button">새 열쇠 발급</button>
+        </div>
+        <input id="aiKeyValue" type="text" readonly style="margin-top:10px" hidden>
+        <p id="aiKeyNote" class="hint" style="margin-top:6px" hidden>코드디·덱스디에게 전달하세요. 다시 볼 수 없습니다.</p>
+      </section>
+    </section>
+  </main>
+
+  <div id="fabHost" hidden><button id="fab" type="button" hidden>＋ 접수</button></div>
+
+  <nav id="tabBar" hidden aria-label="화면 선택">
+    <button id="tabList" class="tab active" type="button">목록</button>
+    <button id="tabQuery" class="tab" type="button">조회</button>
+    <button id="tabAdmin" class="tab" type="button" hidden>계정<span id="adminBadge" class="badge-count" hidden></span></button>
+  </nav>
+</div>
+
+<div id="sheetHost"></div>
+<div id="toastHost"></div>
+<div id="photoDialogHost"></div>
+
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="./firebase-config.js"></script>
@@ -123,73 +317,123 @@
   const TEST_KEY_STORAGE = 'riverViewTestKey';
   const readTestKey = () => { try { return localStorage.getItem(TEST_KEY_STORAGE) || ''; } catch { return ''; } };
   let testKey = readTestKey();
-  const photoFiles = new Map();
   const previewUrls = new Set();
   const clearPreviewUrls = () => { previewUrls.forEach(url => URL.revokeObjectURL(url)); previewUrls.clear(); };
-  const listView = document.getElementById('listView');
-  const formView = document.getElementById('formView');
-  const queryView = document.getElementById('queryView');
-  const adminView = document.getElementById('adminView');
-  const listButton = document.getElementById('showList');
-  const formButton = document.getElementById('showForm');
-  const queryButton = document.getElementById('showQuery');
-  const adminButton = document.getElementById('showAdmin');
-  const mainNav = document.getElementById('mainNav');
-  const testBanner = document.getElementById('testBanner');
-  const exitTestMode = document.getElementById('exitTestMode');
-  const viewAsRow = document.getElementById('viewAsRow');
-  const viewAsSelect = document.getElementById('viewAsSelect');
-  const queryBasis = document.getElementById('queryBasis');
-  const queryStatus = document.getElementById('queryStatus');
-  const queryStart = document.getElementById('queryStart');
-  const queryEnd = document.getElementById('queryEnd');
-  const queryVendor = document.getElementById('queryVendor');
-  const queryText = document.getElementById('queryText');
-  const queryError = document.getElementById('queryError');
-  const queryResults = document.getElementById('queryResults');
-  const list = document.getElementById('recordList');
-  const detail = document.getElementById('detail');
-  const search = document.getElementById('search');
-  const count = document.getElementById('listCount');
-  const listHint = document.getElementById('listHint');
-  const summaryEl = document.querySelector('.summary');
-  const sumCostCard = document.getElementById('sumCostCard');
-  const receivedAt = document.getElementById('receivedAt');
-  const content = document.getElementById('content');
-  const vendor = document.getElementById('vendor');
-  const memo = document.getElementById('memo');
-  const message = document.getElementById('message');
-  const saved = document.getElementById('saved');
-  const authPanel = document.getElementById('authPanel');
-  const appShell = document.getElementById('appShell');
-  const authStatus = document.getElementById('authStatus');
-  const authError = document.getElementById('authError');
-  const loginButton = document.getElementById('loginButton');
-  const logoutButton = document.getElementById('logoutButton');
-  const refreshSessionButton = document.getElementById('refreshSession');
-  const accessPanel = document.getElementById('accessPanel');
-  const accessNotice = document.getElementById('accessNotice');
-  const accessName = document.getElementById('accessName');
-  const accessOrg = document.getElementById('accessOrg');
-  const accessPhone = document.getElementById('accessPhone');
-  const requestAccessButton = document.getElementById('requestAccess');
-  const accessMessage = document.getElementById('accessMessage');
-  const adminList = document.getElementById('adminList');
-  const aiKeySection = document.getElementById('aiKeySection');
-  const aiKeyStatus = document.getElementById('aiKeyStatus');
-  const aiKeyToggleOn = document.getElementById('aiKeyToggleOn');
-  const aiKeyToggleOff = document.getElementById('aiKeyToggleOff');
-  const aiKeyRotate = document.getElementById('aiKeyRotate');
-  const aiKeyValue = document.getElementById('aiKeyValue');
-  const aiKeyNote = document.getElementById('aiKeyNote');
+
+  const $ = id => document.getElementById(id);
+  const stickyTop = $('stickyTop');
+  const topBar = $('topBar');
+  const menuButton = $('menuButton');
+  const userName = $('userName');
+  const menuBackdrop = $('menuBackdrop');
+  const menuPopover = $('menuPopover');
+  const menuAiKey = $('menuAiKey');
+  const viewAsWrap = $('viewAsWrap');
+  const viewAsSelect = $('viewAsSelect');
+  const helpLink = $('helpLink');
+  const testBanner = $('testBanner');
+  const exitTestMode = $('exitTestMode');
+  const authScreen = $('authScreen');
+  const authPanel = $('authPanel');
+  const authStatus = $('authStatus');
+  const authError = $('authError');
+  const loginButton = $('loginButton');
+  const refreshSessionButton = $('refreshSession');
+  const logoutButton = $('logoutButton');
+  const accessPanel = $('accessPanel');
+  const accessNotice = $('accessNotice');
+  const accessName = $('accessName');
+  const accessOrg = $('accessOrg');
+  const accessPhone = $('accessPhone');
+  const requestAccessButton = $('requestAccess');
+  const accessMessage = $('accessMessage');
+  const appShell = $('appShell');
+  const listView = $('listView');
+  const detailView = $('detailView');
+  const queryView = $('queryView');
+  const adminView = $('adminView');
+  const search = $('search');
+  const filterChips = $('filterChips');
+  const listHint = $('listHint');
+  const listCount = $('listCount');
+  const recordList = $('recordList');
+  const detailBack = $('detailBack');
+  const detailBadge = $('detailBadge');
+  const detailTitle = $('detailTitle');
+  const detailSub = $('detailSub');
+  const detailMemo = $('detailMemo');
+  const detailMoney = $('detailMoney');
+  const detailActions = $('detailActions');
+  const actionProcess = $('actionProcess');
+  const actionSms = $('actionSms');
+  const actionPhoto = $('actionPhoto');
+  const detailProcess = $('detailProcess');
+  const detailPhotoLabel = $('detailPhotoLabel');
+  const detailPhotos = $('detailPhotos');
+  const openQuerySheetButton = $('openQuerySheet');
+  const querySummary = $('querySummary');
+  const summaryCards = $('summaryCards');
+  const queryError = $('queryError');
+  const queryResults = $('queryResults');
+  const queryBasis = $('queryBasis');
+  const queryStatus = $('queryStatus');
+  const queryStart = $('queryStart');
+  const queryEnd = $('queryEnd');
+  const queryVendor = $('queryVendor');
+  const queryText = $('queryText');
+  const accountPendingLabel = $('accountPendingLabel');
+  const accountPending = $('accountPending');
+  const accountActiveLabel = $('accountActiveLabel');
+  const accountActive = $('accountActive');
+  const accountStoppedLabel = $('accountStoppedLabel');
+  const accountStopped = $('accountStopped');
+  const aiKeySection = $('aiKeySection');
+  const aiKeyStatus = $('aiKeyStatus');
+  const aiKeyToggleOn = $('aiKeyToggleOn');
+  const aiKeyToggleOff = $('aiKeyToggleOff');
+  const aiKeyRotate = $('aiKeyRotate');
+  const aiKeyValue = $('aiKeyValue');
+  const aiKeyNote = $('aiKeyNote');
+  const tabBar = $('tabBar');
+  const tabList = $('tabList');
+  const tabQuery = $('tabQuery');
+  const tabAdmin = $('tabAdmin');
+  const adminBadge = $('adminBadge');
+  const fabHost = $('fabHost');
+  const fab = $('fab');
+  const sheetHost = $('sheetHost');
+  const toastHost = $('toastHost');
+  const photoDialogHost = $('photoDialogHost');
+
   const pad = value => String(value).padStart(2, '0');
   const localDateTime = date => `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-  const formatDate = value => value ? value.replace('T', ' ') : '일시 없음';
+  const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
+  const field = (labelText, control) => { const wrap = make('div', 'field'); const label = make('label', '', labelText); label.append(control); wrap.append(label); return wrap; };
+  const btnEl = (className, text) => { const button = make('button', className, text); button.type = 'button'; return button; };
+  const selectEl = (options, value) => { const select = document.createElement('select'); options.forEach(item => { const option = make('option', '', item[1]); option.value = item[0]; select.append(option); }); select.value = value; return select; };
+  const inputEl = (type, value) => { const input = document.createElement('input'); input.type = type; if (value !== undefined) input.value = value; return input; };
+  const areaEl = (value, placeholder) => { const area = document.createElement('textarea'); if (value !== undefined) area.value = value; if (placeholder) area.placeholder = placeholder; return area; };
+  const hasValue = value => value !== undefined && value !== null && value !== '';
+  const money = value => `${Number(value).toLocaleString('ko-KR')}원`;
+  const numText = value => Number(value).toLocaleString('ko-KR');
+  const statusOf = record => record.status || '신규';
+  const statusClass = status => status === '신규' ? 'new' : status === '처리중' ? 'progress' : status === '완료' ? 'done' : '';
+  const statusBadge = status => make('span', `badge ${statusClass(status)}`, status);
+  const statusWord = status => ({ pending: '대기', approved: '승인', rejected: '거절', suspended: '중지' })[status] || '대기';
+  const ROLE_WORD = { master: '마스터', company: '회사 관리자', riverview: '리버뷰 관리자', vendor: '외주업체' };
+
+  // ---- history layers (phone Back closes detail / sheets / menu) ----
+  const layers = [];
+  const pushLayer = close => { layers.push(close); history.pushState({ riverViewLayer: layers.length }, ''); };
+  const closeTopLayer = () => { if (layers.length) history.back(); };
+  window.addEventListener('popstate', () => { const close = layers.pop(); if (close) close(); });
+
+  // ---- state ----
   let records = [];
   let recordsReady = false;
   let recordsError = '';
   let activeStatus = '전체';
-  let activeView = 'list';
+  let activeTab = 'list';
   let me = null;
   let baseRole = '';
   let role = '';
@@ -198,35 +442,162 @@
   let vendorsLoaded = false;
   let viewAsRole = '';
   let viewAsVendor = '';
+  let currentDetailId = '';
+  let justCreatedId = '';
   let sessionUid = '';
-  const authHeaders = async () => { const headers = {}; if (testKey) headers['x-river-view-test-key'] = testKey; else { if (!auth.currentUser) throw new Error('로그인이 필요합니다.'); headers.Authorization = 'Bearer ' + await auth.currentUser.getIdToken(); } if (baseRole === 'master') { if (viewAsRole) headers['x-river-view-view-as'] = viewAsRole; if (viewAsRole === 'vendor' && viewAsVendor) headers['x-river-view-view-as-vendor'] = viewAsVendor; } return headers; };
-  const apiRequest = async (method, body, action) => { const headers = { 'Content-Type': 'application/json', ...(await authHeaders()) }; const url = action ? `${apiUrl}?action=${encodeURIComponent(action)}` : apiUrl; const response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined }); const data = await response.json().catch(() => ({})); if (response.status === 401) throw new Error(testKey ? 'AI 시험 열쇠가 올바르지 않거나 만료되었습니다.' : '인증이 만료되었거나 유효하지 않습니다. 다시 로그인해 주세요.'); if (!response.ok) throw new Error(data.error || `요청 실패 (${response.status})`); return data; };
-  const loadRecords = async () => { recordsReady = false; recordsError = ''; renderList(); try { const result = await apiRequest('GET'); records = Array.isArray(result.jobs) ? result.jobs : []; recordsReady = true; } catch (error) { recordsError = error.message; recordsReady = true; } renderList(); };
-  const loadPhotoBlob = async (fileId, recordId) => { const response = await fetch(`${apiUrl}?action=photo&fileId=${encodeURIComponent(fileId)}&recordId=${encodeURIComponent(recordId)}`, { headers: await authHeaders() }); if (!response.ok) throw new Error('사진을 불러오지 못했습니다.'); return URL.createObjectURL(await response.blob()); };
-  const fileToBase64 = file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.onerror = reject; reader.readAsDataURL(file); });
+  let menuOpen = false;
+  let sheetOpen = false;
 
-  const setView = name => { clearPreviewUrls(); activeView = name; listView.hidden = name !== 'list'; formView.hidden = name !== 'form'; queryView.hidden = name !== 'query'; adminView.hidden = name !== 'admin'; listButton.classList.toggle('active', name === 'list'); formButton.classList.toggle('active', name === 'form'); queryButton.classList.toggle('active', name === 'query'); adminButton.classList.toggle('active', name === 'admin'); if (name === 'list') renderList(); if (name === 'query') renderQuery(); if (name === 'admin') renderAdmin(); };
-  const make = (tag, className, text) => { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined) node.textContent = text; return node; };
-  const roleLabel = () => role === 'master' ? '마스터' : role === 'company' ? '회사 관리자' : role === 'riverview' ? '리버뷰 관리자' : role === 'vendor' ? `외주업체 · ${vendorName || '업체명 없음'}` : '역할 없음';
-  const statusLabel = status => ({ pending: '대기', approved: '승인', rejected: '거절', suspended: '중지' })[status] || '대기';
-  const canSeeMoney = () => role === 'master' || role === 'company';
-  const won = value => value === undefined || value === null || value === '' ? '미입력' : `${Number(value).toLocaleString('ko-KR')}원`;
-  const configureNavigation = () => { const helpLink = document.getElementById('helpLink'); if (helpLink) helpLink.href = role ? `help.html?role=${role}` : 'help.html'; const isVendorRole = role === 'vendor'; const canManageUsers = role === 'master' || role === 'company'; formButton.hidden = isVendorRole; adminButton.hidden = !canManageUsers; mainNav.classList.toggle('four', canManageUsers); if (isVendorRole && activeView === 'form') activeView = 'list'; if (!canManageUsers && activeView === 'admin') activeView = 'list'; listHint.hidden = !isVendorRole; if (sumCostCard) sumCostCard.hidden = false; if (summaryEl) summaryEl.classList.remove('no-cost'); };
+  // ---- api ----
+  const authHeaders = async () => {
+    const headers = {};
+    if (testKey) headers['x-river-view-test-key'] = testKey;
+    else { if (!auth.currentUser) throw new Error('로그인이 필요합니다.'); headers.Authorization = 'Bearer ' + await auth.currentUser.getIdToken(); }
+    if (baseRole === 'master') { if (viewAsRole) headers['x-river-view-view-as'] = viewAsRole; if (viewAsRole === 'vendor' && viewAsVendor) headers['x-river-view-view-as-vendor'] = viewAsVendor; }
+    return headers;
+  };
+  const apiRequest = async (method, body, action) => {
+    const headers = { 'Content-Type': 'application/json', ...(await authHeaders()) };
+    const url = action ? `${apiUrl}?action=${encodeURIComponent(action)}` : apiUrl;
+    const response = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const data = await response.json().catch(() => ({}));
+    if (response.status === 401) throw new Error(testKey ? 'AI 시험 열쇠가 올바르지 않거나 만료되었습니다.' : '인증이 만료되었거나 유효하지 않습니다. 다시 로그인해 주세요.');
+    if (!response.ok) throw new Error(data.error || `요청 실패 (${response.status})`);
+    return data;
+  };
+  const loadRecords = async () => {
+    recordsReady = false; recordsError = ''; refreshViews();
+    try { const result = await apiRequest('GET'); records = Array.isArray(result.jobs) ? result.jobs : []; recordsReady = true; }
+    catch (error) { recordsError = error.message; recordsReady = true; }
+    refreshViews();
+  };
+  const loadPhotoBlob = async (fileId, recordId) => {
+    const response = await fetch(`${apiUrl}?action=photo&fileId=${encodeURIComponent(fileId)}&recordId=${encodeURIComponent(recordId)}`, { headers: await authHeaders() });
+    if (!response.ok) throw new Error('사진을 불러오지 못했습니다.');
+    return URL.createObjectURL(await response.blob());
+  };
+  const fileToBase64 = file => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.onerror = reject; reader.readAsDataURL(file); });
   const ensureVendors = async force => { if (vendorsLoaded && !force) return; try { const data = await apiRequest('GET', null, 'vendors'); vendors = Array.isArray(data.vendors) ? data.vendors : []; } catch { vendors = []; } vendorsLoaded = true; };
-  const buildViewAsSelect = () => { viewAsSelect.replaceChildren(); [['', '마스터'], ['company', '회사 관리자'], ['riverview', '리버뷰 관리자']].forEach(([value, label]) => { const option = make('option', '', label); option.value = value; viewAsSelect.append(option); }); vendors.forEach(vendor => { const option = make('option', '', `외주업체 · ${vendor.vendorName || '업체명 없음'}`); option.value = `vendor:${vendor.uid}`; viewAsSelect.append(option); }); viewAsSelect.value = viewAsRole === 'vendor' && viewAsVendor ? `vendor:${viewAsVendor}` : viewAsRole; };
-  const showAccessForm = () => { accessPanel.hidden = false; appShell.hidden = true; authStatus.textContent = '접속 신청이 필요합니다.'; accessNotice.hidden = me.status !== 'rejected'; accessName.value = me.name || ''; accessOrg.value = me.org || ''; accessPhone.value = me.phone || ''; };
-  const applySession = async () => { accessPanel.hidden = true; appShell.hidden = true; viewAsRow.hidden = true; adminView.hidden = true; refreshSessionButton.hidden = true; testBanner.hidden = !testKey; loginButton.hidden = testKey ? true : !!auth.currentUser; logoutButton.hidden = testKey ? true : !auth.currentUser; if (me && me.status === 'approved') { configureNavigation(); authStatus.textContent = `${testKey ? 'AI 시험 모드' : `로그인됨: ${me.email}`} · ${roleLabel()}`; appShell.hidden = false; if (role === 'master' || role === 'company') await ensureVendors(); if (baseRole === 'master') { buildViewAsSelect(); viewAsRow.hidden = false; } setView(activeView); await loadRecords(); return; } if (me && (me.status === 'none' || me.status === 'rejected')) { showAccessForm(); return; } if (me && me.status === 'pending') { authStatus.textContent = '승인 대기 중입니다. 관리자가 승인하면 이용할 수 있습니다.'; refreshSessionButton.hidden = false; return; } if (me && me.status === 'suspended') { authStatus.textContent = '접속이 중지된 계정입니다. 관리자에게 문의하세요.'; return; } authStatus.textContent = '접속 권한을 확인하지 못했습니다.'; };
-  const loadSession = async () => { try { const data = await apiRequest('GET', null, 'me'); me = data; if (!baseRole) baseRole = data.role; role = data.role; vendorName = data.vendorName || ''; await applySession(); } catch (error) { authError.textContent = error.message; authStatus.textContent = '계정 정보를 확인하지 못했습니다.'; if (testKey) testBanner.hidden = false; } };
-  // 방문안내 문자 — sms-template-sender의 template.js·phone.js·sms.js 핵심 함수 복사
+
+  const canManageUsers = () => role === 'master' || role === 'company';
+  const canSeeMoney = () => role === 'master' || role === 'company';
+  const canAct = () => role === 'master' || role === 'company' || role === 'vendor';
+
+  // ---- sheet / toast ----
+  const showToast = text => { const el = make('div', 'toast', text); toastHost.append(el); setTimeout(() => el.remove(), 2000); };
+  const openSheet = options => {
+    if (sheetOpen) return null;
+    sheetOpen = true;
+    const backdrop = make('div', 'sheet-backdrop');
+    const sheet = make('div', 'sheet');
+    const head = make('div', 'sheet-head');
+    head.append(make('strong', 'sheet-title', options.title));
+    const closeBtn = btnEl('sheet-close', '✕');
+    head.append(closeBtn);
+    sheet.append(head, options.body);
+    sheetHost.append(backdrop, sheet);
+    requestAnimationFrame(() => { backdrop.classList.add('show'); sheet.classList.add('show'); });
+    closeBtn.addEventListener('click', closeTopLayer);
+    backdrop.addEventListener('click', closeTopLayer);
+    pushLayer(() => { sheetOpen = false; backdrop.classList.remove('show'); sheet.classList.remove('show'); setTimeout(() => { backdrop.remove(); sheet.remove(); }, 200); if (options.onClose) options.onClose(); });
+    return { node: sheet };
+  };
+  const toggleMenu = force => {
+    const open = force === undefined ? !menuOpen : force;
+    if (open === menuOpen) return;
+    if (open) {
+      menuOpen = true; menuBackdrop.hidden = false; menuPopover.hidden = false;
+      pushLayer(() => { menuOpen = false; menuBackdrop.hidden = true; menuPopover.hidden = true; });
+    } else closeTopLayer();
+  };
+
+  // ---- session ----
+  const roleLabel = () => role === 'master' ? '마스터' : role === 'company' ? '회사 관리자' : role === 'riverview' ? '리버뷰 관리자' : role === 'vendor' ? `외주업체 · ${vendorName || '업체명 없음'}` : '역할 없음';
+  const configureNavigation = () => {
+    helpLink.href = role ? `help.html?role=${role}` : 'help.html';
+    const isVendorRole = role === 'vendor';
+    tabAdmin.hidden = !canManageUsers();
+    fab.hidden = isVendorRole;
+    tabList.textContent = isVendorRole ? '내 일' : '목록';
+    listHint.hidden = !isVendorRole;
+    menuAiKey.hidden = !(baseRole === 'master' && !testKey);
+    viewAsWrap.hidden = baseRole !== 'master';
+  };
+  const setUserChrome = () => {
+    userName.textContent = role === 'vendor' ? (vendorName || '외주업체') : role === 'riverview' && baseRole === 'master' ? '리버뷰 관리자' : role === 'company' && baseRole === 'master' ? '회사 관리자' : baseRole === 'master' ? (me && me.isTest ? 'AI 시험 · 마스터' : '사장님') : ((me && (me.name || me.email)) || '사용자');
+    menuButton.hidden = false;
+    logoutButton.hidden = !!testKey;
+  };
+  const buildViewAsSelect = () => {
+    viewAsSelect.replaceChildren();
+    [['', '마스터'], ['company', '회사 관리자'], ['riverview', '리버뷰 관리자']].forEach(item => { const option = make('option', '', item[1]); option.value = item[0]; viewAsSelect.append(option); });
+    vendors.forEach(item => { const option = make('option', '', `외주업체 · ${item.vendorName || '업체명 없음'}`); option.value = `vendor:${item.uid}`; viewAsSelect.append(option); });
+    viewAsSelect.value = viewAsRole === 'vendor' && viewAsVendor ? `vendor:${viewAsVendor}` : viewAsRole;
+  };
+  const showAccessForm = () => {
+    accessPanel.hidden = false; appShell.hidden = true; authScreen.hidden = false;
+    authStatus.textContent = '접속 신청이 필요합니다.';
+    accessNotice.hidden = !(me && me.status === 'rejected');
+    accessName.value = (me && me.name) || '';
+    accessOrg.value = (me && me.org) || '';
+    accessPhone.value = (me && me.phone) || '';
+  };
+  const refreshAdminBadge = async () => {
+    if (!canManageUsers()) { adminBadge.hidden = true; return; }
+    try {
+      const data = await apiRequest('GET', null, 'users');
+      const users = Array.isArray(data.users) ? data.users : [];
+      const pending = users.filter(user => user.status === 'pending').length;
+      adminBadge.textContent = pending ? String(pending) : '';
+      adminBadge.hidden = !pending;
+    } catch { adminBadge.hidden = true; }
+  };
+  const applySession = async () => {
+    authScreen.hidden = false; accessPanel.hidden = true; loginButton.hidden = true; refreshSessionButton.hidden = true; authError.textContent = '';
+    currentDetailId = '';
+    testBanner.hidden = !testKey;
+    topBar.hidden = false;
+    loginButton.hidden = testKey ? true : !!auth.currentUser;
+    if (me && me.status === 'approved') {
+      configureNavigation(); setUserChrome();
+      authScreen.hidden = true; appShell.hidden = false;
+      if (canManageUsers() || baseRole === 'master') await ensureVendors();
+      if (baseRole === 'master') buildViewAsSelect();
+      await refreshAdminBadge();
+      setTab(activeTab || 'list');
+      await loadRecords();
+      return;
+    }
+    appShell.hidden = true;
+    menuButton.hidden = true; menuPopover.hidden = true; menuBackdrop.hidden = true; logoutButton.hidden = true;
+    if (me && (me.status === 'none' || me.status === 'rejected')) { showAccessForm(); return; }
+    if (me && me.status === 'pending') { authStatus.textContent = '승인 대기 중입니다. 관리자가 승인하면 이용할 수 있습니다.'; refreshSessionButton.hidden = false; return; }
+    if (me && me.status === 'suspended') { authStatus.textContent = '접속이 중지된 계정입니다. 관리자에게 문의하세요.'; return; }
+    authStatus.textContent = '접속 권한을 확인하지 못했습니다.';
+  };
+  const loadSession = async () => {
+    try {
+      const data = await apiRequest('GET', null, 'me');
+      me = data; if (!baseRole) baseRole = data.role;
+      role = data.role; vendorName = data.vendorName || '';
+      await applySession();
+    } catch (error) {
+      authError.textContent = error.message; authStatus.textContent = '계정 정보를 확인하지 못했습니다.';
+      if (testKey) testBanner.hidden = false;
+    }
+  };
+
+  // ---- 방문안내 문자 (sms-template-sender의 template.js·phone.js·sms.js 핵심 함수 복사) ----
   const SMS_VAR_PATTERN = /\{([^{}]*)\}/g;
   const smsIsBlank = value => value === null || value === undefined || String(value).trim() === '';
-  const extractVars = body => { const vars = []; const text = String(body ?? ''); let match; SMS_VAR_PATTERN.lastIndex = 0; while ((match = SMS_VAR_PATTERN.exec(text)) !== null) { const name = match[1]; if (name && !vars.includes(name)) vars.push(name); } return vars; };
-  const fillTemplate = (body, values = {}) => { const text = String(body ?? ''); const missing = extractVars(text).filter(name => smsIsBlank(values[name])); const filled = text.replace(SMS_VAR_PATTERN, (full, name) => (!name || smsIsBlank(values[name])) ? full : String(values[name])); return { text: filled, missing }; };
-  const byteLength = text => { let bytes = 0; for (const ch of String(text ?? '')) bytes += ch.codePointAt(0) < 128 ? 1 : 2; return bytes; };
+  const extractVars = body => { const vars = []; const text = String(body === undefined || body === null ? '' : body); let match; SMS_VAR_PATTERN.lastIndex = 0; while ((match = SMS_VAR_PATTERN.exec(text)) !== null) { const name = match[1]; if (name && !vars.includes(name)) vars.push(name); } return vars; };
+  const fillTemplate = (body, values = {}) => { const text = String(body === undefined || body === null ? '' : body); const missing = extractVars(text).filter(name => smsIsBlank(values[name])); const filled = text.replace(SMS_VAR_PATTERN, (full, name) => (!name || smsIsBlank(values[name])) ? full : String(values[name])); return { text: filled, missing }; };
+  const byteLength = text => { let bytes = 0; for (const ch of String(text === undefined || text === null ? '' : text)) bytes += ch.codePointAt(0) < 128 ? 1 : 2; return bytes; };
   const messageType = text => { const bytes = byteLength(text); return bytes <= 90 ? 'SMS' : bytes <= 2000 ? 'LMS' : 'TOO_LONG'; };
   const normalizePhone = input => { if (input === null || input === undefined) return null; let digits = String(input).replace(/\D/g, ''); if (!digits) return null; if (digits.startsWith('82')) digits = '0' + digits.slice(2); if (!/^0\d{8,10}$/.test(digits)) return null; return digits; };
-  const smsHref = (phone, text) => `sms:${phone}?body=${encodeURIComponent(text ?? '')}`;
+  const smsHref = (phone, text) => `sms:${phone}?body=${encodeURIComponent(text === undefined || text === null ? '' : text)}`;
   const SMS_PHONE_IN_TEXT = /(?:\+82[-\s.]?|0)1[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/;
+  const PHONE_STRIP = /(?:\+82[-\s.]?|0)1[016789][-\s.]?\d{3,4}[-\s.]?\d{4}/g;
   const SMS_TEMPLATE_KEY = 'riverViewVisitSmsTemplate';
   const SMS_DEFAULT_TEMPLATE = '[리버뷰] 안녕하세요. 접수하신 「{내용}」 건으로 {날짜} {시간}에 방문 예정입니다. 변동 시 연락 부탁드립니다.';
   const loadSmsTemplate = () => { try { return localStorage.getItem(SMS_TEMPLATE_KEY) || SMS_DEFAULT_TEMPLATE; } catch { return SMS_DEFAULT_TEMPLATE; } };
@@ -234,107 +605,483 @@
   const SMS_WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
   const smsDateText = value => { if (!value) return ''; const [y, m, d] = value.split('-').map(Number); const date = new Date(y, m - 1, d); return `${m}월 ${d}일(${SMS_WEEKDAYS[date.getDay()]})`; };
   const smsTimeText = value => { if (!value) return ''; const [h, min] = value.split(':').map(Number); const half = h < 12 ? '오전' : '오후'; const hour = h % 12 === 0 ? 12 : h % 12; return `${half} ${hour}시${min ? ` ${min}분` : ''}`; };
-  function renderVisitSms(record) {
-    const section = make('section', 'sms-section');
-    section.append(make('h3', 'photo-title', '방문안내 문자'));
-    section.append(make('p', 'photo-help', '버튼을 누르면 휴대폰 문자 앱이 번호와 내용이 채워진 채로 열립니다. 전송은 문자 앱에서 직접 누르세요.'));
+
+  // ---- formatting helpers ----
+  const shortDate = value => { const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value || '')); return match ? `${match[2]}/${match[3]}` : '일시 없음'; };
+  const dateTimeText = value => { const match = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(String(value || '')); return match ? `${match[2]}/${match[3]} ${match[4]}:${match[5]}` : (String(value || '') || '일시 없음'); };
+  const titleOf = record => { const text = String(record.content || '').replace(PHONE_STRIP, ' ').replace(/\s+/g, ' ').trim(); return text || '내용 없음'; };
+  const phoneOf = record => { const match = `${record.content || ''} ${record.memo || ''}`.match(SMS_PHONE_IN_TEXT); return match ? match[0] : ''; };
+  const statusWeight = status => status === '신규' ? 0 : status === '처리중' ? 1 : 2;
+  const sortRecords = list => [...list].sort((a, b) => { const weight = statusWeight(statusOf(a)) - statusWeight(statusOf(b)); if (weight) return weight; return String(b.receivedAt || '').localeCompare(String(a.receivedAt || '')); });
+  const sumOf = (list, key) => list.reduce((sum, record) => { const value = Number(record[key]); return sum + (Number.isFinite(value) ? value : 0); }, 0);
+
+  const subline = record => {
+    const dateText = record.id === justCreatedId ? '방금' : shortDate(record.receivedAt);
+    const parts = [];
+    if (role === 'vendor') {
+      parts.push(dateText);
+      if (hasValue(record.amount)) parts.push(`금액 ${money(record.amount)}`);
+    } else if (role === 'riverview') {
+      parts.push(`${dateText} 접수`);
+      if (statusOf(record) === '완료' && hasValue(record.amount)) parts.push(`금액 ${money(record.amount)}`);
+    } else {
+      parts.push(dateText);
+      parts.push(record.vendor || '미정');
+      if (hasValue(record.revenue)) parts.push(`매출 ${numText(record.revenue)}`);
+    }
+    return parts.join(' · ');
+  };
+
+  const recordCard = record => {
+    const button = make('button', 'card'); button.type = 'button'; button.dataset.id = record.id;
+    const top = make('div', 'card-top');
+    top.append(make('strong', 'card-title', titleOf(record)), statusBadge(statusOf(record)));
+    button.append(top);
+    const sub = subline(record);
+    if (sub) button.append(make('div', 'card-sub', sub));
+    button.addEventListener('click', () => openDetail(record.id));
+    return button;
+  };
+  const accountRow = user => {
+    const button = make('button', 'row-line'); button.type = 'button';
+    const roleText = ROLE_WORD[user.role] || '역할 없음';
+    button.append(make('span', '', `${user.name || user.email || '이름 없음'} · ${roleText}${user.role === 'vendor' && user.vendorName ? ` · ${user.vendorName}` : ''}`));
+    if (user.status !== 'approved') button.append(make('span', 'row-sub', statusWord(user.status)));
+    button.addEventListener('click', () => openAccountSheet(user));
+    return button;
+  };
+
+  // ---- list ----
+  const FILTERS = ['전체', '신규', '처리중', '완료'];
+  const renderFilterChips = counts => {
+    filterChips.replaceChildren();
+    FILTERS.forEach(name => {
+      const button = make('button', `chip${activeStatus === name ? ' active' : ''}`, name === '전체' ? '전체' : `${name} ${counts[name] || 0}`);
+      button.type = 'button';
+      button.addEventListener('click', () => { activeStatus = name; renderList(); });
+      filterChips.append(button);
+    });
+  };
+  const highlightCard = id => {
+    const el = recordList.querySelector(`[data-id="${id}"]`);
+    if (!el) return;
+    el.classList.add('highlight', role === 'riverview' ? 'hl-green' : 'hl-blue');
+    setTimeout(() => { el.classList.remove('highlight', 'hl-green', 'hl-blue'); }, 4000);
+  };
+  function renderList() {
+    if (!recordsReady) {
+      listCount.textContent = '…';
+      recordList.replaceChildren(make('div', 'empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…'));
+      return;
+    }
+    const query = search.value.trim().toLowerCase();
+    const searched = records.filter(record => { const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return !query || haystack.includes(query); });
+    const counts = { 전체: searched.length, 신규: 0, 처리중: 0, 완료: 0 };
+    searched.forEach(record => { const status = statusOf(record); if (counts[status] !== undefined) counts[status] += 1; });
+    renderFilterChips(counts);
+    const visible = activeStatus === '전체' ? searched : searched.filter(record => statusOf(record) === activeStatus);
+    listCount.textContent = `${visible.length}건`;
+    recordList.replaceChildren();
+    if (!visible.length) { recordList.append(make('div', 'empty', records.length ? '검색 조건에 맞는 접수가 없습니다.' : '아직 등록된 접수가 없습니다.')); return; }
+    const ordered = sortRecords(visible);
+    if (role === 'vendor') {
+      const todo = ordered.filter(record => statusOf(record) !== '완료');
+      const done = ordered.filter(record => statusOf(record) === '완료');
+      if (todo.length) { recordList.append(make('div', 'group-label', `할 일 ${todo.length}`)); todo.forEach(record => recordList.append(recordCard(record))); }
+      if (done.length) { recordList.append(make('div', 'group-label', '끝난 일')); done.forEach(record => recordList.append(recordCard(record))); }
+    } else {
+      ordered.forEach(record => recordList.append(recordCard(record)));
+    }
+  }
+  const refreshViews = () => { if (activeTab === 'query') renderQuery(); else if (activeTab === 'admin') renderAdmin(); else renderList(); };
+  const setTab = name => {
+    activeTab = name;
+    detailView.hidden = true;
+    listView.hidden = name !== 'list';
+    queryView.hidden = name !== 'query';
+    adminView.hidden = name !== 'admin';
+    tabList.classList.toggle('active', name === 'list');
+    tabQuery.classList.toggle('active', name === 'query');
+    tabAdmin.classList.toggle('active', name === 'admin');
+    tabBar.hidden = false;
+    fabHost.hidden = false;
+    fab.hidden = role === 'vendor';
+    if (name === 'list') renderList();
+    else if (name === 'query') renderQuery();
+    else if (name === 'admin') renderAdmin();
+  };
+
+  // ---- detail ----
+  function openDetail(id) {
+    const record = records.find(item => item.id === id);
+    if (!record) return;
+    currentDetailId = id;
+    renderDetail(record);
+    detailView.hidden = false; listView.hidden = true; queryView.hidden = true; adminView.hidden = true;
+    tabBar.hidden = true; fabHost.hidden = true;
+    window.scrollTo({ top: 0 });
+    pushLayer(() => { currentDetailId = ''; detailView.hidden = true; setTab('list'); });
+  }
+  function renderDetail(record) {
+    clearPreviewUrls();
+    detailBadge.replaceChildren(statusBadge(statusOf(record)));
+    detailTitle.textContent = titleOf(record);
+    const parts = [];
+    const phone = phoneOf(record);
+    if (phone) parts.push(phone);
+    if (canSeeMoney() || role === 'vendor') parts.push(record.vendor || '미정');
+    parts.push(`접수 ${dateTimeText(record.receivedAt)}`);
+    detailSub.textContent = parts.join(' · ');
+    if (record.memo) { detailMemo.hidden = false; detailMemo.textContent = `메모: ${record.memo}`; } else detailMemo.hidden = true;
+    if (canSeeMoney()) {
+      if (hasValue(record.revenue) || hasValue(record.expense)) {
+        const revenue = Number(record.revenue) || 0; const expense = Number(record.expense) || 0;
+        detailMoney.hidden = false;
+        detailMoney.replaceChildren(make('div', '', `매출 ${money(revenue)} · 매입 ${money(expense)}`), make('b', '', `차익 ${money(revenue - expense)}`));
+      } else detailMoney.hidden = true;
+    } else if (hasValue(record.amount)) {
+      detailMoney.hidden = false;
+      detailMoney.replaceChildren(make('div', '', `금액 ${money(record.amount)}`));
+    } else detailMoney.hidden = true;
+    detailActions.hidden = role === 'riverview';
+    if (record.processContent || record.processDate) { detailProcess.className = 'box'; detailProcess.textContent = [record.processContent, record.processDate].filter(Boolean).join(' · '); }
+    else { detailProcess.className = 'box dim'; detailProcess.textContent = '아직 없음'; }
+    renderDetailPhotos(record);
+  }
+  const renderDetailById = id => { const record = records.find(item => item.id === id); if (record && currentDetailId === id) renderDetail(record); };
+  function renderDetailPhotos(record) {
+    const photos = Array.isArray(record.photos) ? record.photos : [];
+    detailPhotoLabel.textContent = `사진 ${photos.length}장`;
+    detailPhotos.replaceChildren();
+    if (!photos.length) { detailPhotos.append(make('span', 'dim', '아직 없음')); return; }
+    const canDelete = canAct();
+    photos.forEach(photo => {
+      const image = make('img', 'photo-thumb'); image.alt = `${photo.name} 미리보기`;
+      detailPhotos.append(image);
+      loadPhotoBlob(photo.driveFileId, record.id)
+        .then(url => { previewUrls.add(url); image.src = url; image.addEventListener('click', () => openPhotoDialog(url, record, photo, canDelete)); })
+        .catch(() => { image.alt = '사진을 불러오지 못했습니다.'; });
+    });
+  }
+  function openPhotoDialog(url, record, photo, canDelete) {
+    const dialog = make('div', 'pv-dialog');
+    const image = make('img'); image.src = url; image.alt = `${photo.name} 확대`;
+    const actions = make('div', 'row-gap');
+    const close = btnEl('btn', '닫기');
+    close.addEventListener('click', () => dialog.remove());
+    actions.append(close);
+    if (canDelete) {
+      const remove = btnEl('btn danger', '삭제');
+      remove.addEventListener('click', async () => {
+        remove.disabled = true;
+        try {
+          const result = await apiRequest('DELETE', { action: 'delete-photo', recordId: record.id, photoId: photo.id });
+          const index = records.findIndex(item => item.id === record.id);
+          if (index >= 0) records[index] = result.job;
+          dialog.remove();
+          if (currentDetailId === record.id && index >= 0) renderDetail(records[index]);
+        } catch (error) { remove.disabled = false; alert(`사진 삭제 실패: ${error.message}`); }
+      });
+      actions.append(remove);
+    }
+    dialog.append(image, actions);
+    dialog.addEventListener('click', event => { if (event.target === dialog) dialog.remove(); });
+    photoDialogHost.append(dialog);
+  }
+
+  // ---- sheets ----
+  function openIntakeSheet() {
+    const body = make('div', '');
+    const received = inputEl('datetime-local', localDateTime(new Date()));
+    const contentInput = areaEl('', '예: 705호 거실 전등 안 켜짐 010-5555-6666');
+    const memoInput = areaEl('', '예: 오후에만 방문 가능');
+    const message = make('div', 'msg');
+    const save = btnEl('btn primary block', '접수 저장');
+    body.append(field('접수일시', received), field('무엇이 고장났나요?', contentInput), field('메모 (선택)', memoInput), save, message);
+    save.addEventListener('click', async () => {
+      message.textContent = ''; message.className = 'msg';
+      if (!received.value || !contentInput.value.trim()) { message.textContent = '접수일시와 내용을 입력해 주세요.'; message.className = 'msg error'; return; }
+      save.disabled = true; message.textContent = '저장 중…';
+      try {
+        const result = await apiRequest('POST', { action: 'create', job: { receivedAt: received.value, content: contentInput.value.trim(), vendor: '미정', memo: memoInput.value.trim(), status: '신규' } });
+        const record = result.job;
+        records = [record, ...records]; recordsReady = true; justCreatedId = record.id;
+        closeTopLayer();
+        if (activeTab !== 'list') setTab('list'); else renderList();
+        showToast('접수됐어요');
+        highlightCard(record.id);
+        setTimeout(() => { if (justCreatedId === record.id) { justCreatedId = ''; renderList(); } }, 4000);
+      } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'msg error'; save.disabled = false; }
+    });
+    openSheet({ title: '새 접수', body });
+  }
+
+  function openProcessSheet(record) {
+    const manager = role === 'master' || role === 'company';
+    const body = make('div', '');
+    let message = make('div', 'msg');
+
+    let statusValue = record.status || '신규';
+    const statusOptions = role === 'vendor' ? [['처리중', '처리중'], ['완료', '완료']] : [['신규', '신규'], ['처리중', '처리중'], ['완료', '완료']];
+    if (!statusOptions.some(item => item[0] === statusValue)) statusValue = role === 'vendor' ? '처리중' : '신규';
+
+    let vendorSelect = null;
+    if (manager) {
+      vendorSelect = selectEl([['__none__', '미정'], ['__self__', '직접 처리'], ...vendors.map(item => [item.uid, item.vendorName || '외주업체'])], record.assignedVendorId && vendors.some(item => item.uid === record.assignedVendorId) ? record.assignedVendorId : record.vendor === '직접 처리' ? '__self__' : '__none__');
+      body.append(field('담당업체', vendorSelect));
+    }
+
+    const statusRow = field('상태', chipRow(statusOptions, statusValue, value => { statusValue = value; }));
+    const processContent = areaEl(record.processContent || '', role === 'vendor' ? '한 일을 입력하세요.' : '처리한 내용을 입력하세요.');
+    const processDate = inputEl('date', record.processDate || '');
+    if (manager) body.append(statusRow);
+    body.append(field(role === 'vendor' ? '한 일' : '처리내용', processContent), field('처리일', processDate));
+    if (!manager) body.append(statusRow);
+
+    let revenueInput = null; let expenseInput = null;
+    if (canSeeMoney()) {
+      revenueInput = inputEl('number', hasValue(record.revenue) ? record.revenue : '');
+      expenseInput = inputEl('number', hasValue(record.expense) ? record.expense : '');
+      revenueInput.min = '0'; revenueInput.step = '1'; revenueInput.inputMode = 'numeric'; revenueInput.placeholder = '예: 60000';
+      expenseInput.min = '0'; expenseInput.step = '1'; expenseInput.inputMode = 'numeric'; expenseInput.placeholder = '예: 40000';
+      body.append(field('매출 (리버뷰에서 받음)', revenueInput), field('매입 (업체에 줌)', expenseInput));
+      if (hasValue(record.cost)) body.append(make('div', 'hint', `구분 전에 입력된 옛 비용: ${money(record.cost)} — 매출·매입 칸에 나눠 넣어 주세요.`));
+    }
+
+    const save = btnEl('btn primary block', '저장');
+    body.append(save, message);
+    save.addEventListener('click', async () => {
+      const index = records.findIndex(item => item.id === record.id);
+      save.disabled = true; message.textContent = '저장 중…'; message.className = 'msg';
+      const data = { processContent: processContent.value.trim(), processDate: processDate.value, status: statusValue };
+      if (revenueInput) { data.revenue = revenueInput.value === '' ? '' : Number(revenueInput.value); data.expense = expenseInput.value === '' ? '' : Number(expenseInput.value); }
+      if (vendorSelect) {
+        const selection = vendorSelect.value;
+        if (selection === '__none__') { data.assignedVendorId = ''; data.vendor = '미정'; }
+        else if (selection === '__self__') { data.assignedVendorId = ''; data.vendor = '직접 처리'; }
+        else data.assignedVendorId = selection;
+      }
+      try {
+        const result = await apiRequest('PATCH', { action: 'update', id: record.id, data });
+        if (index >= 0) records[index] = result.job;
+        closeTopLayer();
+        renderDetailById(record.id);
+        if (activeTab === 'query') renderQuery();
+      } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'msg error'; save.disabled = false; }
+    });
+    openSheet({ title: '처리 입력', body });
+  }
+
+  function openSmsSheet(record) {
+    const body = make('div', '');
     const source = `${record.content || ''}\n${record.memo || ''}`;
     const found = source.match(SMS_PHONE_IN_TEXT);
-    const phone = document.createElement('input'); phone.type = 'tel'; phone.inputMode = 'tel'; phone.placeholder = '010-0000-0000'; phone.value = found ? found[0] : '';
-    const contentText = document.createElement('input'); contentText.type = 'text'; contentText.value = String(record.content || '').replace(SMS_PHONE_IN_TEXT, '').replace(/\s+/g, ' ').trim();
-    const visitDate = document.createElement('input'); visitDate.type = 'date';
-    const visitTime = document.createElement('input'); visitTime.type = 'time'; visitTime.step = '600';
-    const template = document.createElement('textarea'); template.value = loadSmsTemplate();
-    const label = (text, control) => { const node = make('label', '', text); node.append(control); return node; };
-    const row = make('div', 'sms-row'); row.append(label('방문 날짜', visitDate), label('방문 시간', visitTime));
-    section.append(label('받는 번호', phone), label('{내용}에 들어갈 문구', contentText), row, label('문자 문구 ({내용} {날짜} {시간}은 자동으로 채워집니다)', template));
-    const reset = make('button', 'sms-reset', '기본 문구로 되돌리기'); reset.type = 'button'; section.append(reset);
-    const preview = make('div', 'sms-preview'); const meta = make('div', 'sms-meta'); const warn = make('div', 'sms-warn'); warn.setAttribute('role', 'alert');
-    const open = make('a', 'sms-open', '문자 앱 열기');
-    section.append(preview, meta, warn, open);
+    const phone = inputEl('tel', found ? found[0] : ''); phone.inputMode = 'tel'; phone.placeholder = '010-0000-0000';
+    const visitDate = inputEl('date', '');
+    const visitTime = inputEl('time', ''); visitTime.step = '600';
+    const contentText = String(record.content || '').replace(PHONE_STRIP, ' ').replace(/\s+/g, ' ').trim();
+    const template = areaEl(loadSmsTemplate(), '');
+
+    body.append(field('받는 번호', phone));
+    const row = make('div', 'row-gap'); row.style.display = 'grid'; row.style.gridTemplateColumns = '1fr 1fr';
+    row.append(field('방문 날짜', visitDate), field('방문 시간', visitTime));
+    body.append(row);
+
+    const preview = make('div', 'sms-preview'); const meta = make('div', 'sms-meta'); const warn = make('div', 'warn'); warn.setAttribute('role', 'alert');
+    body.append(field('문자 내용', preview), meta, warn);
+
+    const templateWrap = make('div', '');
+    templateWrap.hidden = true;
+    templateWrap.append(field('문자 문구 ({내용} {날짜} {시간} 자동)', template));
+    const reset = btnEl('btn', '기본 문구로 되돌리기');
+    templateWrap.append(reset);
+    const editToggle = btnEl('link-btn', '문구 수정 ›');
+    editToggle.addEventListener('click', () => { templateWrap.hidden = !templateWrap.hidden; });
+    body.append(editToggle, templateWrap);
+
+    const open = make('a', 'btn ok block', '문자 앱 열기');
+    body.append(open);
+
     const update = () => {
-      const filled = fillTemplate(template.value, { 내용: contentText.value.trim(), 날짜: smsDateText(visitDate.value), 시간: smsTimeText(visitTime.value) });
+      const filled = fillTemplate(template.value, { 내용: contentText, 날짜: smsDateText(visitDate.value), 시간: smsTimeText(visitTime.value) });
       const number = normalizePhone(phone.value);
       const type = messageType(filled.text);
       const problems = [];
-      if (!phone.value.trim()) problems.push('받는 번호를 입력하세요.'); else if (!number) problems.push('받는 번호가 올바르지 않습니다.');
+      if (!phone.value.trim()) problems.push('받는 번호를 입력하세요.');
+      else if (!number) problems.push('받는 번호가 올바르지 않습니다.');
       if (filled.missing.length) problems.push(`빈칸이 남아 있습니다: ${filled.missing.map(name => `{${name}}`).join(' ')}`);
-      if (!filled.text.trim()) problems.push('문자 문구가 비어 있습니다.');
+      if (!filled.text.trim()) problems.push('문자 내용이 비어 있습니다.');
       if (type === 'TOO_LONG') problems.push('문자가 너무 깁니다(2000바이트 초과).');
       preview.textContent = filled.text;
       meta.replaceChildren(make('span', '', type === 'SMS' ? '단문(SMS)' : type === 'LMS' ? '장문(LMS) — 단문보다 요금이 높을 수 있습니다' : '너무 김'), make('span', '', `${byteLength(filled.text)}바이트`));
       warn.textContent = problems.join(' ');
-      if (problems.length) { open.removeAttribute('href'); open.setAttribute('aria-disabled', 'true'); } else { open.href = smsHref(number, filled.text); open.setAttribute('aria-disabled', 'false'); }
+      if (problems.length) { open.removeAttribute('href'); open.setAttribute('aria-disabled', 'true'); }
+      else { open.href = smsHref(number, filled.text); open.setAttribute('aria-disabled', 'false'); }
     };
-    [phone, contentText, visitDate, visitTime].forEach(control => control.addEventListener('input', update));
+    [phone, visitDate, visitTime].forEach(control => control.addEventListener('input', update));
     template.addEventListener('input', () => { saveSmsTemplate(template.value); update(); });
     reset.addEventListener('click', () => { template.value = SMS_DEFAULT_TEMPLATE; saveSmsTemplate(SMS_DEFAULT_TEMPLATE); update(); });
     update();
-    return section;
+    openSheet({ title: '방문안내 문자', body });
   }
-  function renderPhotos(record) {
-    const canManagePhotos = role === 'master' || role === 'company' || role === 'vendor';
-    const section = make('section', 'photo-section');
-    const titleRow = make('div', 'photo-title-row'); titleRow.append(make('h3', 'photo-title', '작업 사진'));
-    const addButton = make('button', 'photo-add', '+ 사진 추가'); addButton.type = 'button'; if (canManagePhotos) titleRow.append(addButton); section.append(titleRow);
-    section.append(make('p', 'photo-help', canManagePhotos ? '여러 장을 선택해 작업 전·중·후 중 하나로 실제 Google Drive에 저장합니다.' : '등록된 작업 사진을 확인만 할 수 있습니다.'));
-    let categoryPicker = null; let input = null;
-    if (canManagePhotos) { categoryPicker = document.createElement('select'); categoryPicker.className = 'photo-category'; [['before','작업 전'],['during','작업 중'],['after','작업 후']].forEach(([value, label]) => { const option = make('option', '', label); option.value = value; categoryPicker.append(option); }); section.append(categoryPicker); input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.multiple = true; input.hidden = true; input.setAttribute('aria-label', '작업 사진 파일 선택'); addButton.addEventListener('click', () => input.click()); section.append(input); }
-    const grid = make('div', 'photo-grid'); const ownPhotos = Array.isArray(record.photos) ? record.photos : [];
-    if (!ownPhotos.length) grid.append(make('div', 'photo-empty', '아직 등록된 작업 사진이 없습니다.'));
-    ownPhotos.forEach(photo => {
-      const card = make('article', 'photo-card'); const file = photoFiles.get(photo.id); let previewUrl = '';
-      const openDialog = url => { const dialog = make('dialog', 'photo-dialog'); const large = make('img'); large.src = url; large.alt = `${photo.name} 확대`; const close = make('button', 'photo-dialog-close', '닫기'); close.type = 'button'; close.addEventListener('click', () => { dialog.close(); dialog.remove(); }); dialog.append(large, close); document.body.append(dialog); dialog.showModal(); };
-      if (file) { previewUrl = URL.createObjectURL(file); previewUrls.add(previewUrl); const image = make('img', 'photo-thumb'); image.src = previewUrl; image.alt = `${photo.name} 미리보기`; image.addEventListener('click', () => openDialog(previewUrl)); card.append(image); } else { const image = make('img', 'photo-thumb'); image.alt = `${photo.name} 미리보기`; image.src = ''; card.append(image); loadPhotoBlob(photo.driveFileId, record.id).then(url => { image.src = url; previewUrls.add(url); image.addEventListener('click', () => openDialog(url)); }).catch(() => { image.alt = '사진을 불러오지 못했습니다.'; }); }
-      const meta = make('div', 'photo-meta'); meta.append(make('div', 'photo-name', photo.name));
-      const controls = make('div', 'photo-controls'); const category = document.createElement('select'); category.className = 'photo-category'; [['before','작업 전'],['during','작업 중'],['after','작업 후']].forEach(([value, label]) => { const option = make('option', '', label); option.value = value; category.append(option); }); category.value = photo.category || 'after'; category.disabled = true;
-      const remove = make('button', 'photo-delete', '삭제'); remove.type = 'button'; remove.addEventListener('click', async () => { remove.disabled = true; try { const result = await apiRequest('DELETE', { action: 'delete-photo', recordId: record.id, photoId: photo.id }); const index = records.findIndex(item => item.id === record.id); if (index >= 0) records[index] = result.job; renderDetail(result.job); } catch (error) { remove.disabled = false; alert(`사진 삭제 실패: ${error.message}`); } }); controls.append(category); if (canManagePhotos) controls.append(remove); meta.append(controls); card.append(meta); grid.append(card); if (previewUrl) card.dataset.preview = previewUrl;
+
+  function openPhotoSheet(record) {
+    const body = make('div', '');
+    const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.multiple = true; input.hidden = true; input.setAttribute('aria-label', '작업 사진 파일 선택');
+    body.append(input);
+    const progress = make('div', 'hint');
+    let category = 'after';
+    [['before', '작업 전'], ['during', '작업 중'], ['after', '작업 후']].forEach(item => {
+      const button = btnEl('btn block big', item[1]);
+      button.style.marginBottom = '8px';
+      button.addEventListener('click', () => { category = item[0]; input.click(); });
+      body.append(button);
     });
-    section.append(grid);
-    if (canManagePhotos && input) input.addEventListener('change', async () => { const files = Array.from(input.files || []).filter(file => file.type.startsWith('image/')); if (!files.length) return; addButton.disabled = true; addButton.textContent = '업로드 중…'; try { for (const file of files) { const result = await apiRequest('POST', { action: 'upload-photo', recordId: record.id, category: categoryPicker.value, file: { name: file.name, mimeType: file.type, data: await fileToBase64(file) } }); const index = records.findIndex(item => item.id === record.id); if (index >= 0) records[index] = result.job; record = result.job; } renderDetail(record); } catch (error) { alert(`사진 업로드 실패: ${error.message}`); } finally { addButton.disabled = false; addButton.textContent = '+ 사진 추가'; input.value = ''; } });
-    return section;
+    body.append(progress);
+    input.addEventListener('change', async () => {
+      const files = Array.from(input.files || []).filter(file => file.type.startsWith('image/'));
+      if (!files.length) return;
+      let done = 0;
+      try {
+        for (const file of files) {
+          progress.textContent = `올리는 중 ${done + 1}/${files.length}`;
+          const result = await apiRequest('POST', { action: 'upload-photo', recordId: record.id, category, file: { name: file.name, mimeType: file.type, data: await fileToBase64(file) } });
+          const index = records.findIndex(item => item.id === record.id);
+          if (index >= 0) records[index] = result.job;
+          done += 1;
+        }
+        closeTopLayer();
+        renderDetailById(record.id);
+      } catch (error) { progress.textContent = `업로드 실패: ${error.message}`; }
+      finally { input.value = ''; }
+    });
+    openSheet({ title: '어떤 사진인가요?', body });
   }
-  function renderProcessReadOnly(record) {
-    const box = make('div', 'detail-readonly');
-    [['처리내용', record.processContent || '미입력'], ['처리일', record.processDate || '미입력'], ['담당업체', record.vendor || '미정'], ['상태', record.status || '신규']].forEach(([label, value]) => { const row = make('div', 'detail-row'); row.append(make('div', 'detail-label', label), make('div', 'detail-value', value)); box.append(row); });
-    return box;
+
+  function openQuerySheet() {
+    const body = make('div', '');
+    const basis = selectEl([['received', '접수일'], ['processed', '처리일']], queryBasis.value);
+    const state = selectEl([['전체', '전체'], ['신규', '신규'], ['처리중', '처리중'], ['완료', '완료']], queryStatus.value);
+    const start = inputEl('date', queryStart.value);
+    const end = inputEl('date', queryEnd.value);
+    const textInput = inputEl('search', queryText.value);
+    body.append(field('기준', basis), field('상태', state));
+    const row = make('div', 'row-gap'); row.style.display = 'grid'; row.style.gridTemplateColumns = '1fr 1fr';
+    row.append(field('시작일', start), field('종료일', end));
+    body.append(row);
+    let vendorSelect = null;
+    if (canManageUsers()) { vendorSelect = selectEl([['전체', '전체'], ['미정', '미정'], ['직접 처리', '직접 처리'], ['외주업체', '외주업체']], queryVendor.value); body.append(field('담당업체', vendorSelect)); }
+    body.append(field('검색어', textInput));
+    const message = make('div', 'msg');
+    const actions = make('div', 'row-gap');
+    const run = btnEl('btn primary', '조회'); const reset = btnEl('btn', '초기화');
+    actions.append(run, reset);
+    body.append(actions, message);
+    run.addEventListener('click', () => {
+      message.textContent = ''; message.className = 'msg';
+      if (start.value && end.value && start.value > end.value) { message.textContent = '시작일은 종료일보다 늦을 수 없습니다.'; message.className = 'msg error'; return; }
+      queryBasis.value = basis.value; queryStatus.value = state.value; queryStart.value = start.value; queryEnd.value = end.value; queryText.value = textInput.value;
+      if (vendorSelect) queryVendor.value = vendorSelect.value;
+      closeTopLayer();
+      if (activeTab !== 'query') setTab('query'); else renderQuery();
+    });
+    reset.addEventListener('click', () => {
+      resetQuery();
+      basis.value = queryBasis.value; state.value = queryStatus.value; start.value = queryStart.value; end.value = queryEnd.value; textInput.value = queryText.value;
+      if (vendorSelect) vendorSelect.value = queryVendor.value;
+      message.textContent = ''; message.className = 'msg';
+    });
+    openSheet({ title: '조회 조건', body });
   }
-  function renderProcessForm(record) {
-    const editForm = make('form', 'detail-form');
-    const makeField = (labelText, control) => { const label = make('label', '', labelText); label.append(control); return label; };
-    const processContent = document.createElement('textarea'); processContent.id = 'processContent'; processContent.placeholder = '처리한 내용을 입력하세요.'; processContent.value = record.processContent || '';
-    const processDate = document.createElement('input'); processDate.type = 'date'; processDate.id = 'processDate'; processDate.value = record.processDate || '';
-    editForm.append(makeField('처리내용', processContent), makeField('처리일', processDate));
-    let processRevenue = null; let processExpense = null;
-    if (canSeeMoney()) { const moneyInput = (id, value, placeholder) => { const input = document.createElement('input'); input.type = 'number'; input.id = id; input.min = '0'; input.step = '1'; input.inputMode = 'numeric'; input.placeholder = placeholder; input.value = value === undefined || value === null ? '' : value; return input; }; processRevenue = moneyInput('processRevenue', record.revenue, '리버뷰에서 받을 금액(원)'); processExpense = moneyInput('processExpense', record.expense, '외주업체에 줄 금액(원)'); editForm.append(makeField('매출 — 리버뷰에서 받는 금액(원)', processRevenue), makeField('매입 — 외주업체에 주는 금액(원)', processExpense)); if (record.cost !== undefined && record.cost !== '' && record.cost !== null) editForm.append(make('div', 'hint', `구분 전에 입력된 옛 비용: ${won(record.cost)} — 매출·매입 칸에 나눠 넣어 주세요.`)); }
-    let processVendor = null;
-    if (role === 'master' || role === 'company') { processVendor = document.createElement('select'); processVendor.id = 'processVendor'; [['__none__', '미정'], ['__self__', '직접 처리']].forEach(([value, label]) => { const item = make('option', '', label); item.value = value; processVendor.append(item); }); vendors.forEach(vendorItem => { const item = make('option', '', vendorItem.vendorName || '외주업체'); item.value = vendorItem.uid; processVendor.append(item); }); processVendor.value = record.assignedVendorId && vendors.some(vendorItem => vendorItem.uid === record.assignedVendorId) ? record.assignedVendorId : record.vendor === '직접 처리' ? '__self__' : '__none__'; editForm.append(makeField('담당업체', processVendor)); }
-    const status = document.createElement('select'); status.id = 'status'; const statusOptions = role === 'vendor' ? ['처리중', '완료'] : ['신규', '처리중', '완료']; statusOptions.forEach(option => { const item = make('option', '', option); item.value = option; status.append(item); }); status.value = statusOptions.includes(record.status) ? record.status : (role === 'vendor' ? '처리중' : '신규'); editForm.append(makeField('상태', status));
-    const saveButton = make('button', 'detail-save', '처리정보 저장'); saveButton.type = 'submit'; editForm.append(saveButton);
-    const detailMessage = make('div', 'detail-message'); detailMessage.setAttribute('role', 'status'); detailMessage.setAttribute('aria-live', 'polite'); editForm.append(detailMessage);
-    editForm.addEventListener('submit', async event => { event.preventDefault(); const index = records.findIndex(item => item.id === record.id); if (index < 0) return; saveButton.disabled = true; detailMessage.textContent = '저장 중…'; const data = { processContent: processContent.value.trim(), processDate: processDate.value, status: status.value }; if (processRevenue) { data.revenue = processRevenue.value === '' ? '' : Number(processRevenue.value); data.expense = processExpense.value === '' ? '' : Number(processExpense.value); } if (processVendor) { const selection = processVendor.value; if (selection === '__none__') { data.assignedVendorId = ''; data.vendor = '미정'; } else if (selection === '__self__') { data.assignedVendorId = ''; data.vendor = '직접 처리'; } else data.assignedVendorId = selection; } try { const result = await apiRequest('PATCH', { action: 'update', id: record.id, data }); records[index] = result.job; record = result.job; detailMessage.textContent = '처리정보가 저장되었습니다.'; renderList(); renderDetail(record); } catch (error) { detailMessage.textContent = `저장 실패: ${error.message}`; } finally { saveButton.disabled = false; } });
-    return editForm;
+
+  function openAccountSheet(user) {
+    const body = make('div', '');
+    const info = make('div', 'info-lines');
+    [['이름', user.name || '이름 없음'], ['소속', user.org || '소속 없음'], ['연락처', user.phone || '연락처 없음'], ['이메일', user.email || '이메일 없음']].forEach(item => {
+      const line = make('div', ''); line.append(make('b', '', item[0]), make('span', '', item[1])); info.append(line);
+    });
+    body.append(info);
+
+    let roleValue = user.role || 'riverview';
+    const roleOptions = [['riverview', '리버뷰 관리자'], ['vendor', '외주업체']];
+    if (baseRole === 'master') roleOptions.push(['company', '회사 관리자']);
+    if (user.role && !roleOptions.some(item => item[0] === user.role)) roleOptions.unshift([user.role, ROLE_WORD[user.role] || '역할 없음']);
+    body.append(field('역할', chipRow(roleOptions, roleValue, value => { roleValue = value; vendorInput.hidden = value !== 'vendor'; })));
+
+    const vendorInput = inputEl('text', user.vendorName || ''); vendorInput.placeholder = '외주업체명';
+    vendorInput.hidden = roleValue !== 'vendor';
+    body.append(field('업체명', vendorInput));
+
+    const message = make('div', 'msg');
+    const actions = make('div', 'row-gap');
+    body.append(actions, message);
+
+    const run = async status => {
+      actions.querySelectorAll('button').forEach(button => { button.disabled = true; });
+      message.textContent = '저장 중…'; message.className = 'msg';
+      try {
+        await apiRequest('PATCH', { action: 'set-user', uid: user.uid || user.id, status, role: roleValue, vendorName: vendorInput.value.trim() });
+        closeTopLayer();
+        await renderAdmin();
+      } catch (error) { message.textContent = `실패: ${error.message}`; message.className = 'msg error'; actions.querySelectorAll('button').forEach(button => { button.disabled = false; }); }
+    };
+
+    if (user.status === 'pending') {
+      const reject = btnEl('btn danger', '거절'); reject.addEventListener('click', () => run('rejected'));
+      const approve = btnEl('btn primary', '승인'); approve.addEventListener('click', () => run('approved'));
+      actions.append(reject, approve);
+    } else if (user.status === 'approved') {
+      const save = btnEl('btn primary', '역할 저장'); save.addEventListener('click', () => run('approved'));
+      const suspend = btnEl('btn warn', '접속 중지'); suspend.addEventListener('click', () => run('suspended'));
+      actions.append(save, suspend);
+    } else {
+      const allow = btnEl('btn primary', '다시 허용'); allow.addEventListener('click', () => run('approved'));
+      actions.append(allow);
+    }
+    openSheet({ title: user.name || user.email || '계정 처리', body });
   }
-  function renderDetail(record) {
-    clearPreviewUrls();
-    detail.hidden = false; detail.replaceChildren();
-    detail.append(make('h2', '', '접수 상세'));
-    [['접수일시', formatDate(record.receivedAt)], ['접수내용', record.content], ['담당업체', record.vendor || '미정'], ['기타 메모', record.memo || '없음'], ...(!canSeeMoney() && (role === 'riverview' || role === 'vendor') ? [['금액', won(record.amount)]] : [])].forEach(([label, value]) => { const row = make('div', 'detail-row'); row.append(make('div', 'detail-label', label), make('div', 'detail-value', value)); detail.append(row); });
-    detail.append(make('hr', 'detail-divider'));
-    detail.append(make('h3', 'detail-form-title', role === 'riverview' ? '처리정보' : '처리정보 입력'));
-    detail.append(role === 'riverview' ? renderProcessReadOnly(record) : renderProcessForm(record));
-    if (role !== 'riverview') detail.append(renderVisitSms(record));
-    detail.append(renderPhotos(record));
-    const back = make('button', 'back-list', '목록으로 돌아가기'); back.type = 'button'; back.addEventListener('click', () => { detail.hidden = true; }); detail.append(back);
-  }
+
+  const chipRow = (options, initial, onSelect) => {
+    const row = make('div', 'chip-row');
+    options.forEach(item => {
+      const button = make('button', `role-chip${item[0] === initial ? ' active' : ''}`, item[1]); button.type = 'button'; button.dataset.value = item[0];
+      button.addEventListener('click', () => { row.querySelectorAll('.role-chip').forEach(chip => chip.classList.toggle('active', chip === button)); onSelect(item[0]); });
+      row.append(button);
+    });
+    return row;
+  };
+
+  // ---- query ----
+  const periodText = (start, end) => {
+    if (!start && !end) return '전체 기간';
+    const now = new Date();
+    const first = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+    const last = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate())}`;
+    if (start === first && end === last) return `${now.getMonth() + 1}월`;
+    const short = value => value.slice(5).replace('-', '/');
+    if (start && end) return `${short(start)}~${short(end)}`;
+    if (start) return `${short(start)}~`;
+    return `~${short(end)}`;
+  };
+  const resetQuery = () => {
+    queryBasis.value = 'received'; queryStatus.value = '전체'; queryVendor.value = '전체'; queryText.value = '';
+    const now = new Date();
+    queryStart.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+    queryEnd.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate())}`;
+  };
   function renderQuery() {
     queryError.textContent = '';
-    if (!recordsReady) { queryResults.replaceChildren(make('div', 'query-empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…')); return; }
+    querySummary.textContent = `${queryBasis.value === 'processed' ? '처리일' : '접수일'} · ${periodText(queryStart.value, queryEnd.value)} · ${queryVendor.value === '전체' ? '전체 업체' : queryVendor.value}`;
+    if (!recordsReady) {
+      summaryCards.replaceChildren();
+      queryResults.replaceChildren(make('div', 'empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…'));
+      return;
+    }
     const start = queryStart.value; const end = queryEnd.value;
     if (start && end && start > end) { queryError.textContent = '시작일은 종료일보다 늦을 수 없습니다.'; return; }
     const query = queryText.value.trim().toLowerCase();
     const filtered = records.filter(record => {
-      const status = record.status || '신규'; const vendor = record.vendor || '미정';
+      const status = statusOf(record); const vendor = record.vendor || '미정';
       if (queryStatus.value !== '전체' && status !== queryStatus.value) return false;
       if (queryVendor.value !== '전체' && vendor !== queryVendor.value) return false;
       const dateValue = queryBasis.value === 'received' ? (record.receivedAt || '').slice(0, 10) : (record.processDate || '');
@@ -343,98 +1090,135 @@
       const haystack = `${record.content || ''} ${record.processContent || ''} ${record.memo || ''} ${vendor}`.toLowerCase();
       return !query || haystack.includes(query);
     });
-    const total = filtered.length; const newCount = filtered.filter(record => (record.status || '신규') === '신규').length; const progressCount = filtered.filter(record => record.status === '처리중').length; const doneCount = filtered.filter(record => record.status === '완료').length;
-    const sumOf = field => filtered.reduce((sum, record) => { const value = Number(record[field]); return sum + (Number.isFinite(value) ? value : 0); }, 0); const revenue = sumOf('revenue'); const expense = sumOf('expense');
-    document.getElementById('sumTotal').textContent = total; document.getElementById('sumNew').textContent = newCount; document.getElementById('sumProgress').textContent = progressCount; document.getElementById('sumDone').textContent = doneCount; document.getElementById('sumCost').textContent = canSeeMoney() ? `매출 ${revenue.toLocaleString('ko-KR')}원 · 매입 ${expense.toLocaleString('ko-KR')}원 · 차익 ${(revenue - expense).toLocaleString('ko-KR')}원` : `${sumOf('amount').toLocaleString('ko-KR')}원`; document.getElementById('sumCostLabel').textContent = canSeeMoney() ? '금액(매출·매입은 우리 회사만 보임)' : '금액 합계';
+    renderSummaryCards(filtered);
     queryResults.replaceChildren();
-    if (!filtered.length) { queryResults.append(make('div', 'query-empty', '조건에 맞는 작업이 없습니다.')); return; }
-    filtered.forEach(record => { const button = make('button', 'query-result'); button.type = 'button'; const top = make('div', 'query-result-top'); top.append(make('span', 'query-result-date', `접수일 ${formatDate(record.receivedAt)}`)); top.append(make('span', `badge ${(record.status || '신규') === '신규' ? 'new' : record.status === '처리중' ? 'progress' : record.status === '완료' ? 'done' : ''}`, record.status || '신규')); button.append(top, make('div', 'query-result-content', record.content || '내용 없음')); const meta = make('div', 'query-result-meta'); meta.append(make('span', `담당업체 · ${record.vendor || '미정'}`), make('span', `처리일 · ${record.processDate || '미입력'}`)); if (canSeeMoney()) meta.append(make('span', `매출 · ${won(record.revenue)}`), make('span', `매입 · ${won(record.expense)}`)); else meta.append(make('span', `금액 · ${won(record.amount)}`)); button.append(meta); button.addEventListener('click', () => { setView('list'); renderDetail(record); }); queryResults.append(button); });
+    if (!filtered.length) { queryResults.append(make('div', 'empty', '조건에 맞는 작업이 없습니다.')); return; }
+    sortRecords(filtered).forEach(record => queryResults.append(recordCard(record)));
   }
-  function renderList() {
-    if (!recordsReady) { count.textContent = '…'; list.replaceChildren(make('div', 'empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…')); detail.hidden = true; return; }
-    const query = search.value.trim().toLowerCase();
-    const filtered = records.filter(record => { const matchesStatus = activeStatus === '전체' || (record.status || '신규') === activeStatus; const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return matchesStatus && (!query || haystack.includes(query)); });
-    count.textContent = `${filtered.length}건`;
-    list.replaceChildren(); detail.hidden = true;
-    if (!filtered.length) { list.append(make('div', 'empty', records.length ? '검색 조건에 맞는 접수가 없습니다.' : '아직 등록된 접수가 없습니다.\n접수 등록에서 첫 요청을 저장해 보세요.')); return; }
-    filtered.forEach(record => { const button = make('button', 'record'); button.type = 'button'; const top = make('div', 'record-top'); const date = make('span', 'record-date', formatDate(record.receivedAt)); const status = record.status || '신규'; const badge = make('span', `badge ${status === '신규' ? 'new' : status === '처리중' ? 'progress' : status === '완료' ? 'done' : ''}`, status); top.append(date, badge); button.append(top, make('div', 'record-content', record.content || '내용 없음'), make('div', 'record-vendor', `담당업체 · ${record.vendor || '미정'}`)); button.addEventListener('click', () => renderDetail(record)); list.append(button); });
+  function renderSummaryCards(filtered) {
+    const counts = { 전체: filtered.length, 신규: 0, 처리중: 0, 완료: 0 };
+    filtered.forEach(record => { const status = statusOf(record); if (counts[status] !== undefined) counts[status] += 1; });
+    const card = (label, value, wide) => { const el = make('div', `sum-card${wide ? ' wide' : ''}`); el.append(make('div', 'sum-label', label), make('div', 'sum-value', value)); return el; };
+    const countRow = () => { const row = make('div', 'count-row'); ['전체', '신규', '처리중', '완료'].forEach(key => row.append(card(key, String(counts[key])))); return row; };
+    if (canSeeMoney()) {
+      const revenue = sumOf(filtered, 'revenue'); const expense = sumOf(filtered, 'expense');
+      summaryCards.replaceChildren(card('매출', numText(revenue), true), card('매입', numText(expense), true), card('차익', numText(revenue - expense), true), countRow());
+    } else {
+      summaryCards.replaceChildren(countRow(), card('금액 합계', money(sumOf(filtered, 'amount')), true));
+    }
   }
-  async function renderAdmin() {
-    adminList.replaceChildren(make('div', 'empty', '불러오는 중입니다…'));
-    try {
-      const data = await apiRequest('GET', null, 'users');
-      const users = Array.isArray(data.users) ? data.users : [];
-      const pendingCount = users.filter(user => user.status === 'pending').length;
-      adminButton.textContent = pendingCount ? `계정 관리 (${pendingCount})` : '계정 관리';
-      adminList.replaceChildren();
-      if (!users.length) adminList.append(make('div', 'empty', '등록된 계정이 없습니다.'));
-      users.forEach(user => adminList.append(renderAdminUser(user)));
-    } catch (error) { adminList.replaceChildren(make('div', 'empty', `계정을 불러오지 못했습니다: ${error.message}`)); }
-    await configureAiKeySection();
-  }
-  function renderAdminUser(user) {
-    const card = make('article', `admin-user${user.status === 'pending' ? ' pending' : ''}`);
-    const head = make('div', 'admin-head'); const info = make('div', '');
-    info.append(make('div', 'admin-name', user.name || user.email || '이름 없음'));
-    const roleText = { master: '마스터', company: '회사 관리자', riverview: '리버뷰 관리자', vendor: '외주업체' }[user.role] || '역할 없음';
-    const meta = make('div', 'admin-meta'); meta.append(`${user.org || '소속 없음'} · ${user.phone || '연락처 없음'} · ${roleText}`); const emailLine = document.createElement('div'); emailLine.textContent = user.email || ''; meta.append(emailLine); info.append(meta);
-    head.append(info, make('span', `badge status-${user.status || 'pending'}`, statusLabel(user.status))); card.append(head);
-    const controls = make('div', 'admin-controls');
-    const roleSelect = document.createElement('select'); roleSelect.className = 'admin-role';
-    const roleOptions = [['riverview', '리버뷰 관리자'], ['vendor', '외주업체']]; if (role === 'master') roleOptions.splice(2, 0, ['company', '회사 관리자']);
-    if (user.role && !roleOptions.some(([value]) => value === user.role)) roleOptions.unshift([user.role, roleText]);
-    roleOptions.forEach(([value, label]) => { const option = make('option', '', label); option.value = value; roleSelect.append(option); }); roleSelect.value = user.role || 'riverview';
-    const vendorInput = document.createElement('input'); vendorInput.type = 'text'; vendorInput.className = 'admin-vendor'; vendorInput.placeholder = '외주업체명'; vendorInput.value = user.vendorName || ''; vendorInput.hidden = roleSelect.value !== 'vendor';
-    roleSelect.addEventListener('change', () => { vendorInput.hidden = roleSelect.value !== 'vendor'; });
-    const actions = make('div', 'admin-actions'); const buttons = {};
-    [['approve', '승인'], ['reject', '거절'], ['suspend', '접속 중지'], ['allow', '다시 허용']].forEach(([key, label]) => { const button = make('button', key, label); button.type = 'button'; buttons[key] = button; actions.append(button); });
-    const adminMessage = make('div', 'admin-message');
-    const run = async status => { Object.values(buttons).forEach(button => { button.disabled = true; }); adminMessage.textContent = '저장 중…'; try { await apiRequest('PATCH', { action: 'set-user', uid: user.uid || user.id, status, role: roleSelect.value, vendorName: vendorInput.value.trim() }); adminMessage.textContent = '저장되었습니다.'; await renderAdmin(); } catch (error) { adminMessage.textContent = `실패: ${error.message}`; Object.values(buttons).forEach(button => { button.disabled = false; }); } };
-    buttons.approve.addEventListener('click', () => run('approved')); buttons.allow.addEventListener('click', () => run('approved')); buttons.reject.addEventListener('click', () => run('rejected')); buttons.suspend.addEventListener('click', () => run('suspended'));
-    controls.append(roleSelect, vendorInput, actions); card.append(controls, adminMessage);
-    return card;
+
+  // ---- admin ----
+  function renderAdmin() {
+    if (!canManageUsers()) return Promise.resolve();
+    accountPending.replaceChildren(make('div', 'empty', '불러오는 중입니다…'));
+    accountActive.replaceChildren(); accountStopped.replaceChildren();
+    return (async () => {
+      try {
+        const data = await apiRequest('GET', null, 'users');
+        const users = Array.isArray(data.users) ? data.users : [];
+        const pending = users.filter(user => user.status === 'pending');
+        const active = users.filter(user => user.status === 'approved');
+        const stopped = users.filter(user => user.status === 'suspended' || user.status === 'rejected');
+        adminBadge.textContent = pending.length ? String(pending.length) : ''; adminBadge.hidden = !pending.length;
+        accountPendingLabel.textContent = `승인 대기 ${pending.length}`;
+        accountActiveLabel.textContent = `사용 중 ${active.length}명`;
+        accountStoppedLabel.textContent = '중지·거절';
+        accountPending.replaceChildren(); accountActive.replaceChildren(); accountStopped.replaceChildren();
+        pending.forEach(user => {
+          const card = make('button', 'card pending-card'); card.type = 'button';
+          card.append(make('strong', 'card-title', user.name || user.email || '이름 없음'));
+          card.append(make('div', 'card-sub', `${user.org || '소속 없음'} · ${user.phone || '연락처 없음'}`));
+          card.addEventListener('click', () => openAccountSheet(user));
+          accountPending.append(card);
+        });
+        if (!pending.length) accountPending.append(make('div', 'empty', '승인 대기 중인 계정이 없습니다.'));
+        active.forEach(user => accountActive.append(accountRow(user)));
+        if (!active.length) accountActive.append(make('div', 'empty', '사용 중인 계정이 없습니다.'));
+        stopped.forEach(user => accountStopped.append(accountRow(user)));
+        if (!stopped.length) accountStopped.append(make('div', 'empty', '중지·거절된 계정이 없습니다.'));
+      } catch (error) { accountPending.replaceChildren(make('div', 'empty', `계정을 불러오지 못했습니다: ${error.message}`)); }
+      await configureAiKeySection();
+    })();
   }
   async function configureAiKeySection() {
-    const canSee = role === 'master' && !testKey; aiKeySection.hidden = !canSee; if (!canSee) return;
-    try { const data = await apiRequest('GET', null, 'ai-key'); aiKeyStatus.textContent = data.configured ? `현재 상태: ${data.disabled ? '꺼짐' : '켜짐'}` : '아직 열쇠가 설정되지 않았습니다. 새 열쇠를 발급하세요.'; aiKeyToggleOn.hidden = !(data.configured && data.disabled); aiKeyToggleOff.hidden = !(data.configured && !data.disabled); } catch (error) { aiKeyStatus.textContent = `상태를 확인하지 못했습니다: ${error.message}`; }
-  }
-  listButton.addEventListener('click', () => setView('list')); formButton.addEventListener('click', () => setView('form')); queryButton.addEventListener('click', () => setView('query')); adminButton.addEventListener('click', () => setView('admin')); search.addEventListener('input', renderList);
-  document.getElementById('runQuery').addEventListener('click', renderQuery);
-  document.getElementById('resetQuery').addEventListener('click', () => { queryBasis.value = 'received'; queryStatus.value = '전체'; queryStart.value = ''; queryEnd.value = ''; queryVendor.value = '전체'; queryText.value = ''; renderQuery(); });
-  document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => { activeStatus = button.dataset.status; document.querySelectorAll('.filter').forEach(item => item.classList.toggle('active', item === button)); renderList(); }));
-  receivedAt.value = localDateTime(new Date());
-  formView.querySelector('form').addEventListener('submit', async event => {
-    event.preventDefault(); message.textContent = ''; message.className = 'message';
-    if (!receivedAt.value || !content.value.trim()) { message.textContent = '접수일시와 접수내용을 입력해 주세요.'; message.className = 'message error'; return; }
-    const submitButton = formView.querySelector('button[type="submit"]'); submitButton.disabled = true; message.textContent = '저장 중…'; message.className = 'message';
+    const canSee = baseRole === 'master' && !testKey; aiKeySection.hidden = !canSee; if (!canSee) return;
     try {
-      const result = await apiRequest('POST', { action: 'create', job: { receivedAt: receivedAt.value, content: content.value.trim(), vendor: vendor.value || '미정', memo: memo.value.trim(), status: '신규' } });
-      const record = result.job; records = [record, ...records]; recordsReady = true;
-      document.getElementById('savedAt').textContent = formatDate(record.receivedAt); document.getElementById('savedContent').textContent = record.content; document.getElementById('savedVendor').textContent = record.vendor; document.getElementById('savedMemo').textContent = record.memo || '없음'; saved.hidden = false; message.textContent = '접수가 Firestore에 저장되었습니다.'; message.className = 'message success'; content.value = ''; memo.value = ''; renderList();
-    } catch (error) { message.textContent = `저장 실패: ${error.message}`; message.className = 'message error'; }
-    finally { submitButton.disabled = false; }
+      const data = await apiRequest('GET', null, 'ai-key');
+      aiKeyStatus.textContent = data.configured ? `현재 상태: ${data.disabled ? '꺼짐' : '켜짐'}` : '아직 열쇠가 설정되지 않았습니다. 새 열쇠를 발급하세요.';
+      aiKeyToggleOn.hidden = !(data.configured && data.disabled);
+      aiKeyToggleOff.hidden = !(data.configured && !data.disabled);
+    } catch (error) { aiKeyStatus.textContent = `상태를 확인하지 못했습니다: ${error.message}`; }
+  }
+
+  // ---- events ----
+  tabList.addEventListener('click', () => setTab('list'));
+  tabQuery.addEventListener('click', () => setTab('query'));
+  tabAdmin.addEventListener('click', () => setTab('admin'));
+  fab.addEventListener('click', openIntakeSheet);
+  menuButton.addEventListener('click', () => toggleMenu());
+  menuBackdrop.addEventListener('click', closeTopLayer);
+  menuAiKey.addEventListener('click', () => { closeTopLayer(); if (activeTab !== 'admin') setTab('admin'); setTimeout(() => aiKeySection.scrollIntoView({ block: 'center' }), 80); });
+  helpLink.addEventListener('click', () => toggleMenu(false));
+  detailBack.addEventListener('click', closeTopLayer);
+  actionProcess.addEventListener('click', () => { const record = records.find(item => item.id === currentDetailId); if (record) openProcessSheet(record); });
+  actionSms.addEventListener('click', () => { const record = records.find(item => item.id === currentDetailId); if (record) openSmsSheet(record); });
+  actionPhoto.addEventListener('click', () => { const record = records.find(item => item.id === currentDetailId); if (record) openPhotoSheet(record); });
+  search.addEventListener('input', renderList);
+  openQuerySheetButton.addEventListener('click', openQuerySheet);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeTopLayer(); });
+
+  requestAccessButton.addEventListener('click', async () => {
+    accessMessage.textContent = ''; accessMessage.className = 'msg';
+    if (!accessName.value.trim() || !accessOrg.value.trim()) { accessMessage.textContent = '이름과 소속을 입력해 주세요.'; accessMessage.className = 'msg error'; return; }
+    requestAccessButton.disabled = true; accessMessage.textContent = '신청 중…';
+    try { await apiRequest('POST', { action: 'request-access', name: accessName.value.trim(), org: accessOrg.value.trim(), phone: accessPhone.value.trim() }); await loadSession(); }
+    catch (error) { accessMessage.textContent = `신청 실패: ${error.message}`; accessMessage.className = 'msg error'; }
+    finally { requestAccessButton.disabled = false; }
   });
-  requestAccessButton.addEventListener('click', async () => { accessMessage.textContent = ''; accessMessage.className = 'message'; if (!accessName.value.trim() || !accessOrg.value.trim()) { accessMessage.textContent = '이름과 소속을 입력해 주세요.'; accessMessage.className = 'message error'; return; } requestAccessButton.disabled = true; accessMessage.textContent = '신청 중…'; try { await apiRequest('POST', { action: 'request-access', name: accessName.value.trim(), org: accessOrg.value.trim(), phone: accessPhone.value.trim() }); await loadSession(); } catch (error) { accessMessage.textContent = `신청 실패: ${error.message}`; accessMessage.className = 'message error'; } finally { requestAccessButton.disabled = false; } });
   refreshSessionButton.addEventListener('click', () => loadSession());
-  viewAsSelect.addEventListener('change', async () => { const value = viewAsSelect.value; if (value.startsWith('vendor:')) { viewAsRole = 'vendor'; viewAsVendor = value.slice(7); } else { viewAsRole = value; viewAsVendor = ''; } await loadSession(); });
+  viewAsSelect.addEventListener('change', async () => {
+    const value = viewAsSelect.value;
+    if (value.startsWith('vendor:')) { viewAsRole = 'vendor'; viewAsVendor = value.slice(7); }
+    else { viewAsRole = value; viewAsVendor = ''; }
+    toggleMenu(false);
+    await loadSession();
+  });
   aiKeyToggleOn.addEventListener('click', async () => { try { await apiRequest('PATCH', { action: 'ai-key-toggle', disabled: false }); await configureAiKeySection(); } catch (error) { aiKeyStatus.textContent = `실패: ${error.message}`; } });
   aiKeyToggleOff.addEventListener('click', async () => { try { await apiRequest('PATCH', { action: 'ai-key-toggle', disabled: true }); await configureAiKeySection(); } catch (error) { aiKeyStatus.textContent = `실패: ${error.message}`; } });
-  aiKeyRotate.addEventListener('click', async () => { if (!confirm('새 열쇠를 발급하면 기존 열쇠는 즉시 사용할 수 없게 됩니다. 계속할까요?')) return; try { const result = await apiRequest('POST', { action: 'ai-key-rotate' }); aiKeyValue.hidden = false; aiKeyValue.value = result.key; aiKeyNote.hidden = false; await configureAiKeySection(); } catch (error) { aiKeyStatus.textContent = `실패: ${error.message}`; } });
+  aiKeyRotate.addEventListener('click', async () => {
+    if (!confirm('새 열쇠를 발급하면 기존 열쇠는 즉시 사용할 수 없게 됩니다. 계속할까요?')) return;
+    try { const result = await apiRequest('POST', { action: 'ai-key-rotate' }); aiKeyValue.hidden = false; aiKeyValue.value = result.key; aiKeyNote.hidden = false; await configureAiKeySection(); }
+    catch (error) { aiKeyStatus.textContent = `실패: ${error.message}`; }
+  });
   exitTestMode.addEventListener('click', () => { try { localStorage.removeItem(TEST_KEY_STORAGE); } catch {} testKey = ''; location.reload(); });
-  loginButton.addEventListener('click', async () => { authError.textContent = ''; loginButton.disabled = true; try { await auth.signInWithPopup(googleProvider); } catch (error) { console.error('Firebase Auth sign-in error', error.code, error.message); if (error.code === 'auth/popup-blocked') { try { await auth.signInWithRedirect(googleProvider); return; } catch (redirectError) { console.error('Firebase Auth redirect error', redirectError.code, redirectError.message); authError.textContent = `로그인 실패: ${redirectError.message}`; } } else authError.textContent = `로그인 실패: ${error.message}`; loginButton.disabled = false; } });
+  loginButton.addEventListener('click', async () => {
+    authError.textContent = ''; loginButton.disabled = true;
+    try { await auth.signInWithPopup(googleProvider); }
+    catch (error) {
+      console.error('Firebase Auth sign-in error', error.code, error.message);
+      if (error.code === 'auth/popup-blocked') { try { await auth.signInWithRedirect(googleProvider); return; } catch (redirectError) { console.error('Firebase Auth redirect error', redirectError.code, redirectError.message); authError.textContent = `로그인 실패: ${redirectError.message}`; } }
+      else authError.textContent = `로그인 실패: ${error.message}`;
+      loginButton.disabled = false;
+    }
+  });
   auth.getRedirectResult().catch(error => { console.error('Firebase Auth redirect result error', error.code, error.message); authError.textContent = `로그인 결과 처리 실패: ${error.message}`; loginButton.disabled = false; });
-  logoutButton.addEventListener('click', async () => { authError.textContent = ''; try { await auth.signOut(); } catch (error) { authError.textContent = `로그아웃 실패: ${error.message}`; } });
+  logoutButton.addEventListener('click', async () => { closeTopLayer(); authError.textContent = ''; try { await auth.signOut(); } catch (error) { authError.textContent = `로그아웃 실패: ${error.message}`; } });
   auth.onAuthStateChanged(async user => {
     if (testKey) return;
     const uid = user ? user.uid : '';
     if (uid !== sessionUid) { sessionUid = uid; baseRole = ''; viewAsRole = ''; viewAsVendor = ''; vendors = []; vendorsLoaded = false; me = null; }
-    appShell.hidden = true; accessPanel.hidden = true; viewAsRow.hidden = true; adminView.hidden = true; loginButton.hidden = true; logoutButton.hidden = true; refreshSessionButton.hidden = true; authError.textContent = '';
+    authScreen.hidden = false; appShell.hidden = true; accessPanel.hidden = true; loginButton.hidden = true; authError.textContent = '';
+    menuButton.hidden = true; menuPopover.hidden = true; menuBackdrop.hidden = true;
     if (!user) { authStatus.textContent = '업무 데이터를 보려면 Google 계정으로 로그인해 주세요.'; loginButton.hidden = false; return; }
-    logoutButton.hidden = false; authStatus.textContent = '계정 정보를 확인하는 중입니다…';
+    authStatus.textContent = '계정 정보를 확인하는 중입니다…';
     await loadSession();
   });
-  if (testKey) { testBanner.hidden = false; authStatus.textContent = 'AI 시험 모드로 확인하는 중입니다…'; loadSession(); }
+
+  resetQuery();
+  renderFilterChips({ 전체: 0, 신규: 0, 처리중: 0, 완료: 0 });
   renderList();
+  if (testKey) { testBanner.hidden = false; authStatus.textContent = 'AI 시험 모드로 확인하는 중입니다…'; loadSession(); }
 })();
 </script>
 </body>

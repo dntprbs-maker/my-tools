@@ -109,7 +109,7 @@ module.exports = async (req, res) => {
     const requireApproved = () => { if (session.status !== 'approved') { const error = new AuthError(403, '승인된 계정이 아닙니다.'); error.body = { status: session.status }; throw error; } };
     const canSeeJob = job => testSession ? isTestJob(job) : !isTestJob(job);
     // 상대방 입장의 '금액': 리버뷰 관리자 = 우리 매출, 외주업체 = 우리 매입. 나머지 금액 필드는 빼고 보낸다
-    const forRole = job => { if (canManage) return job; const amount = isRiverview ? job.revenue : isVendor ? job.expense : undefined; const out = stripCost(job); if (amount !== undefined && amount !== null && amount !== '') out.amount = amount; return out; };
+    const forRole = job => { if (canManage) return job; const amount = isRiverview ? job.revenue : isVendor ? job.expense : undefined; const out = stripCost(job); if (amount !== undefined && amount !== null && amount !== '') out.amount = amount; if (isRiverview) { delete out.vendor; delete out.assignedVendorId; } return out; };
     const vendorView = forRole;
 
     if (action === 'me') { const userDoc = testSession ? null : await getDocOrNull(`${usersCollection}/${encodeURIComponent(session.uid)}`); const user = userDoc ? fromDocument(userDoc) : {}; return json(res, 200, { uid: session.uid, email: session.email, role: session.role, status: session.status, vendorName: session.vendorName || user.vendorName || '', isTest: testSession, name: user.name || '', org: user.org || '', phone: user.phone || '' }); }
