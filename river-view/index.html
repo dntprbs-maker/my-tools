@@ -76,6 +76,18 @@
   .card-title{font-size:14px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}
   .card-sub{margin-top:4px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
   .card.highlight{border-width:2px;padding:11px}
+  .list-meta{display:flex;justify-content:space-between;align-items:center}
+  .select-toggle{min-height:32px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+  .card.selectable{display:grid;grid-template-columns:26px 1fr;gap:8px;align-items:start}
+  .card .check{width:22px;height:22px;border:2px solid #b5bdc9;border-radius:6px;display:grid;place-items:center;font-size:14px;font-weight:900;color:#fff;margin-top:1px}
+  .card.picked{border-color:var(--primary);background:#f3f8ff}
+  .card.picked .check{background:var(--primary);border-color:var(--primary)}
+  #selectBar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(64px + env(safe-area-inset-bottom));width:min(100%,520px);z-index:47;display:grid;grid-template-columns:1fr 2fr;gap:8px;padding:10px 14px;background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 16px rgb(0 0 0 / 8%)}
+  #selectBar[hidden]{display:none}
+  #selectBar button{min-height:46px;border-radius:10px;font:inherit;font-weight:800;cursor:pointer}
+  #selectCancel{border:1px solid var(--line);background:#fff;color:var(--ink)}
+  #selectSend{border:0;background:var(--ok-fill);color:#fff}
+  #selectSend[disabled]{background:#c5cfdd}
   .card.highlight.hl-green{border-color:var(--ok-fill)}
   .card.highlight.hl-blue{border-color:var(--primary)}
   .row-line{display:block;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)}
@@ -235,7 +247,7 @@
       <label class="search-wrap" aria-label="접수 검색"><span class="search-ico">⌕</span><input id="search" type="search" placeholder="호수·내용 검색"></label>
       <div id="filterChips" class="chips" role="group" aria-label="접수 상태 필터"></div>
       <p id="listHint" class="hint" hidden>나에게 배정된 접수만 보입니다.</p>
-      <div class="list-meta"><strong id="listCount">0건</strong></div>
+      <div class="list-meta"><strong id="listCount">0건</strong><button id="selectToggle" class="select-toggle" type="button" hidden>여러 건 선택</button></div>
       <div id="recordList" class="cards" aria-live="polite"></div>
     </section>
 
@@ -291,6 +303,7 @@
     </section>
   </main>
 
+  <div id="selectBar" hidden><button id="selectCancel" type="button">취소</button><button id="selectSend" type="button" disabled>방문문자 보내기</button></div>
   <div id="fabHost" hidden><button id="fab" type="button" hidden>＋ 접수</button></div>
 
   <nav id="tabBar" hidden aria-label="화면 선택">
@@ -433,6 +446,7 @@
   let recordsReady = false;
   let recordsError = '';
   let activeStatus = '전체';
+  let selectMode = false; const picked = new Set();
   let activeTab = 'list';
   let me = null;
   let baseRole = '';
@@ -484,6 +498,17 @@
   const canAct = () => role === 'master' || role === 'company' || role === 'vendor';
 
   // ---- sheet / toast ----
+  const selectToggle = document.getElementById('selectToggle');
+  const selectBar = document.getElementById('selectBar');
+  const selectSend = document.getElementById('selectSend');
+  selectToggle.addEventListener('click', () => { selectMode = true; picked.clear(); renderList(); });
+  document.getElementById('selectCancel').addEventListener('click', () => exitSelectMode());
+  selectSend.addEventListener('click', () => {
+    const chosen = sortRecords(records.filter(r => picked.has(r.id)));
+    if (!chosen.length) return;
+    if (chosen.length === 1) { openSmsSheet(chosen[0]); return; }
+    openBulkSmsSheet(chosen, () => exitSelectMode());
+  });
   const showToast = text => { const el = make('div', 'toast', text); toastHost.append(el); setTimeout(() => el.remove(), 2000); };
   const openSheet = options => {
     if (sheetOpen) return null;
@@ -636,8 +661,16 @@
     const button = make('button', 'card'); button.type = 'button'; button.dataset.id = record.id;
     const top = make('div', 'card-top');
     top.append(make('strong', 'card-title', titleOf(record)), statusBadge(statusOf(record)));
-    button.append(top);
     const sub = subline(record);
+    if (selectMode) {
+      const isPicked = picked.has(record.id);
+      button.classList.add('selectable'); button.classList.toggle('picked', isPicked); button.setAttribute('aria-pressed', String(isPicked));
+      const box = make('div', ''); box.append(top); if (sub) box.append(make('div', 'card-sub', sub));
+      button.append(make('span', 'check', isPicked ? '✓' : ''), box);
+      button.addEventListener('click', () => { if (picked.has(record.id)) picked.delete(record.id); else picked.add(record.id); renderList(); });
+      return button;
+    }
+    button.append(top);
     if (sub) button.append(make('div', 'card-sub', sub));
     button.addEventListener('click', () => openDetail(record.id));
     return button;
@@ -674,6 +707,7 @@
       recordList.replaceChildren(make('div', 'empty', recordsError ? `데이터를 불러오지 못했습니다: ${recordsError}` : '데이터를 불러오는 중입니다…'));
       return;
     }
+    updateSelectChrome();
     const query = search.value.trim().toLowerCase();
     const searched = records.filter(record => { const haystack = `${record.content || ''} ${record.vendor || ''} ${record.memo || ''}`.toLowerCase(); return !query || haystack.includes(query); });
     const counts = { 전체: searched.length, 신규: 0, 처리중: 0, 완료: 0 };
@@ -693,9 +727,19 @@
       ordered.forEach(record => recordList.append(recordCard(record)));
     }
   }
+  function updateSelectChrome() {
+    const allowed = canAct() && activeTab === 'list';
+    selectToggle.hidden = !allowed || selectMode;
+    selectBar.hidden = !(allowed && selectMode);
+    if (selectMode) { fab.hidden = true; [...picked].forEach(id => { if (!records.some(r => r.id === id)) picked.delete(id); }); selectSend.disabled = picked.size === 0; selectSend.textContent = picked.size ? `방문문자 보내기 (${picked.size})` : '보낼 접수를 고르세요'; }
+    else fab.hidden = role === 'vendor';
+  }
+  const exitSelectMode = () => { selectMode = false; picked.clear(); renderList(); };
   const refreshViews = () => { if (activeTab === 'query') renderQuery(); else if (activeTab === 'admin') renderAdmin(); else renderList(); };
   const setTab = name => {
     activeTab = name;
+    if (name !== 'list' && selectMode) { selectMode = false; picked.clear(); }
+    document.getElementById('selectBar').hidden = true;
     detailView.hidden = true;
     listView.hidden = name !== 'list';
     queryView.hidden = name !== 'query';
@@ -924,6 +968,227 @@
     update();
     openSheet({ title: '방문안내 문자', body });
   }
+
+  // ---- 여러 명 방문문자 (로컬 똘마니 큐엔 작성, 코드디 검수) ----
+  function openBulkSmsSheet(records, onDone) {
+    const N = records.length;
+    const body = make('div', '');
+  
+    // Shared inputs
+    const visitDate = inputEl('date', '');
+    const visitTime = inputEl('time', ''); visitTime.step = '600';
+    const dateRow = make('div', 'row-gap'); dateRow.style.display = 'grid'; dateRow.style.gridTemplateColumns = '1fr 1fr';
+    dateRow.append(field('방문 날짜', visitDate), field('방문 시간', visitTime));
+    body.append(dateRow);
+  
+    // Template editor (toggle)
+    const template = areaEl(loadSmsTemplate(), '');
+    template.addEventListener('input', () => { saveSmsTemplate(template.value); render(); });
+    const templateWrap = make('div', ''); templateWrap.hidden = true;
+    templateWrap.append(field('문자 문구 ({내용} {날짜} {시간} 자동)', template));
+    const reset = btnEl('btn', '기본 문구로 되돌리기');
+    reset.addEventListener('click', () => { template.value = SMS_DEFAULT_TEMPLATE; saveSmsTemplate(template.value); render(); });
+    templateWrap.append(reset);
+    const editToggle = btnEl('link-btn', '문구 수정 ›');
+    editToggle.addEventListener('click', () => { templateWrap.hidden = !templateWrap.hidden; });
+    body.append(editToggle, templateWrap);
+  
+    // Recipient list
+    const listWrap = make('div', 'row-gap');
+    const phones = [];
+    const statuses = [];
+    const statusEls = [];
+    records.forEach((rec, i) => {
+      const source = `${rec.content || ''}\n${rec.memo || ''}`;
+      const found = source.match(SMS_PHONE_IN_TEXT);
+      const phone = inputEl('tel', found ? found[0] : '');
+      phone.inputMode = 'tel'; phone.placeholder = '010-0000-0000';
+      phones.push(phone);
+      const initialNorm = normalizePhone(phone.value);
+      statuses.push(initialNorm ? '대기' : '번호 오류');
+      phone.addEventListener('input', () => {
+        const norm = normalizePhone(phone.value);
+        statuses[i] = norm ? '대기' : '번호 오류';
+        render();
+      });
+  
+      const card = make('div', 'card-box');
+      const title = make('div', '', titleOf(rec)); title.style.fontWeight = 'bold';
+      const status = make('div', 'hint');
+      const row = make('div', 'row-gap'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+      row.append(phone, status);
+      card.append(title, row);
+      listWrap.append(card);
+      statusEls.push(status);
+    });
+    body.append(listWrap);
+  
+    // Preview
+    const preview = make('div', 'sms-preview');
+    const meta = make('div', 'sms-meta');
+    const warn = make('div', 'warn');
+    body.append(field('문자 내용', preview), meta, warn);
+  
+    // Main button + skip + done
+    const mainBtn = make('a', 'btn ok block', '');
+    const skipBtn = btnEl('btn', '이 고객 건너뛰기');
+    const doneWrap = make('div', 'row-gap'); doneWrap.hidden = true;
+    const doneText = make('div', 'hint');
+    const doneBtn = btnEl('btn primary block', '완료');
+    doneWrap.append(doneText, doneBtn);
+    body.append(mainBtn, skipBtn, doneWrap);
+  
+    let current = -1;
+  
+    function isValidCurrent(idx) {
+      return idx >= 0 && idx < N && statuses[idx] === '대기';
+    }
+  
+    function findFirstValid(from) {
+      for (let k = 0; k < N; k++) {
+        const idx = (from + k) % N;
+        if (statuses[idx] === '대기') return idx;
+      }
+      return -1;
+    }
+  
+    function nextIndex(from) {
+      for (let k = 1; k <= N; k++) {
+        const idx = (from + k) % N;
+        if (statuses[idx] === '대기') return idx;
+      }
+      return -1;
+    }
+  
+    function render() {
+      // status labels
+      records.forEach((rec, i) => {
+        const el = statusEls[i];
+        el.textContent = statuses[i];
+        el.className = statuses[i] === '번호 오류' ? 'warn' : 'hint';
+      });
+  
+      // Determine current if not set or invalid
+      if (!isValidCurrent(current)) {
+        current = findFirstValid(0);
+      }
+  
+      const openedCount = statuses.filter(s => s === '열었음').length;
+      const remaining = statuses.filter(s => s !== '열었음' && s !== '건너뜀').length;
+      const hasValidCurrent = isValidCurrent(current);
+      const onlyErrorsLeft = remaining > 0 && !hasValidCurrent;
+  
+      if (remaining === 0) {
+        mainBtn.hidden = true;
+        skipBtn.hidden = true;
+        doneWrap.hidden = false;
+        doneText.textContent = `${N}명 중 ${openedCount}명 문자 앱을 열었습니다.`;
+        preview.textContent = '';
+        meta.textContent = '';
+        warn.textContent = '';
+        return;
+      }
+  
+      if (onlyErrorsLeft) {
+        mainBtn.hidden = true;
+        skipBtn.hidden = false;
+        doneWrap.hidden = true;
+        skipBtn.textContent = '건너뛰기';
+        warn.textContent = '남은 고객의 번호가 올바르지 않습니다';
+        preview.textContent = '';
+        meta.textContent = '';
+        return;
+      }
+  
+      // Normal case: valid current
+      const rec = records[current];
+      const phone = phones[current];
+      const norm = normalizePhone(phone.value);
+      const dateVal = visitDate.value;
+      const timeVal = visitTime.value;
+      const values = {
+        '내용': titleOf(rec),
+        '날짜': dateVal ? smsDateText(dateVal) : '',
+        '시간': timeVal ? smsTimeText(timeVal) : ''
+      };
+      const filled = fillTemplate(template.value, values);
+      const text = filled.text;
+      const mtype = messageType(text);
+  
+      preview.textContent = text || '(빈 문구)';
+      meta.textContent = `${mtype} · ${byteLength(text)}바이트`;
+  
+      let reason = '';
+      if (!dateVal) reason = '방문 날짜를 입력하세요.';
+      else if (!timeVal) reason = '방문 시간을 입력하세요.';
+      else if (filled.missing && filled.missing.length) reason = `누락된 변수: ${filled.missing.join(', ')}`;
+      else if (!norm) reason = '받는 번호가 올바르지 않습니다.';
+  
+      warn.textContent = reason;
+  
+      if (reason) {
+        mainBtn.removeAttribute('href');
+        mainBtn.setAttribute('aria-disabled', 'true');
+      } else {
+        mainBtn.setAttribute('href', smsHref(norm, text));
+        mainBtn.removeAttribute('aria-disabled');
+      }
+  
+      mainBtn.hidden = false;
+      skipBtn.hidden = false;
+      doneWrap.hidden = true;
+      skipBtn.textContent = '이 고객 건너뛰기';
+      mainBtn.textContent = `${current + 1}/${N} · ${titleOf(rec)} 문자 열기`;
+    }
+  
+    mainBtn.addEventListener('click', () => {
+      if (mainBtn.getAttribute('aria-disabled') === 'true') return;
+      if (!isValidCurrent(current)) return;
+      const openedId = records[current].id;
+      statuses[current] = '열었음';
+      setTimeout(() => {
+        const next = nextIndex(current);
+        if (next === -1) {
+          current = -1;
+          render();
+        } else {
+          current = next;
+          render();
+        }
+      }, 300);
+    });
+  
+    skipBtn.addEventListener('click', () => {
+      if (isValidCurrent(current)) {
+        statuses[current] = '건너뜀';
+      } else {
+        // 코드디: 번호 오류만 남았을 때는 남은 사람을 모두 건너뛰고 마무리
+        statuses.forEach((st, i) => { if (st === '번호 오류') statuses[i] = '건너뜀'; });
+      }
+      const next = nextIndex(current);
+      if (next === -1) {
+        current = -1;
+        render();
+      } else {
+        current = next;
+        render();
+      }
+    });
+  
+    doneBtn.addEventListener('click', () => {
+      const openedRecordIds = records.filter((r, i) => statuses[i] === '열었음').map(r => r.id);
+      closeTopLayer();
+      showToast(`방문문자 ${openedRecordIds.length}명 보냄`);
+      if (onDone) onDone(openedRecordIds);
+    });
+  
+    visitDate.addEventListener('input', render);
+    visitTime.addEventListener('input', render);
+  
+    render();
+    openSheet({ title: `방문안내 문자 · ${N}명`, body });
+  }
+  // ---- 여러 명 방문문자 끝 ----
 
   function openPhotoSheet(record) {
     const body = make('div', '');
