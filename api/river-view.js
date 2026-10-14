@@ -49,11 +49,12 @@ async function firestore(path, options = {}) {
   if (!response.ok) { const error = new Error(data.error?.message || `Firestore request failed (${response.status})`); error.status = response.status; throw error; } return data;
 }
 async function getDocOrNull(path) { try { return await firestore(path); } catch (error) { if (error.status === 404 || /not found|NOT_FOUND|does not exist/i.test(error.message || '')) return null; throw error; } }
-const allowedFields = ['id', 'receivedAt', 'content', 'memo', 'status', 'processContent', 'processDate', 'cost', 'vendor', 'createdAt', 'updatedAt', 'createdBy', 'assignedVendorId', 'customerId', 'photos', 'isTest'];
+const allowedFields = ['id', 'receivedAt', 'content', 'memo', 'status', 'processContent', 'processDate', 'cost', 'vendor', 'createdAt', 'updatedAt', 'createdBy', 'assignedVendorId', 'customerId', 'photos', 'isTest', 'revenue', 'expense'];
 const cleanJob = job => Object.fromEntries(allowedFields.filter(field => job && job[field] !== undefined).map(field => [field, job[field]]));
 const parsePhotos = job => (typeof job.photos === 'string' ? JSON.parse(job.photos || '[]') : (job.photos || []));
 const withPhotos = job => ({ ...job, photos: parsePhotos(job) });
-const stripCost = job => { const copy = { ...job }; delete copy.cost; return copy; };
+// 금액(매출·매입·옛 비용)은 우리 회사(마스터·회사 관리자)만 본다
+const stripCost = job => { const copy = { ...job }; delete copy.cost; delete copy.revenue; delete copy.expense; return copy; };
 const isTestJob = job => job && String(job.isTest) === 'true';
 class AuthError extends Error { constructor(statusCode, message) { super(message); this.statusCode = statusCode; } }
 async function verifyFirebaseIdToken(token) {
@@ -107,7 +108,7 @@ module.exports = async (req, res) => {
     const canManage = isMaster || isCompany; const testSession = session.isTest === true;
     const requireApproved = () => { if (session.status !== 'approved') { const error = new AuthError(403, '승인된 계정이 아닙니다.'); error.body = { status: session.status }; throw error; } };
     const canSeeJob = job => testSession ? isTestJob(job) : !isTestJob(job);
-    const vendorView = job => isVendor ? stripCost(job) : job;
+    const vendorView = job => canManage ? job : stripCost(job);
 
     if (action === 'me') { const userDoc = testSession ? null : await getDocOrNull(`${usersCollection}/${encodeURIComponent(session.uid)}`); const user = userDoc ? fromDocument(userDoc) : {}; return json(res, 200, { uid: session.uid, email: session.email, role: session.role, status: session.status, vendorName: session.vendorName || user.vendorName || '', isTest: testSession, name: user.name || '', org: user.org || '', phone: user.phone || '' }); }
 
@@ -135,7 +136,7 @@ module.exports = async (req, res) => {
 
     if (isGet && action === 'ai-key') { if (!isMaster || testSession) return json(res, 403, { error: '권한이 없습니다.' }); const doc = await getDocOrNull(configPath); const config = doc ? fromDocument(doc) : null; return json(res, 200, { configured: !!config, disabled: config ? config.disabled === 'true' : false, updatedAt: config ? (config.updatedAt || '') : '' }); }
 
-    if (isGet) { const data = await firestore(collection); let jobs = (data.documents || []).map(fromDocument).filter(canSeeJob).map(withPhotos); if (isVendor) jobs = jobs.filter(job => job.assignedVendorId === session.uid).map(stripCost); return json(res, 200, { jobs }); }
+    if (isGet) { const data = await firestore(collection); let jobs = (data.documents || []).map(fromDocument).filter(canSeeJob).map(withPhotos); if (isVendor) jobs = jobs.filter(job => job.assignedVendorId === session.uid); if (!canManage) jobs = jobs.map(stripCost); return json(res, 200, { jobs }); }
 
     if (action === 'test-create-user') { if (!testSession) return json(res, 403, { error: 'AI 시험 모드에서만 쓸 수 있습니다.' }); const uid = `test-${crypto.randomBytes(6).toString('hex')}`; const now = new Date().toISOString(); const record = { uid, email: `${uid}@river-view.local`, name: String(body.name || '시험 신청자'), org: String(body.org || '시험 소속'), phone: String(body.phone || ''), role: '', status: 'pending', vendorName: '', isTest: 'true', createdAt: now, updatedAt: now, decidedBy: '', decidedAt: '' }; const saved = await firestore(`${usersCollection}?documentId=${encodeURIComponent(uid)}`, { method: 'POST', body: JSON.stringify(toDocument(record)) }); return json(res, 201, { user: fromDocument(saved) }); }
     if (action === 'test-delete-user') { if (!testSession) return json(res, 403, { error: 'AI 시험 모드에서만 쓸 수 있습니다.' }); const uid = String(body.uid || ''); if (!uid.startsWith('test-')) return json(res, 400, { error: '시험 사용자만 지울 수 있습니다.' }); await firestore(`${usersCollection}/${encodeURIComponent(uid)}`, { method: 'DELETE' }); return json(res, 200, { uid }); }
@@ -170,7 +171,7 @@ module.exports = async (req, res) => {
 
     if (action === 'ai-key-toggle') { if (!isMaster || testSession) return json(res, 403, { error: '권한이 없습니다.' }); const disabled = (body.disabled === true || body.disabled === 'true') ? 'true' : 'false'; const doc = await getDocOrNull(configPath); const now = new Date().toISOString(); if (doc) { await firestore(`${configPath}?updateMask.fieldPaths=disabled&updateMask.fieldPaths=updatedAt`, { method: 'PATCH', body: JSON.stringify(toDocument({ disabled, updatedAt: now })) }); } else { await firestore(configPath, { method: 'PATCH', body: JSON.stringify(toDocument({ hash: defaultTestKeyHash, disabled, updatedAt: now })) }); } return json(res, 200, { disabled: disabled === 'true' }); }
 
-    if (action === 'create') { if (isVendor) return json(res, 403, { error: '접수 등록 권한이 없습니다.' }); const id = `job-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`; const now = new Date().toISOString(); const job = { ...cleanJob(body.job), id, status: body.job?.status || '신규', photos: '[]', isTest: testSession ? 'true' : 'false', createdAt: now, updatedAt: now, createdBy: session.email }; const data = await firestore(`${collection}?documentId=${encodeURIComponent(id)}`, { method: 'POST', body: JSON.stringify(toDocument(job)) }); return json(res, 201, { job: { ...fromDocument(data), photos: [] } }); }
+    if (action === 'create') { if (isVendor) return json(res, 403, { error: '접수 등록 권한이 없습니다.' }); const id = `job-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`; const now = new Date().toISOString(); const newJob = cleanJob(body.job); if (!canManage) { delete newJob.cost; delete newJob.revenue; delete newJob.expense; delete newJob.assignedVendorId; } const job = { ...newJob, id, status: body.job?.status || '신규', photos: '[]', isTest: testSession ? 'true' : 'false', createdAt: now, updatedAt: now, createdBy: session.email }; const data = await firestore(`${collection}?documentId=${encodeURIComponent(id)}`, { method: 'POST', body: JSON.stringify(toDocument(job)) }); return json(res, 201, { job: { ...fromDocument(data), photos: [] } }); }
 
     if (action === 'upload-photo') {
       if (isRiverview) return json(res, 403, { error: '권한이 없습니다.' });
