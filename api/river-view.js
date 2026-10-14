@@ -108,7 +108,9 @@ module.exports = async (req, res) => {
     const canManage = isMaster || isCompany; const testSession = session.isTest === true;
     const requireApproved = () => { if (session.status !== 'approved') { const error = new AuthError(403, '승인된 계정이 아닙니다.'); error.body = { status: session.status }; throw error; } };
     const canSeeJob = job => testSession ? isTestJob(job) : !isTestJob(job);
-    const vendorView = job => canManage ? job : stripCost(job);
+    // 상대방 입장의 '금액': 리버뷰 관리자 = 우리 매출, 외주업체 = 우리 매입. 나머지 금액 필드는 빼고 보낸다
+    const forRole = job => { if (canManage) return job; const amount = isRiverview ? job.revenue : isVendor ? job.expense : undefined; const out = stripCost(job); if (amount !== undefined && amount !== null && amount !== '') out.amount = amount; return out; };
+    const vendorView = forRole;
 
     if (action === 'me') { const userDoc = testSession ? null : await getDocOrNull(`${usersCollection}/${encodeURIComponent(session.uid)}`); const user = userDoc ? fromDocument(userDoc) : {}; return json(res, 200, { uid: session.uid, email: session.email, role: session.role, status: session.status, vendorName: session.vendorName || user.vendorName || '', isTest: testSession, name: user.name || '', org: user.org || '', phone: user.phone || '' }); }
 
@@ -136,7 +138,7 @@ module.exports = async (req, res) => {
 
     if (isGet && action === 'ai-key') { if (!isMaster || testSession) return json(res, 403, { error: '권한이 없습니다.' }); const doc = await getDocOrNull(configPath); const config = doc ? fromDocument(doc) : null; return json(res, 200, { configured: !!config, disabled: config ? config.disabled === 'true' : false, updatedAt: config ? (config.updatedAt || '') : '' }); }
 
-    if (isGet) { const data = await firestore(collection); let jobs = (data.documents || []).map(fromDocument).filter(canSeeJob).map(withPhotos); if (isVendor) jobs = jobs.filter(job => job.assignedVendorId === session.uid); if (!canManage) jobs = jobs.map(stripCost); return json(res, 200, { jobs }); }
+    if (isGet) { const data = await firestore(collection); let jobs = (data.documents || []).map(fromDocument).filter(canSeeJob).map(withPhotos); if (isVendor) jobs = jobs.filter(job => job.assignedVendorId === session.uid); if (!canManage) jobs = jobs.map(forRole); return json(res, 200, { jobs }); }
 
     if (action === 'test-create-user') { if (!testSession) return json(res, 403, { error: 'AI 시험 모드에서만 쓸 수 있습니다.' }); const uid = `test-${crypto.randomBytes(6).toString('hex')}`; const now = new Date().toISOString(); const record = { uid, email: `${uid}@river-view.local`, name: String(body.name || '시험 신청자'), org: String(body.org || '시험 소속'), phone: String(body.phone || ''), role: '', status: 'pending', vendorName: '', isTest: 'true', createdAt: now, updatedAt: now, decidedBy: '', decidedAt: '' }; const saved = await firestore(`${usersCollection}?documentId=${encodeURIComponent(uid)}`, { method: 'POST', body: JSON.stringify(toDocument(record)) }); return json(res, 201, { user: fromDocument(saved) }); }
     if (action === 'test-delete-user') { if (!testSession) return json(res, 403, { error: 'AI 시험 모드에서만 쓸 수 있습니다.' }); const uid = String(body.uid || ''); if (!uid.startsWith('test-')) return json(res, 400, { error: '시험 사용자만 지울 수 있습니다.' }); await firestore(`${usersCollection}/${encodeURIComponent(uid)}`, { method: 'DELETE' }); return json(res, 200, { uid }); }
