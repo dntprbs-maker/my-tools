@@ -1,0 +1,8 @@
+data/
+test-data/
+node_modules/
+dist/
+*.log
+preview.pid
+docs/research/*.html
+docs/*-raw.txt
