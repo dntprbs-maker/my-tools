@@ -1,0 +1,14 @@
+data/
+backups/
+output/
+__pycache__/
+*.pyc
+# Device captures, runtime logs, fixture records and usage receipts stay local.
+# Reviewed verification documents are in docs/; evidence is distributed separately.
+evidence/*
+!evidence/FieldNote-QA-before-20261019.png
+.env
+.env.*
+*.sqlite3
+*.sqlite3-*
+*.log
