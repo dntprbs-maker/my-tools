@@ -10,6 +10,13 @@ nav.addEventListener('click', e => { if(e.target.closest('a') && toggle.getAttri
 const dialog = document.querySelector('#estimate');
 document.querySelectorAll('[data-estimate]').forEach(button => button.addEventListener('click', () => dialog.showModal()));
 dialog.querySelector('[data-close]').addEventListener('click', () => dialog.close());
+dialog.addEventListener('keydown', e => {
+  if(e.key !== 'Tab') return;
+  const controls = [...dialog.querySelectorAll('button:not([disabled]),a[href]')];
+  const first=controls[0], last=controls.at(-1);
+  if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+});
 dialog.addEventListener('click', e => { if(e.target === dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();} });
 document.addEventListener('keydown', e => {if(e.key==='Escape' && toggle.getAttribute('aria-expanded')==='true'){toggle.click();toggle.focus();}});
 const scope = {
