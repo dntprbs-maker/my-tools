@@ -156,6 +156,39 @@ def fetch_claude():
 
 # ---------------- Codex ----------------
 
+CODEX_WINDOW_SCHEMA = 2
+
+
+def codex_windows(rate_limit):
+    """Classify by API duration: a primary window can be weekly."""
+    result = {key: {"used_percent": None, "reset_at": None,
+                    "window_seconds": None, "status": "not_provided"}
+              for key in ("five_hour", "weekly")}
+    durations = {18000: "five_hour", 604800: "weekly"}
+    unknown_duration = False
+    for source in (rate_limit.get("primary_window"), rate_limit.get("secondary_window")):
+        if not isinstance(source, dict) or not source:
+            continue
+        seconds = source.get("limit_window_seconds")
+        key = durations.get(seconds) if isinstance(seconds, (int, float)) else None
+        if key is None:
+            unknown_duration = True
+            continue
+        value = {"used_percent": source.get("used_percent"),
+                 "reset_at": _iso(source.get("reset_at")),
+                 "window_seconds": seconds, "status": "available"}
+        if result[key]["status"] == "available" and result[key] != value:
+            result[key] = {"used_percent": None, "reset_at": None,
+                           "window_seconds": seconds, "status": "conflict"}
+        elif result[key]["status"] != "conflict":
+            result[key] = value
+    if unknown_duration:
+        for value in result.values():
+            if value["status"] == "not_provided":
+                value["status"] = "unknown_duration"
+    return result
+
+
 def fetch_codex():
     tokens = _read_json(CODEX_AUTH).get("tokens") or {}
     if not tokens.get("access_token"):  # 파일 없음 / API 키 방식 / 키체인 저장 방식
@@ -166,11 +199,7 @@ def fetch_codex():
     raw = _http_json(CODEX_USAGE_URL, headers)
     rl = raw.get("rate_limit") or {}
 
-    def win(w):
-        w = w or {}
-        return {"used_percent": w.get("used_percent"), "reset_at": _iso(w.get("reset_at"))}
-
-    return {"five_hour": win(rl.get("primary_window")), "weekly": win(rl.get("secondary_window")),
+    return {**codex_windows(rl),
             "plan": raw.get("plan_type"), "auth_refreshed": False}
 
 
@@ -181,7 +210,12 @@ FETCHERS = {"claude": fetch_claude, "codex": fetch_codex}
 
 def load_usage():
     try:
-        return json.loads(USAGE_FILE.read_text(encoding="utf-8-sig"))
+        data = json.loads(USAGE_FILE.read_text(encoding="utf-8-sig"))
+        entry = data.get("codex")
+        if isinstance(entry, dict) and entry.get("window_schema") != CODEX_WINDOW_SCHEMA:
+            # Legacy cache has no durations; preserve backoff but hide ambiguous values.
+            entry.update(codex_windows({}))
+        return data
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
@@ -216,6 +250,8 @@ def refresh_all(providers=None):
                 data[name] = {"five_hour": got["five_hour"], "weekly": got["weekly"], "plan": got["plan"],
                               "last_success_at": now_iso(),
                               "status": {**status, "state": "ok", "auth_refreshed": got["auth_refreshed"]}}
+                if name == "codex":
+                    data[name]["window_schema"] = CODEX_WINDOW_SCHEMA
             except FetchError as e:
                 status.update(state=e.kind, message=e.message)
                 if e.kind == "rate_limited":
