@@ -59,7 +59,8 @@ public class UsageWorker extends Worker {
             JSONObject out = new JSONObject();
             // 한쪽이 실패해도 다른 쪽은 갱신하고, 실패한 쪽은 직전 값을 유지한다.
             out.put("claude", safe(() -> claude(prefs), old.opt("claude")));
-            out.put("codex", safe(() -> codex(prefs), old.opt("codex")));
+            JSONObject cachedCodex = old.optJSONObject("codex");
+            out.put("codex", safe(() -> codex(prefs), cachedCodex != null && cachedCodex.optInt("windowSchema") == 2 ? cachedCodex : null));
             out.put("banner", banner(out.optJSONObject("claude"), out.optJSONObject("codex")));
             SimpleDateFormat f = new SimpleDateFormat("M. d. HH:mm", Locale.KOREA);
             f.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
@@ -125,14 +126,29 @@ public class UsageWorker extends Worker {
         HttpURLConnection r = codexGet(c);
         if (r.getResponseCode() == 401 || r.getResponseCode() == 403) { c = codexRefresh(prefs, c); r = codexGet(c); }
         JSONObject rl = new JSONObject(body(r)).optJSONObject("rate_limit");
-        JSONObject p = rl == null ? null : rl.optJSONObject("primary_window");
-        JSONObject s = rl == null ? null : rl.optJSONObject("secondary_window");
+        JSONObject p = codexWindow(rl, 18000);
+        JSONObject s = codexWindow(rl, 604800);
         JSONObject o = new JSONObject();
         o.put("five", p == null ? JSONObject.NULL : p.opt("used_percent"));
         o.put("week", s == null ? JSONObject.NULL : s.opt("used_percent"));
         o.put("fiveReset", p == null ? 0 : p.optLong("reset_at") * 1000);
         o.put("weekReset", s == null ? 0 : s.optLong("reset_at") * 1000);
+        o.put("windowSchema", 2);
         return o;
+    }
+
+    // Window position varies by plan. Duplicate durations are ambiguous.
+    static JSONObject codexWindow(JSONObject rl, long seconds) {
+        if (rl == null) return null;
+        JSONObject found = null;
+        for (String key : new String[]{"primary_window", "secondary_window"}) {
+            JSONObject w = rl.optJSONObject(key);
+            if (w != null && w.optLong("limit_window_seconds", -1) == seconds) {
+                if (found != null) return null;
+                found = w;
+            }
+        }
+        return found;
     }
 
     private static HttpURLConnection codexGet(JSONObject c) throws Exception {
