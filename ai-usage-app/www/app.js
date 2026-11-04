@@ -69,9 +69,8 @@
     }
     if (r.status === 429) return { status: 'limited' };
     if (!r.ok) throw new Error('조회 실패 (HTTP ' + r.status + ')');
-    const d = await r.json(); const rl = d.rate_limit || {};
-    const w = (x) => ({ used: x ? x.used_percent : null, reset: x && x.reset_at ? new Date(x.reset_at * 1000) : null });
-    return { status: 'ok', five: w(rl.primary_window), week: w(rl.secondary_window) };
+    const d = await r.json();
+    return { status: 'ok', ...codexWindows(d.rate_limit) };
   }
 
   // ---------- Claude: 공식 로그인(코드 붙여넣기 방식) ----------
