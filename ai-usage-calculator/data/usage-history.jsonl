@@ -1806,3 +1806,4 @@
 {"timestamp":"2026-11-06T11:30:57Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 사용량 보고 표시 형식 영구 고정","note":"주간39→39표시상0%p,공유계정·정수표시로실제사용량0을뜻하지않음."}
 {"timestamp":"2026-11-06T11:33:05Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 덱시 사용량 보고 주간 한도만 표시"}
 {"timestamp":"2026-11-06T11:35:28Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 덱시 사용량 보고 주간 한도만 표시","note":"주간39→39표시상0%p. 공유계정·정수표시로실제사용량0아님. 사용자지시로덱시대화보고는주간만,내부한도이력스키마보존."}
+{"timestamp":"2026-11-06T11:56:07Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] AdMob 공식 광고수익 조회·검증 경로 확인"}
