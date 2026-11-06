@@ -1801,3 +1801,4 @@
 {"timestamp":"2026-11-06T11:10:34Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 50자 번역 과금단위·광고 1회 실수익 근거 확인"}
 {"timestamp":"2026-11-06T11:14:59Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 50자 번역 과금단위·광고 1회 실수익 근거 확인","note":"主간39→39표시상0%p,공유계정·정수표시로실제사용량0을뜻하지않음."}
 {"timestamp":"2026-11-06T11:20:34Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 정확히50자 양방향 실제 번역 토큰 실측"}
+{"timestamp":"2026-11-06T11:23:52Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 정확히50자 양방향 실제 번역 토큰 실측","note":"주간39→39표시상0%p. 공유계정·정수표시로실제사용량0을뜻하지않음. 별도OpenRouter합성시험2회 USD0.0001663."}
