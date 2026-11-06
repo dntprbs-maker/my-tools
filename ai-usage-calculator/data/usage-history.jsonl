@@ -1804,3 +1804,4 @@
 {"timestamp":"2026-11-06T11:23:52Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 정확히50자 양방향 실제 번역 토큰 실측","note":"주간39→39표시상0%p. 공유계정·정수표시로실제사용량0을뜻하지않음. 별도OpenRouter합성시험2회 USD0.0001663."}
 {"timestamp":"2026-11-06T11:26:45Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 사용량 보고 표시 형식 영구 고정"}
 {"timestamp":"2026-11-06T11:30:57Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 사용량 보고 표시 형식 영구 고정","note":"주간39→39표시상0%p,공유계정·정수표시로실제사용량0을뜻하지않음."}
+{"timestamp":"2026-11-06T11:33:05Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[master-project] 덱시 사용량 보고 주간 한도만 표시"}
