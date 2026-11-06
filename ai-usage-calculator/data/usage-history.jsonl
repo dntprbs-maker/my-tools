@@ -1809,3 +1809,4 @@
 {"timestamp":"2026-11-06T11:56:07Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] AdMob 공식 광고수익 조회·검증 경로 확인"}
 {"timestamp":"2026-11-06T11:58:07Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] AdMob 공식 광고수익 조회·검증 경로 확인","note":"주간39→39표시상0%p. 공유계정·정수표시로실제사용량0아님."}
 {"timestamp":"2026-11-06T12:08:27Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 기존 Google 계정 AdMob·AdSense 확인 및 공식 보고서 조회"}
+{"timestamp":"2026-11-06T12:17:06Z","phase":"end","weekly":{"used_percent":40,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 기존 Google 계정 AdMob·AdSense 확인 및 공식 보고서 조회"}
