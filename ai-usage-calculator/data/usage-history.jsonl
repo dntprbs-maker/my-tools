@@ -1799,3 +1799,4 @@
 {"timestamp":"2026-11-06T11:04:51Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 코드디 보상광고 PPT 보고서 읽기 검토"}
 {"timestamp":"2026-11-06T11:07:08Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 코드디 보상광고 PPT 보고서 읽기 검토","note":"주간39→39 표시상0%p. 공유한도·정수반올림으로실제사용량0을뜻하지않음."}
 {"timestamp":"2026-11-06T11:10:34Z","phase":"start","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 50자 번역 과금단위·광고 1회 실수익 근거 확인"}
+{"timestamp":"2026-11-06T11:14:59Z","phase":"end","weekly":{"used_percent":39,"reset_at":"2026-11-10T08:49:16Z","window_seconds":604800,"status":"available"},"task":"[tongyeok-talk] 50자 번역 과금단위·광고 1회 실수익 근거 확인","note":"主간39→39표시상0%p,공유계정·정수표시로실제사용량0을뜻하지않음."}
