@@ -1,4 +1,12 @@
 {
   "ignoreCommand": "bash .github/vercel-ignore.sh",
-  "buildCommand": "node -e \"const fs = require('node:fs'); for (const path of ['aircon-estimate-calculator', 'aircon-estimate-calculator-flex']) fs.rmSync(path, { recursive: true, force: true });\""
+  "routes": [
+    {
+      "src": "^/aircon-estimate-calculator(?:-flex)?(?:/.*)?$",
+      "status": 404
+    },
+    {
+      "handle": "filesystem"
+    }
+  ]
 }
