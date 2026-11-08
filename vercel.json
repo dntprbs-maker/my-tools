@@ -3,7 +3,8 @@
   "routes": [
     {
       "src": "^/aircon-estimate-calculator(?:-flex)?(?:/.*)?$",
-      "status": 404
+      "status": 404,
+      "dest": "/__retired_calculator_not_found__"
     },
     {
       "handle": "filesystem"
