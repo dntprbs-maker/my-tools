@@ -1,15 +1,4 @@
 {
   "ignoreCommand": "bash .github/vercel-ignore.sh",
-  "redirects": [
-    {
-      "source": "/aircon-estimate-calculator/:path*",
-      "destination": "https://aircon-estimate-calculator.vercel.app/",
-      "permanent": false
-    },
-    {
-      "source": "/aircon-estimate-calculator-flex/:path*",
-      "destination": "https://aircon-estimate-calculator.vercel.app/",
-      "permanent": false
-    }
-  ]
+  "buildCommand": "node -e \"const fs = require('node:fs'); for (const path of ['aircon-estimate-calculator', 'aircon-estimate-calculator-flex']) fs.rmSync(path, { recursive: true, force: true });\""
 }
